@@ -1,1 +1,1 @@
-# LinkedIn-inMail-Manager
+# inMail-Manager
