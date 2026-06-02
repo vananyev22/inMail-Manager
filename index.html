@@ -400,7 +400,7 @@ a:hover{text-decoration:underline}
       </div>
       <div class="form-row"><label>Date &amp; time</label><input type="datetime-local" id="lt-dt"></div>
     </div>
-    <div class="form-row">
+    <div class="form-row" id="msg-sent-row">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
         <label style="margin-bottom:0">Message sent</label>
         <button class="btn btn-ai" style="padding:3px 10px;font-size:11px" onclick="generateLogMsg()" id="log-gen-btn"><i class="ti ti-sparkles"></i> Generate message</button>
@@ -444,7 +444,21 @@ a:hover{text-decoration:underline}
 </div>
 
 <script>
-const TLABELS=['Profile view','Connection request','Problem discovery','Pain expansion','Credibility','Proof + CTA','Re-engagement','Breakup','NC follow-up Day 14','NC follow-up Day 28','NC follow-up Day 45','NC follow-up Day 75'];
+const TLABELS={
+  0:'Profile view',
+  1:'Connection request',
+  2:'Problem discovery',
+  3:'Pain expansion',
+  4:'Credibility',
+  5:'Proof',
+  6:'CTA',
+  7:'Breakup',
+  8:'NC · Problem awareness',
+  9:'NC · Visual proof',
+  10:'NC · Industry insight',
+  11:'NC · Alternative angle',
+  12:'NC · Breakup / referral'
+};
 
 // Connected pipeline: T1-T7 with business-day gaps
 const CONN_CADENCE = {
@@ -473,7 +487,7 @@ const NC_CADENCE = [
 
 const TEMPLATES={
   commercial:{
-    1:"Hi {{first_name}}, came across your work at {{company}}. Relevant space. Thought I'd connect.",
+    1:"Hi {{first_name}}, your work leading {{title_keyword}} at {{company}} caught my attention. Thought I'd connect.",
     2:"Curious, do buyers ever struggle to fully grasp complex solutions, even when reps explain them well?",
     3:"One pattern we keep seeing — buyers seem to understand during conversations, but objections show up later because clarity never fully landed. That usually means longer cycles, slippage, and price-based evaluations. Familiar?",
     4:"We usually find the issue isn't that reps explain poorly — complex solutions are just hard for buyers to internalize until they can see them. HPE ran into this exact problem.\n\nHappy to share what they did: https://youtu.be/ylhJsnPgj1I",
@@ -907,13 +921,18 @@ function renderFit(){
   if(!l.fitScore){el.innerHTML='<div style="font-size:12px;color:var(--text3)">No analysis yet. Paste profile text and click Analyze fit.</div>';return;}
   const displayScore=normalizeFitScore(l.fitScore);
   const scoreN=parseFloat(displayScore);
-  const scoreLabel=scoreN>=8?'Strong fit':scoreN>=6?'Good fit':scoreN>=4?'Moderate fit':'Poor fit';
+  const scoreLabel=scoreN>=9?'Strong fit':scoreN>=7?'Good fit':scoreN>=5?'Moderate fit':scoreN>=3?'Weak fit':'Poor fit';
+  const problemLabels={1:'Hard to explain',2:'Inconsistent messaging',3:'Weak differentiation',4:'Scaling complexity',5:'Demo scaling',6:'Mid-deal drop-off',7:'Event/demo costs',8:'GTM storytelling',9:'Asset-to-sales gap'};
+  const problemPills=l.fitProblems&&l.fitProblems.length?l.fitProblems.map(p=>`<span style="font-size:10px;padding:2px 7px;border-radius:20px;background:var(--blue-bg);color:var(--blue);font-weight:600;border:1px solid var(--blue-light)">P${p}: ${problemLabels[p]||'Problem '+p}</span>`).join(' '):'';
   el.innerHTML=`<div style="display:flex;align-items:flex-start;gap:10px">
     <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;gap:3px">
       <span class="badge ${fitBadgeCls(displayScore)}" style="font-size:15px;font-weight:700;padding:4px 14px">${displayScore}<span style="font-size:10px;font-weight:400;opacity:.7">/10</span></span>
       <span style="font-size:10px;color:var(--text3);font-weight:500">${scoreLabel}</span>
     </div>
-    <div class="fit-box" style="flex:1">${l.fitReason||''}</div>
+    <div style="flex:1">
+      <div class="fit-box">${l.fitReason||''}</div>
+      ${problemPills?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">${problemPills}</div>`:''}
+    </div>
   </div>`;
 }
 
@@ -958,7 +977,7 @@ function editTouch(lid,tnum){
   selId=lid;
   const t=leads.find(x=>x.id===lid)?.touches[tnum];
   document.getElementById('log-modal').classList.add('open');
-  document.getElementById('lt-num').value=tnum;
+  setLogTouchNum(tnum);
   document.getElementById('lt-dt').value=t?.date||nowPacific();
   document.getElementById('lt-msg').value=t?.msg||'';
   document.getElementById('lt-notes').value=t?.notes||'';
@@ -966,12 +985,16 @@ function editTouch(lid,tnum){
 
 function setLogTouchNum(val){
   const sel=document.getElementById('lt-num');
-  // Find the option with matching value across optgroups
   const opt=[...sel.querySelectorAll('option')].find(o=>+o.value===+val);
   if(opt) sel.value=opt.value;
-  // Hide generate button for touch 0 (profile view — no message needed)
+  const isT0 = +val === 0;
+  const msgRow = document.getElementById('msg-sent-row');
+  if(msgRow) msgRow.style.display = isT0 ? 'none' : '';
   const btn=document.getElementById('log-gen-btn');
-  if(btn) btn.style.display=(+val===0)?'none':'';
+  if(btn) btn.style.display = isT0 ? 'none' : '';
+  // Reset generated result when switching
+  const res=document.getElementById('log-gen-result');
+  if(res) res.style.display='none';
 }
 
 function openLogModal(){
@@ -1071,20 +1094,93 @@ async function runFit(){
   const el=document.getElementById('fit-result');
   btn.disabled=true;
   el.innerHTML=`<div class="ai-loading"><div class="spinner"></div>Analyzing fit for Smart Spatial…</div>`;
-  const prompt=`You are a sales intelligence assistant for Smart Spatial, a company that helps enterprise teams make complex technical products and environments easier to understand through interactive 3D spatial experiences. Key buyers: Product Marketing, Sales Enablement, Marketing, Innovation, Digital, senior commercial roles at companies with complex B2B offerings.
+  const prompt=`You are a sales intelligence assistant for Smart Spatial. Score this prospect's fit on a 1–10 numeric scale using the buyer problem taxonomy below.
 
-Analyze this LinkedIn profile and score fit:
+WHAT SMART SPATIAL DOES:
+Smart Spatial turns complex technical products and environments into interactive 3D spatial experiences — replacing explanation with experience across the entire GTM motion (sales, marketing, enablement, events).
+
+CANONICAL INSIGHT: In complex industrial and high-tech sales, value is lost not because products aren't good — but because buyers cannot experience the difference early and consistently. Revenue teams are forced to explain complex products using tools that were never designed to create understanding. "If differentiation has to be explained, it's already lost."
+
+BUYER PROBLEM TAXONOMY (9 canonical problems — map the prospect to these):
+1. SOLUTIONS HARD TO EXPLAIN
+   Root cause: Slides/videos are passive; demos are rep-dependent; selling relies on explanation, not experience
+   Primary personas: Sales, Solution Architects, Marketing
+   Cost of inaction: Longer sales cycles; deal slippage; late objections; lost deals
+
+2. INCONSISTENT REVENUE MESSAGING
+   Root cause: Assets are fragmented; enablement relies on training, not systems; no narrative enforcement mechanism
+   Primary personas: Sales, Marketing, Product Marketing
+   Cost of inaction: Brand dilution; buyer distrust; higher enablement costs
+
+3. WEAK DIFFERENTIATION IN COMPETITIVE DEALS
+   Root cause: PPTs flatten differentiation; messaging lacks experiential proof; value props stay abstract
+   Primary personas: Sales, Product Marketing
+   Cost of inaction: Margin compression; price-based decisions; longer evaluation cycles
+
+4. SELLING COMPLEXITY REQUIRES TOO MUCH HUMAN EFFORT
+   Root cause: Tools amplify content, not understanding; complexity handled manually
+   Primary personas: Sales, Solution Consultants, Solution Architects
+   Cost of inaction: Linear scaling of effort; lower productivity; rep burnout
+
+5. DEMOS DON'T SCALE WITH GROWTH
+   Root cause: Demo tools are linear and brittle; knowledge lives in people, not reusable systems
+   Primary personas: Sales, Solution Consultants
+   Cost of inaction: Slow rep ramp; bottlenecks; higher pre-sales costs
+
+6. BUYER ENGAGEMENT DROPS BETWEEN MEETINGS
+   Root cause: Assets are not self-guided; engagement ends with meetings
+   Primary personas: Sales
+   Cost of inaction: Stalled deals; increased meetings; weaker champions
+
+7. TRADE SHOWS / DEMO CENTERS / SITE TOURS ARE COSTLY
+   Root cause: Physical products required for demos; experiences tied to location; no scalable alternative to "seeing it live"
+   Primary personas: Marketing, Sales, Product Marketing
+   Cost of inaction: High cost of acquisition; limited reach per event; operational disruption
+
+8. NO SHARED GTM STORYTELLING SYSTEM
+   Root cause: No single experience layer; storytelling is asset-based, not system-based
+   Primary personas: Product Marketing, Product Management, Sales Enablement
+   Cost of inaction: Internal friction; slower launches; inconsistent buyer messaging
+
+9. MARKETING ASSETS DON'T TRANSLATE TO SALES IMPACT
+   Root cause: Content optimized for channels, not conversations; no shared GTM platform
+   Primary personas: Marketing
+   Cost of inaction: Wasted spend; misalignment; redundant asset creation
+
+PERSONA → PROBLEM MAPPING (use this to anchor fit):
+- Sales / Commercial leaders → Problems 1, 3, 4, 5, 6 (explanation burden, differentiation, demo scaling, deal momentum)
+- Product Marketing / PMM → Problems 2, 3, 8, 9 (message consistency, differentiation proof, GTM storytelling, asset impact)
+- Marketing → Problems 2, 7, 9 (brand consistency, events/demos, content-to-sales gap)
+- Sales Enablement → Problems 1, 2, 4, 5, 8 (rep productivity, message enforcement, scaling demos)
+- Solution Architects / SEs → Problems 1, 4, 5 (explanation load, complexity, demo scalability)
+- Events / Experience → Problem 7 (physical demo costs, scalable alternatives)
+
+SCORING RUBRIC (1–10 numeric):
+9–10: Decision-maker in Sales Enablement, Product Marketing, or Marketing at a company with genuinely complex B2B products (industrial, infrastructure, data center, enterprise hardware, manufacturing, energy). Multiple problems clearly live here.
+7–8: Senior leader (VP+) in Sales, GTM, Innovation, or Digital at a complex-product company. Strong problem fit even if not the primary buyer persona.
+5–6: Mid-level in a relevant persona, or senior in a less-ideal vertical. Some problems likely apply but fit is indirect.
+3–4: Individual contributor, or senior at a company with simpler products. Unlikely to feel the problems acutely.
+1–2: Clearly mismatched — consumer products, no GTM complexity, or operational role with no connection to sales/marketing storytelling.
+
+SMART SPATIAL IS UNIQUELY CREDIBLE BECAUSE:
+- High-fidelity + immersive spatial context (not screen-based demos)
+- Designed for selling and GTM, not engineering visualization
+- Reduces cognitive load for both buyer and seller
+
+Analyze this prospect and identify which of the 9 problems most likely apply to their world, then score fit:
 Name: ${l.first} ${l.last}
 Title: ${l.title}
 Company: ${l.company}
-Profile: ${profile||'(not provided)'}
+Profile: ${profile||'(not provided — infer from title and company)'}
 
 Respond ONLY with valid JSON, no markdown:
-{"score":"A+|A|B|C","reason":"2-3 sentence explanation specific to their role and company"}`;
+{"score":"1-10 integer","problems":[list of 1-3 problem numbers most relevant],"reason":"2-3 sentences: which problems apply, why this role/company is or isn't a fit, and what the discovery angle should be"}`;
   try{
     const raw=await claudeAPI(prompt,500);
     const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
-    l.fitScore=parsed.score||'B';l.fitReason=parsed.reason||'';
+    l.fitScore=String(parsed.score||'5');
+    l.fitProblems=parsed.problems||[];
+    l.fitReason=parsed.reason||'';
     save();renderFit();renderLeads();
   }catch(e){el.innerHTML=`<div style='font-size:12px;color:var(--coral)'>${e.message==='NO_KEY'?'<i class="ti ti-key"></i> No API key — click API key in the toolbar':'Error: '+e.message}</div>`;}
   btn.disabled=false;
@@ -1111,9 +1207,6 @@ async function runDraft(){
     .map(s=>`T${s.touch} (${fmtDt(s.date)}): ${s.msg||'(no message recorded)'}`)
     .join('\n');
 
-  // Base template
-  const baseTemplate=TEMPLATES[l.persona||'commercial']?.[touchNum]||'';
-
   // Due date context
   let dueContext='';
   if(thisStatus?.status==='due'){
@@ -1122,27 +1215,36 @@ async function runDraft(){
 
   const prompt=`You are writing a highly personalized LinkedIn outreach message on behalf of Vadik (Director of Product Growth at Smart Spatial).
 
-Smart Spatial helps enterprise teams make complex technical products and environments easier to understand through interactive 3D spatial experiences. Key proof points: HPE, Schneider Electric, Micron, ZutaCore. Core value: reduce explanation burden, scale product storytelling, make complex offerings experiential.
+WHAT SMART SPATIAL DOES:
+Smart Spatial turns complex technical products and environments into interactive 3D spatial experiences — replacing explanation with experience across the entire GTM motion (sales, marketing, enablement, events).
 
-PROSPECT (use every detail to make the message hyper-specific):
-Name: ${l.first} ${l.last}
-Title: ${l.title}
-Company: ${l.company}
-Persona type: ${l.persona}
-LinkedIn profile: ${profile||'(not provided — use title and company context only)'}
+CANONICAL INSIGHT: In complex industrial and high-tech sales, value is lost not because products aren't good — but because buyers cannot experience the difference early and consistently. "If differentiation has to be explained, it's already lost."
 
-TOUCH: T${touchNum} — ${touchLabel}
-Pipeline: ${pip==='connected'?'Connected (accepted connection)':'Not connected (InMail)'}
-${dueContext}
+BUYER PROBLEM TAXONOMY (9 canonical problems — anchor discovery and messages to these):
+1. SOLUTIONS HARD TO EXPLAIN [Sales, SAs, Marketing] — Slides/videos passive; demos rep-dependent; buyers can't visualize in context → longer cycles, deal slippage, late objections, lost deals
+2. INCONSISTENT REVENUE MESSAGING [Sales, Marketing, PMM] — Every rep explains differently; partners misrepresent; PMM loses control post-launch → brand dilution, buyer distrust, higher enablement costs
+3. WEAK DIFFERENTIATION IN COMPETITIVE DEALS [Sales, PMM] — PPTs flatten differentiation; value props stay abstract; buyers default to price → margin compression, price-based decisions
+4. SELLING COMPLEXITY REQUIRES TOO MUCH HUMAN EFFORT [Sales, SCs, SAs] — Reps repeat same explanations; high cognitive load → linear effort scaling, burnout, lower productivity
+5. DEMOS DON'T SCALE WITH GROWTH [Sales, SCs] — Expert sellers required; demos break live; new reps struggle → slow ramp, bottlenecks, high pre-sales costs
+6. BUYER ENGAGEMENT DROPS BETWEEN MEETINGS [Sales] — Assets not self-guided; engagement ends with meetings; champions can't sell internally → stalled deals, increased meetings
+7. TRADE SHOWS / DEMO CENTERS / SITE TOURS COSTLY [Marketing, Sales, PMM] — Hardware shipping expensive; experiences tied to location → high acquisition cost, limited reach, operational disruption
+8. NO SHARED GTM STORYTELLING SYSTEM [PMM, Product Mgmt, Enablement] — Each function creates own assets; product/marketing/sales drift apart; narrative decays → internal friction, slower launches
+9. MARKETING ASSETS DON'T DRIVE SALES IMPACT [Marketing] — Content unused by sales; shadow decks created; weak attribution → wasted spend, misalignment, redundant asset creation
 
-BASE TEMPLATE FOR THIS TOUCH:
-${baseTemplate||'(no base template — write from scratch following the cadence goal)'}
+PERSONA → PROBLEM ANCHOR (use to pick the right discovery angle for this prospect):
+- Sales / Commercial → lead with P1, P3, P4, P5, P6
+- Product Marketing / PMM → lead with P2, P3, P8, P9
+- Marketing → lead with P2, P7, P9
+- Sales Enablement → lead with P1, P2, P4, P5, P8
+- Solution Architects / SEs → lead with P1, P4, P5
+- Events / Experience → lead with P7
 
-PREVIOUS MESSAGES SENT:
-${prevHistory||'None yet — this is the first outreach'}
+FIT CONTEXT FOR THIS PROSPECT (use this to sharpen message relevance):
+Fit score: ${l.fitScore||'unknown'}/10
+Active problems: ${l.fitProblems&&l.fitProblems.length?'P'+l.fitProblems.join(', P'):'not analyzed yet — infer from persona'}
+Fit reasoning: ${l.fitReason||'not analyzed — infer from title and company'}
 
-
-Available proof examples (use the most relevant one or two based on the prospect's industry):
+KEY PROOF EXAMPLES (pick most relevant to prospect's industry):
 - Micron (semiconductor/memory): https://youtu.be/SerOifwyF1Y
 - Schneider Electric POD (data center infrastructure): https://youtu.be/rLw8tOnfbMM
 - DDC (data center): https://youtu.be/J_65fPoSApM
@@ -1151,18 +1253,56 @@ Available proof examples (use the most relevant one or two based on the prospect
 - PNY (GPU/hardware): https://youtu.be/gzyUxTcJGbM
 - Schneider Electric AI (AI infrastructure): https://youtu.be/GVS0AHAgFyU
 
+PROSPECT (use every detail to make the message hyper-specific):
+Name: ${l.first} ${l.last}
+Title: ${l.title}
+Company: ${l.company}
+Persona type: ${l.persona}
+LinkedIn profile: ${profile||'(not provided — use title and company context only)'}
+
+TOUCH BEING REQUESTED: T${touchNum} — ${touchLabel}
+Pipeline type: ${pip==='connected'?'Connected (accepted connection)':'Not connected (InMail)'}
+Touch category: ${touchNum<=7?'Connected pipeline (T0–T7)':'Not Connected InMail (T8=Problem awareness, T9=Visual proof, T10=Industry insight, T11=Alternative angle, T12=Breakup/referral)'}
+${dueContext}
+
+PREVIOUS MESSAGES SENT:
+${prevHistory||'None yet — this is the first outreach'}
+
+
 WRITING RULES (critical — follow exactly):
-- Sound like a real human wrote this, not a sales bot
-- Be concise: connection requests max 30 words, all other touches max 60 words — shorter is better
-- No buzzwords: never use "leverage", "synergy", "innovative", "cutting-edge", "game-changing"
-- No corporate openers: never start with "I hope this finds you well", "I wanted to reach out", "I came across your profile"
-- Be direct and curious — ask one genuine question or make one specific observation
-- Use a comma after the first name greeting, not a dash: "Hi [Name], your..." not "Hi [Name] — your..."
-- Reference something specific from their profile or company when possible
-- Do NOT mention Smart Spatial by name in Touch 0, 1, 2, 3
-- Never repeat anything already said in previous touches
-- When including a proof link, use the most relevant example from the list above — pick based on their industry
-- Return ONLY the message text, no subject line, no preamble`;
+- Write like a real person texting a professional contact — warm, direct, no fluff
+- Every sentence must earn its place. If it doesn't add meaning, cut it.
+- Use a comma after the first name: "Hi Brian," not "Hi Brian —"
+- No buzzwords: never use "leverage", "synergy", "innovative", "cutting-edge", "game-changing", "transformative", "seamlessly", "thrilled", "excited", "delighted", "pleasure"
+- No corporate filler: never start with "I hope this finds you well", "I wanted to reach out", "I came across your profile", "I'd love to", "Just wanted to", "Touching base"
+- No flattery or hollow openers about the prospect being impressive
+- First name only at the start — never full name
+- Short sentences. Natural rhythm. One idea per message.
+- Never invent facts not in the profile. Use title + company if no bio provided.
+- Never repeat what was said in previous touches
+- Return ONLY the message text — no subject line, no sign-off, no preamble
+- NEVER refuse, flag issues, ask questions, or add meta-commentary. Always write the message. No exceptions.
+
+TOUCH-SPECIFIC BEHAVIOR — follow instructions for the exact touch number being requested:
+
+CONNECTED PIPELINE touches (T0–T7):
+- T0: No message needed. Return empty string.
+- T1: Connection request note. 1-2 sentences max. Say hi, mention something specific about their role or company that caught your attention, say you'd like to connect. That's it. No insight, no setup, no cleverness. Should sound like something a person would actually type when sending a connection request on LinkedIn.
+- T2: First message after they accept. Max 50 words. Thank them briefly. Ask ONE discovery question tied to a buyer problem from the taxonomy above (anchor to their persona's problems). No pitch. No Smart Spatial name.
+- T3: Max 50 words. Build on T2 — name the pattern ("One thing we keep seeing..."). Make it feel like you've heard this before. No pitch yet. No Smart Spatial name.
+- T4: Max 60 words. Share a specific business outcome or insight. Frame around what teams like theirs are doing. You can mention Smart Spatial here. Include one proof link if relevant to their industry.
+- T5: Max 60 words. Share 1–2 proof examples with links that match their industry. Factual, not salesy.
+- T6: Max 60 words. Ask for a specific low-commitment next step (15-min call). Connect it to their role and the problem pattern identified above. Don't oversell.
+- T7: Max 40 words. Close the loop graciously. Leave the door open. No pressure.
+
+NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prospects who haven't accepted yet:
+- T0: No message. Return empty string.
+- T1: Same as Connected T1 — max 20 words, ONE observation, earn the accept only. No pitch, no Smart Spatial.
+- T8 (Problem awareness — sent ~7 business days after T1): InMail. Max 60 words. Surface ONE buyer problem from the taxonomy that fits their persona. Ask a genuine question about whether they face this. Frame it as an industry pattern, not a pitch. Do NOT name Smart Spatial.
+- T9 (Visual proof — sent ~21 business days after T1): InMail. Max 60 words. Share a relevant proof example with a YouTube link from the list above. One sentence of why it applies to them. Low pressure close.
+- T10 (Industry insight — sent ~35 business days after T1): InMail. Max 60 words. Teach something — a shift, pattern, or observation relevant to their world. Position Smart Spatial as the team helping companies solve this. Different angle from T8/T9.
+- T11 (Alternative angle — sent ~50 business days after T1): InMail. Max 60 words. Reframe value from a completely different buyer problem angle than used in T8/T10. Use a different proof example if including one.
+- T12 (Breakup / referral — sent ~65 business days after T1): InMail. Max 40 words. Close the loop. Ask if there's a better person internally to connect with. No pressure.`;
 
   try{
     const draft=await claudeAPI(prompt,800);
@@ -1210,7 +1350,6 @@ async function generateLogMsg(){
   const statuses=getTouchStatuses(l);
   const thisStatus=statuses.find(s=>s.touch===touchNum);
   const touchLabel=thisStatus?.label||TLABELS[touchNum]||'Custom touch';
-  const baseTemplate=TEMPLATES[l.persona||'commercial']?.[touchNum]||'';
   const prevHistory=statuses
     .filter(s=>s.status==='done'&&s.touch!==touchNum)
     .map(s=>`T${s.touch} (${fmtDt(s.date)}): ${s.msg||'(no message recorded)'}`)
@@ -1225,27 +1364,36 @@ async function generateLogMsg(){
 
   const prompt=`You are writing a highly personalized LinkedIn outreach message on behalf of Vadik (Director of Product Growth at Smart Spatial).
 
-Smart Spatial helps enterprise teams make complex technical products and environments easier to understand through interactive 3D spatial experiences. Proof points: HPE, Schneider Electric, Micron, ZutaCore. Core value: reduce explanation burden, scale product storytelling, make complex offerings experiential.
+WHAT SMART SPATIAL DOES:
+Smart Spatial turns complex technical products and environments into interactive 3D spatial experiences — replacing explanation with experience across the entire GTM motion (sales, marketing, enablement, events).
 
-PROSPECT:
-Name: ${l.first} ${l.last}
-Title: ${l.title}
-Company: ${l.company}
-Persona: ${l.persona}
-LinkedIn profile: ${l.profile||'(not provided — use title and company context only)'}
+CANONICAL INSIGHT: In complex industrial and high-tech sales, value is lost not because products aren't good — but because buyers cannot experience the difference early and consistently. "If differentiation has to be explained, it's already lost."
 
-TOUCH: T${touchNum} — ${touchLabel}
-Pipeline: ${pip==='connected'?'Connected (accepted connection)':'Not connected (InMail)'}
-${dueContext}
+BUYER PROBLEM TAXONOMY (9 canonical problems — anchor discovery and messages to these):
+1. SOLUTIONS HARD TO EXPLAIN [Sales, SAs, Marketing] — Slides/videos passive; demos rep-dependent; buyers can't visualize in context → longer cycles, deal slippage, late objections, lost deals
+2. INCONSISTENT REVENUE MESSAGING [Sales, Marketing, PMM] — Every rep explains differently; partners misrepresent; PMM loses control post-launch → brand dilution, buyer distrust, higher enablement costs
+3. WEAK DIFFERENTIATION IN COMPETITIVE DEALS [Sales, PMM] — PPTs flatten differentiation; value props stay abstract; buyers default to price → margin compression, price-based decisions
+4. SELLING COMPLEXITY REQUIRES TOO MUCH HUMAN EFFORT [Sales, SCs, SAs] — Reps repeat same explanations; high cognitive load → linear effort scaling, burnout, lower productivity
+5. DEMOS DON'T SCALE WITH GROWTH [Sales, SCs] — Expert sellers required; demos break live; new reps struggle → slow ramp, bottlenecks, high pre-sales costs
+6. BUYER ENGAGEMENT DROPS BETWEEN MEETINGS [Sales] — Assets not self-guided; engagement ends with meetings; champions can't sell internally → stalled deals, increased meetings
+7. TRADE SHOWS / DEMO CENTERS / SITE TOURS COSTLY [Marketing, Sales, PMM] — Hardware shipping expensive; experiences tied to location → high acquisition cost, limited reach, operational disruption
+8. NO SHARED GTM STORYTELLING SYSTEM [PMM, Product Mgmt, Enablement] — Each function creates own assets; product/marketing/sales drift apart; narrative decays → internal friction, slower launches
+9. MARKETING ASSETS DON'T DRIVE SALES IMPACT [Marketing] — Content unused by sales; shadow decks created; weak attribution → wasted spend, misalignment, redundant asset creation
 
-BASE TEMPLATE:
-${baseTemplate||'(none — write from scratch)'}
+PERSONA → PROBLEM ANCHOR (use to pick the right discovery angle for this prospect):
+- Sales / Commercial → lead with P1, P3, P4, P5, P6
+- Product Marketing / PMM → lead with P2, P3, P8, P9
+- Marketing → lead with P2, P7, P9
+- Sales Enablement → lead with P1, P2, P4, P5, P8
+- Solution Architects / SEs → lead with P1, P4, P5
+- Events / Experience → lead with P7
 
-PREVIOUS MESSAGES SENT:
-${prevHistory||'None yet — this is the first outreach'}
+FIT CONTEXT FOR THIS PROSPECT (use to sharpen message relevance):
+Fit score: ${l.fitScore||'unknown'}/10
+Active problems: ${l.fitProblems&&l.fitProblems.length?'P'+l.fitProblems.join(', P'):'not analyzed — infer from persona'}
+Fit reasoning: ${l.fitReason||'not analyzed — infer from title and company'}
 
-
-Available proof examples (use the most relevant one or two based on the prospect's industry):
+KEY PROOF EXAMPLES (pick most relevant to prospect's industry):
 - Micron (semiconductor/memory): https://youtu.be/SerOifwyF1Y
 - Schneider Electric POD (data center infrastructure): https://youtu.be/rLw8tOnfbMM
 - DDC (data center): https://youtu.be/J_65fPoSApM
@@ -1254,18 +1402,56 @@ Available proof examples (use the most relevant one or two based on the prospect
 - PNY (GPU/hardware): https://youtu.be/gzyUxTcJGbM
 - Schneider Electric AI (AI infrastructure): https://youtu.be/GVS0AHAgFyU
 
+PROSPECT:
+Name: ${l.first} ${l.last}
+Title: ${l.title}
+Company: ${l.company}
+Persona: ${l.persona}
+LinkedIn profile: ${l.profile||'(not provided — use title and company context only)'}
+
+TOUCH BEING REQUESTED: T${touchNum} — ${touchLabel}
+Pipeline type: ${pip==='connected'?'Connected (accepted connection)':'Not connected (InMail)'}
+Touch category: ${touchNum<=7?'Connected pipeline (T0–T7)':'Not Connected InMail (T8=Problem awareness, T9=Visual proof, T10=Industry insight, T11=Alternative angle, T12=Breakup/referral)'}
+${dueContext}
+
+PREVIOUS MESSAGES SENT:
+${prevHistory||'None yet — this is the first outreach'}
+
+
 WRITING RULES (critical — follow exactly):
-- Sound like a real human wrote this, not a sales bot
-- Be concise: connection requests max 30 words, all other touches max 60 words — shorter is better
-- No buzzwords: never use "leverage", "synergy", "innovative", "cutting-edge", "game-changing"
-- No corporate openers: never start with "I hope this finds you well", "I wanted to reach out", "I came across your profile"
-- Be direct and curious — ask one genuine question or make one specific observation
-- Use a comma after the first name greeting, not a dash: "Hi [Name], your..." not "Hi [Name] — your..."
-- Reference something specific from their profile or company when possible
-- Do NOT mention Smart Spatial by name in Touch 0, 1, 2, 3
-- Never repeat anything already said in previous touches
-- When including a proof link, use the most relevant example from the list above — pick based on their industry
-- Return ONLY the message text, no subject line, no preamble`;
+- Write like a real person texting a professional contact — warm, direct, no fluff
+- Every sentence must earn its place. If it doesn't add meaning, cut it.
+- Use a comma after the first name: "Hi Brian," not "Hi Brian —"
+- No buzzwords: never use "leverage", "synergy", "innovative", "cutting-edge", "game-changing", "transformative", "seamlessly", "thrilled", "excited", "delighted", "pleasure"
+- No corporate filler: never start with "I hope this finds you well", "I wanted to reach out", "I came across your profile", "I'd love to", "Just wanted to", "Touching base"
+- No flattery or hollow openers about the prospect being impressive
+- First name only at the start — never full name
+- Short sentences. Natural rhythm. One idea per message.
+- Never invent facts not in the profile. Use title + company if no bio provided.
+- Never repeat what was said in previous touches
+- Return ONLY the message text — no subject line, no sign-off, no preamble
+- NEVER refuse, flag issues, ask questions, or add meta-commentary. Always write the message. No exceptions.
+
+TOUCH-SPECIFIC BEHAVIOR — follow instructions for the exact touch number being requested:
+
+CONNECTED PIPELINE touches (T0–T7):
+- T0: No message needed. Return empty string.
+- T1: Connection request note. 1-2 sentences max. Say hi, mention something specific about their role or company that caught your attention, say you'd like to connect. That's it. No insight, no setup, no cleverness. Should sound like something a person would actually type when sending a connection request on LinkedIn.
+- T2: First message after they accept. Max 50 words. Thank them briefly. Ask ONE discovery question tied to a buyer problem from the taxonomy above (anchor to their persona's problems). No pitch. No Smart Spatial name.
+- T3: Max 50 words. Build on T2 — name the pattern ("One thing we keep seeing..."). Make it feel like you've heard this before. No pitch yet. No Smart Spatial name.
+- T4: Max 60 words. Share a specific business outcome or insight. Frame around what teams like theirs are doing. You can mention Smart Spatial here. Include one proof link if relevant to their industry.
+- T5: Max 60 words. Share 1–2 proof examples with links that match their industry. Factual, not salesy.
+- T6: Max 60 words. Ask for a specific low-commitment next step (15-min call). Connect it to their role and the problem pattern identified above. Don't oversell.
+- T7: Max 40 words. Close the loop graciously. Leave the door open. No pressure.
+
+NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prospects who haven't accepted yet:
+- T0: No message. Return empty string.
+- T1: Same as Connected T1 — max 20 words, ONE observation, earn the accept only. No pitch, no Smart Spatial.
+- T8 (Problem awareness — sent ~7 business days after T1): InMail. Max 60 words. Surface ONE buyer problem from the taxonomy that fits their persona. Ask a genuine question about whether they face this. Frame it as an industry pattern, not a pitch. Do NOT name Smart Spatial.
+- T9 (Visual proof — sent ~21 business days after T1): InMail. Max 60 words. Share a relevant proof example with a YouTube link from the list above. One sentence of why it applies to them. Low pressure close.
+- T10 (Industry insight — sent ~35 business days after T1): InMail. Max 60 words. Teach something — a shift, pattern, or observation relevant to their world. Position Smart Spatial as the team helping companies solve this. Different angle from T8/T9.
+- T11 (Alternative angle — sent ~50 business days after T1): InMail. Max 60 words. Reframe value from a completely different buyer problem angle than used in T8/T10. Use a different proof example if including one.
+- T12 (Breakup / referral — sent ~65 business days after T1): InMail. Max 40 words. Close the loop. Ask if there's a better person internally to connect with. No pressure.`;
 
   try{
     const draft=await claudeAPI(prompt,600);
