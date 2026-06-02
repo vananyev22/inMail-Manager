@@ -922,8 +922,18 @@ function renderFit(){
   const displayScore=normalizeFitScore(l.fitScore);
   const scoreN=parseFloat(displayScore);
   const scoreLabel=scoreN>=9?'Strong fit':scoreN>=7?'Good fit':scoreN>=5?'Moderate fit':scoreN>=3?'Weak fit':'Poor fit';
-  const problemLabels={1:'Hard to explain',2:'Inconsistent messaging',3:'Weak differentiation',4:'Scaling complexity',5:'Demo scaling',6:'Mid-deal drop-off',7:'Event/demo costs',8:'GTM storytelling',9:'Asset-to-sales gap'};
-  const problemPills=l.fitProblems&&l.fitProblems.length?l.fitProblems.map(p=>`<span style="font-size:10px;padding:2px 7px;border-radius:20px;background:var(--blue-bg);color:var(--blue);font-weight:600;border:1px solid var(--blue-light)">P${p}: ${problemLabels[p]||'Problem '+p}</span>`).join(' '):'';
+  const problemLabels={
+    1:'Solution is hard to explain',
+    2:'Messaging is inconsistent across teams',
+    3:'Hard to differentiate from competitors',
+    4:'Selling complexity burns too much rep time',
+    5:'Demos don\'t scale beyond expert sellers',
+    6:'Buyers go cold between meetings',
+    7:'Physical demos & trade shows are costly',
+    8:'No shared GTM product story',
+    9:'Marketing content doesn\'t convert in sales'
+  };
+  const problemPills=l.fitProblems&&l.fitProblems.length?l.fitProblems.map(p=>`<span style="font-size:10px;padding:2px 7px;border-radius:20px;background:var(--blue-bg);color:var(--blue);font-weight:600;border:1px solid var(--blue-light)">${problemLabels[p]||'Problem '+p}</span>`).join(' '):'';
   el.innerHTML=`<div style="display:flex;align-items:flex-start;gap:10px">
     <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;gap:3px">
       <span class="badge ${fitBadgeCls(displayScore)}" style="font-size:15px;font-weight:700;padding:4px 14px">${displayScore}<span style="font-size:10px;font-weight:400;opacity:.7">/10</span></span>
@@ -931,7 +941,7 @@ function renderFit(){
     </div>
     <div style="flex:1">
       <div class="fit-box">${l.fitReason||''}</div>
-      ${problemPills?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">${problemPills}</div>`:''}
+      ${problemPills?`<div style="margin-top:8px"><div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px">Likely challenges</div><div style="display:flex;flex-wrap:wrap;gap:4px">${problemPills}</div></div>`:''}
     </div>
   </div>`;
 }
@@ -1174,7 +1184,7 @@ Company: ${l.company}
 Profile: ${profile||'(not provided — infer from title and company)'}
 
 Respond ONLY with valid JSON, no markdown:
-{"score":"1-10 integer","problems":[list of 1-3 problem numbers most relevant],"reason":"2-3 sentences: which problems apply, why this role/company is or isn't a fit, and what the discovery angle should be"}`;
+{"score":"1-10 integer","problems":[list of 1-3 problem numbers most relevant],"reason":"2-3 sentences explaining fit in plain language — describe which specific challenges this person likely faces in their role and why Smart Spatial is relevant. Do NOT reference problem numbers or labels like 'Problem 1'. Write as if explaining to a salesperson who has never heard of the taxonomy. End with one sharp discovery angle question."}`;
   try{
     const raw=await claudeAPI(prompt,500);
     const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
