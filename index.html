@@ -273,11 +273,11 @@ a:hover{text-decoration:underline}
         </div>
         <button class="close-btn" onclick="closePanel()"><i class="ti ti-x"></i></button>
       </div>
-      <div id="dismiss-bar" style="display:none;padding:8px 18px;background:var(--amber-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--amber)">
+      <div id="dismiss-bar" style="display:none;padding:8px 18px;background:var(--amber-bg);border-bottom:1px solid var(--border);align-items:center;justify-content:space-between;font-size:12px;color:var(--amber)">
         <span><i class="ti ti-check-circle" style="font-size:13px;vertical-align:-2px"></i> Marked as done — no further follow-up</span>
         <button class="btn btn-sm" onclick="undismissLead(selId)" style="font-size:11px;padding:3px 8px">Undo</button>
       </div>
-      <div id="pipeline-bar" style="display:none;padding:8px 18px;background:var(--blue-bg);border-bottom:1px solid var(--border);font-size:12px;color:var(--blue);display:flex;align-items:center;justify-content:space-between">
+      <div id="pipeline-bar" style="display:none;padding:8px 18px;background:var(--blue-bg);border-bottom:1px solid var(--border);font-size:12px;color:var(--blue);align-items:center;justify-content:space-between">
         <span><i class="ti ti-users" style="font-size:13px;vertical-align:-2px"></i> Not Connected pipeline</span>
         <button class="btn btn-sm btn-primary" onclick="moveToConnected(selId)" style="font-size:11px;padding:3px 10px"><i class="ti ti-arrow-right"></i> Move to Connected</button>
       </div>
@@ -288,6 +288,14 @@ a:hover{text-decoration:underline}
           <button class="btn btn-ai btn-sm" onclick="runFit()" id="fit-btn"><i class="ti ti-sparkles"></i> Analyze fit</button>
         </div>
         <div id="fit-result" style="margin-bottom:10px"></div>
+        <div id="referral-banner" style="display:none;background:var(--amber-bg);border:1px solid var(--amber-light);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px;font-size:12px;color:var(--amber)">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+            <div>
+              <div style="font-weight:600;margin-bottom:3px"><i class="ti ti-user-search" style="font-size:13px;vertical-align:-2px"></i> Low fit — consider referral approach</div>
+              <div id="referral-angle" style="font-size:11px;line-height:1.5;color:var(--amber)"></div>
+            </div>
+          </div>
+        </div>
         <div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase">LinkedIn profile text</div>
         <textarea class="profile-ta" id="profile-ta" placeholder="Paste full LinkedIn profile text here (About, Experience, recent posts…)"></textarea>
       </div>
@@ -295,7 +303,7 @@ a:hover{text-decoration:underline}
       <!-- Touch history -->
       <div class="psec">
         <div class="psec-title">Touch history
-          <button class="btn btn-sm" id="dismiss-btn" onclick="dismissLead(selId)"><i class="ti ti-circle-check"></i> Mark done</button>
+          <button class="btn btn-sm" id="dismiss-btn" onclick="confirmDismiss(selId)"><i class="ti ti-circle-check"></i> Mark done</button>
         </div>
         <div id="p-timeline"></div>
       </div>
@@ -303,6 +311,15 @@ a:hover{text-decoration:underline}
       <!-- AI draft -->
       <div class="psec">
         <div class="psec-title">AI message draft</div>
+        <div id="referral-toggle-row" style="display:none;margin-bottom:10px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--text)">Referral mode</div>
+            <div style="font-size:11px;color:var(--text3)">Messages ask for an intro to the right person</div>
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:0">
+            <input type="checkbox" id="referral-mode-toggle" onchange="onReferralToggle()" style="width:16px;height:16px;cursor:pointer">
+          </label>
+        </div>
         <select class="draft-select" id="draft-touch-sel">
           <optgroup label="— Connected —">
             <option value="0">Touch 0 · Profile view</option>
@@ -370,6 +387,18 @@ a:hover{text-decoration:underline}
   </div>
 </div>
 
+<!-- Confirm dismiss modal -->
+<div class="modal-bg" id="confirm-dismiss-modal">
+  <div class="modal" style="max-width:360px">
+    <h2><i class="ti ti-circle-check" style="color:var(--coral)"></i> Mark as done?</h2>
+    <p style="font-size:13px;color:var(--text2);margin:8px 0 20px">This will remove the lead from your active pipeline. You can undo this from their profile.</p>
+    <div class="modal-footer">
+      <button class="btn" onclick="document.getElementById('confirm-dismiss-modal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmDismissOk()"><i class="ti ti-circle-check"></i> Mark done</button>
+    </div>
+  </div>
+</div>
+
 <!-- Log touch modal -->
 <div class="modal-bg" id="log-modal">
   <div class="modal">
@@ -405,6 +434,13 @@ a:hover{text-decoration:underline}
         <label style="margin-bottom:0">Message sent</label>
         <button class="btn btn-ai" style="padding:3px 10px;font-size:11px" onclick="generateLogMsg()" id="log-gen-btn"><i class="ti ti-sparkles"></i> Generate message</button>
       </div>
+      <label id="log-referral-label" style="display:none;align-items:center;justify-content:space-between;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;margin-bottom:6px;cursor:pointer">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text)">Referral mode</div>
+          <div style="font-size:11px;color:var(--text3)">Messages ask for an intro to the right person</div>
+        </div>
+        <input type="checkbox" id="log-referral-check" onchange="syncReferralToggle(this.checked)" style="cursor:pointer;width:16px;height:16px;flex-shrink:0">
+      </label>
       <div id="log-gen-result" style="margin-bottom:6px;display:none">
         <div id="log-gen-text" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;font-size:13px;line-height:1.75;color:var(--text);margin-bottom:6px;word-break:break-word"></div>
         <div style="display:flex;gap:6px">
@@ -692,6 +728,16 @@ function fmtDt(iso){
 }
 
 // ── Stats ───────────────────────────────────────────────────────────
+function confirmDismiss(id){
+  selId=id;
+  document.getElementById('confirm-dismiss-modal').classList.add('open');
+}
+
+function confirmDismissOk(){
+  document.getElementById('confirm-dismiss-modal').classList.remove('open');
+  dismissLead(selId);
+}
+
 function dismissLead(id){
   const l=leads.find(x=>x.id===id);
   if(!l) return;
@@ -882,6 +928,7 @@ function selectLead(id){
   document.getElementById('profile-ta').value=l.profile||'';
   renderFit();
   renderTimeline();
+  updateReferralUI(l);
   const next=getNextTouchStatus(l);
   const ds=document.getElementById('draft-touch-sel');
   if(next) ds.value=next.touch; else ds.value=1;
@@ -893,9 +940,7 @@ function updateDismissUI(l){
   const bar = document.getElementById('dismiss-bar');
   const btn = document.getElementById('dismiss-btn');
   const pbar = document.getElementById('pipeline-bar');
-  if(bar){
-    bar.style.display = l.dismissed ? 'flex' : 'none';
-  }
+  if(bar) bar.style.display = l.dismissed ? 'flex' : 'none';
   if(btn) btn.style.display = l.dismissed ? 'none' : '';
   if(pbar){
     const isNC = inferPipeline(l) === 'noconn';
@@ -944,6 +989,48 @@ function renderFit(){
       ${problemPills?`<div style="margin-top:8px"><div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px">Likely challenges</div><div style="display:flex;flex-wrap:wrap;gap:4px">${problemPills}</div></div>`:''}
     </div>
   </div>`;
+}
+
+function updateReferralUI(l){
+  if(!l) return;
+  const scoreN = parseFloat(normalizeFitScore(l.fitScore||'0'));
+  const isLowFit = l.fitScore && scoreN <= 5;
+  const banner = document.getElementById('referral-banner');
+  const toggleRow = document.getElementById('referral-toggle-row');
+  const angleEl = document.getElementById('referral-angle');
+  const logLabel = document.getElementById('log-referral-label');
+  const isOn = isLowFit || (l.referralModeManual && document.getElementById('referral-mode-toggle')?.checked);
+  if(banner) banner.style.display = isLowFit ? 'block' : 'none';
+  if(toggleRow) toggleRow.style.display = isLowFit ? 'flex' : 'none';
+  if(angleEl && l.referralAngle) angleEl.textContent = l.referralAngle;
+  // Show log modal referral checkbox whenever low fit or toggle is on
+  if(logLabel) logLabel.style.display = isLowFit ? 'flex' : 'none';
+  const panelToggle = document.getElementById('referral-mode-toggle');
+  const logCheck = document.getElementById('log-referral-check');
+  if(panelToggle && isLowFit && !l.referralModeManual) panelToggle.checked = true;
+  else if(panelToggle && !isLowFit) panelToggle.checked = false;
+  if(logCheck) logCheck.checked = panelToggle ? panelToggle.checked : false;
+}
+
+function syncReferralToggle(checked){
+  // Keep both toggles in sync
+  const panelToggle = document.getElementById('referral-mode-toggle');
+  const logToggle = document.getElementById('log-referral-check');
+  if(panelToggle) panelToggle.checked = checked;
+  if(logToggle) logToggle.checked = checked;
+  const l = leads.find(x=>x.id===selId); if(!l) return;
+  l.referralModeManual = true;
+  save();
+}
+
+function onReferralToggle(){
+  const toggle = document.getElementById('referral-mode-toggle');
+  if(toggle) syncReferralToggle(toggle.checked);
+}
+
+function isReferralMode(){
+  const toggle = document.getElementById('referral-mode-toggle');
+  return toggle ? toggle.checked : false;
 }
 
 function renderTimeline(){
@@ -1015,7 +1102,9 @@ function openLogModal(){
   document.getElementById('lt-dt').value=nowPacific();
   document.getElementById('lt-msg').value='';
   document.getElementById('lt-notes').value='';
+  updateReferralUI(l);
 }
+
 function closeLogModal(){document.getElementById('log-modal').classList.remove('open');}
 
 function quickLog(id,tn){
@@ -1026,6 +1115,7 @@ function quickLog(id,tn){
   document.getElementById('lt-dt').value=nowPacific();
   document.getElementById('lt-msg').value='';
   document.getElementById('lt-notes').value='';
+  updateReferralUI(leads.find(x=>x.id===id));
 }
 
 function saveTouch(){
@@ -1184,14 +1274,15 @@ Company: ${l.company}
 Profile: ${profile||'(not provided — infer from title and company)'}
 
 Respond ONLY with valid JSON, no markdown:
-{"score":"1-10 integer","problems":[list of 1-3 problem numbers most relevant],"reason":"2-3 sentences explaining fit in plain language — describe which specific challenges this person likely faces in their role and why Smart Spatial is relevant. Do NOT reference problem numbers or labels like 'Problem 1'. Write as if explaining to a salesperson who has never heard of the taxonomy. End with one sharp discovery angle question."}`;
+{"score":"1-10 integer","problems":[list of 1-3 problem numbers most relevant],"reason":"2-3 sentences explaining fit in plain language — describe which specific challenges this person likely faces in their role and why Smart Spatial is relevant. Do NOT reference problem numbers or labels like 'Problem 1'. Write as if explaining to a salesperson who has never heard of the taxonomy.","referral_angle":"Only populate if score is 5 or below. One sentence identifying who internally at this company would be a better Smart Spatial prospect — be specific about the role or function (e.g. 'Their VP of Marketing or Sales Enablement lead would own the problem Smart Spatial solves'). Leave empty string if score is 6 or above."}`;
   try{
     const raw=await claudeAPI(prompt,500);
     const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
     l.fitScore=String(parsed.score||'5');
     l.fitProblems=parsed.problems||[];
     l.fitReason=parsed.reason||'';
-    save();renderFit();renderLeads();
+    l.referralAngle=parsed.referral_angle||'';
+    save();renderFit();renderLeads();updateReferralUI(l);
   }catch(e){el.innerHTML=`<div style='font-size:12px;color:var(--coral)'>${e.message==='NO_KEY'?'<i class="ti ti-key"></i> No API key — click API key in the toolbar':'Error: '+e.message}</div>`;}
   btn.disabled=false;
 }
@@ -1223,12 +1314,17 @@ async function runDraft(){
     dueContext=thisStatus.daysUntil<0?`This touch is ${Math.abs(thisStatus.daysUntil)} days overdue.`:thisStatus.daysUntil===0?'This touch is due today.':'This touch is due in '+thisStatus.daysUntil+' days.';
   }
 
-  const prompt=`You are writing a highly personalized LinkedIn outreach message on behalf of Vadik (Director of Product Growth at Smart Spatial).
+  const referralMode = isReferralMode();
+  const referralAngle = l.referralAngle||'';
 
-WHAT SMART SPATIAL DOES:
+  const referralHeader = referralMode ? `REFERRAL MODE ACTIVE: This prospect is not the ideal Smart Spatial buyer. For T2 onward, the goal is NOT to pitch — it's to build rapport and naturally ask if they can refer you to the right person internally. Keep it genuine and low-pressure. Suggested referral target: ${referralAngle||'their marketing, sales enablement, or product marketing lead'}. T1 is still a normal connection request.\n` : '';
+
+  const prompt=`You are writing a highly personalized LinkedIn outreach message on behalf of Vadik (Vadim Ananyev), Director of Product Growth at Smart Spatial. Smart Spatial turns complex technical products and environments into interactive 3D spatial experiences — replacing static slides and physical demos with scalable, immersive experiences across sales, marketing, enablement, and events. Vadik is doing outreach to prospects who may benefit from this. He is the sender — messages should read as coming from him personally, not from a generic company rep.
+
+${referralHeader}WHAT SMART SPATIAL DOES:
 Smart Spatial turns complex technical products and environments into interactive 3D spatial experiences — replacing explanation with experience across the entire GTM motion (sales, marketing, enablement, events).
 
-CANONICAL INSIGHT: In complex industrial and high-tech sales, value is lost not because products aren't good — but because buyers cannot experience the difference early and consistently. "If differentiation has to be explained, it's already lost."
+CANONICAL INSIGHT: In complex industrial and high-tech sales, value is lost not because products aren't good — but because buyers cannot experience the difference early and consistently. \"If differentiation has to be explained, it's already lost."
 
 BUYER PROBLEM TAXONOMY (9 canonical problems — anchor discovery and messages to these):
 1. SOLUTIONS HARD TO EXPLAIN [Sales, SAs, Marketing] — Slides/videos passive; demos rep-dependent; buyers can't visualize in context → longer cycles, deal slippage, late objections, lost deals
@@ -1280,39 +1376,40 @@ ${prevHistory||'None yet — this is the first outreach'}
 
 
 WRITING RULES (critical — follow exactly):
-- Write like a real person texting a professional contact — warm, direct, no fluff
-- Every sentence must earn its place. If it doesn't add meaning, cut it.
-- Use a comma after the first name: "Hi Brian," not "Hi Brian —"
+- Sound like a real human, not a sales tool. If it reads like a template, rewrite it.
+- Read the output back. If a real person wouldn't say it, cut it.
+- Short sentences. One idea per message. No filler between ideas.
+- Use a comma after the first name: "Hi Brian," — never a dash
 - No buzzwords: never use "leverage", "synergy", "innovative", "cutting-edge", "game-changing", "transformative", "seamlessly", "thrilled", "excited", "delighted", "pleasure"
-- No corporate filler: never start with "I hope this finds you well", "I wanted to reach out", "I came across your profile", "I'd love to", "Just wanted to", "Touching base"
-- No flattery or hollow openers about the prospect being impressive
+- No corporate filler: never use "I hope this finds you well", "I wanted to reach out", "I came across your profile", "I'd love to", "Just wanted to", "Touching base", "I'm reaching out because"
+- No flattery, no hollow openers, no observations that could apply to anyone
 - First name only at the start — never full name
-- Short sentences. Natural rhythm. One idea per message.
+- Never pad to hit a word count. Shorter is always better if meaning is preserved.
 - Never invent facts not in the profile. Use title + company if no bio provided.
 - Never repeat what was said in previous touches
 - Return ONLY the message text — no subject line, no sign-off, no preamble
-- NEVER refuse, flag issues, ask questions, or add meta-commentary. Always write the message. No exceptions.
+- NEVER refuse, flag issues, or add meta-commentary. Always write the message. No exceptions.
 
 TOUCH-SPECIFIC BEHAVIOR — follow instructions for the exact touch number being requested:
 
 CONNECTED PIPELINE touches (T0–T7):
 - T0: No message needed. Return empty string.
-- T1: Connection request note. 1-2 sentences max. Say hi, mention something specific about their role or company that caught your attention, say you'd like to connect. That's it. No insight, no setup, no cleverness. Should sound like something a person would actually type when sending a connection request on LinkedIn.
-- T2: First message after they accept. Max 50 words. Thank them briefly. Ask ONE discovery question tied to a buyer problem from the taxonomy above (anchor to their persona's problems). No pitch. No Smart Spatial name.
-- T3: Max 50 words. Build on T2 — name the pattern ("One thing we keep seeing..."). Make it feel like you've heard this before. No pitch yet. No Smart Spatial name.
-- T4: Max 60 words. Share a specific business outcome or insight. Frame around what teams like theirs are doing. You can mention Smart Spatial here. Include one proof link if relevant to their industry.
-- T5: Max 60 words. Share 1–2 proof examples with links that match their industry. Factual, not salesy.
-- T6: Max 60 words. Ask for a specific low-commitment next step (15-min call). Connect it to their role and the problem pattern identified above. Don't oversell.
-- T7: Max 40 words. Close the loop graciously. Leave the door open. No pressure.
+- T1: Connection request only. 1-2 short sentences. ONE specific observation about their role or company, then say you'd like to connect. NO value proposition. NO mention of what Smart Spatial does. NO setup for a pitch. If it sounds like marketing copy, rewrite it. Should read exactly like a short LinkedIn connection note a real person would type.
+- T2: First message after they accept. Max 3 sentences. Brief thanks, then ONE direct question tied to a real buyer problem. No setup, no preamble, no Smart Spatial name.
+- T3: Max 3 sentences. Reference something from T2, name a pattern you keep seeing in their world. Feels like a natural follow-up, not a new pitch. No Smart Spatial name.
+- T4: Max 4 sentences. Share a relevant outcome or example. Mention Smart Spatial naturally — not as a pitch, just as context. Include a proof link if their industry matches one.
+- T5: Max 4 sentences. Share 1–2 proof links that match their world. One line of why each is relevant. No hard sell.
+- T6: Max 3 sentences. Ask for a specific low-commitment next step — a quick call. Tie it to what came up in the thread. No oversell.
+- T7: Max 2 sentences. Graceful close. Leave the door open. No guilt, no pressure.
 
 NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prospects who haven't accepted yet:
 - T0: No message. Return empty string.
-- T1: Same as Connected T1 — max 20 words, ONE observation, earn the accept only. No pitch, no Smart Spatial.
-- T8 (Problem awareness — sent ~7 business days after T1): InMail. Max 60 words. Surface ONE buyer problem from the taxonomy that fits their persona. Ask a genuine question about whether they face this. Frame it as an industry pattern, not a pitch. Do NOT name Smart Spatial.
-- T9 (Visual proof — sent ~21 business days after T1): InMail. Max 60 words. Share a relevant proof example with a YouTube link from the list above. One sentence of why it applies to them. Low pressure close.
-- T10 (Industry insight — sent ~35 business days after T1): InMail. Max 60 words. Teach something — a shift, pattern, or observation relevant to their world. Position Smart Spatial as the team helping companies solve this. Different angle from T8/T9.
-- T11 (Alternative angle — sent ~50 business days after T1): InMail. Max 60 words. Reframe value from a completely different buyer problem angle than used in T8/T10. Use a different proof example if including one.
-- T12 (Breakup / referral — sent ~65 business days after T1): InMail. Max 40 words. Close the loop. Ask if there's a better person internally to connect with. No pressure.`;
+- T1: Same as Connected T1 — 1-2 sentences, ONE specific observation, earn the accept. No pitch, no Smart Spatial.
+- T8 (Problem awareness — sent ~7 business days after T1): Max 4 sentences. Surface ONE buyer problem relevant to their role. Frame as an industry pattern. Ask if they deal with it. No Smart Spatial name.
+- T9 (Visual proof — sent ~21 business days after T1): Max 4 sentences. Share one relevant proof link. One sentence on why it applies to them. Soft close.
+- T10 (Industry insight — sent ~35 business days after T1): Max 4 sentences. Share a real shift or observation in their world. Position Smart Spatial as the team helping with it. Different angle from T8.
+- T11 (Alternative angle — sent ~50 business days after T1): Max 4 sentences. Different buyer problem angle than T8/T10. Different proof example if including one.
+- T12 (Breakup / referral — sent ~65 business days after T1): Max 2 sentences. Close the loop. Ask if there's a better person to talk to. No pressure.`;
 
   try{
     const draft=await claudeAPI(prompt,800);
@@ -1372,12 +1469,17 @@ async function generateLogMsg(){
       :`This touch is due in ${thisStatus.daysUntil} days.`;
   }
 
-  const prompt=`You are writing a highly personalized LinkedIn outreach message on behalf of Vadik (Director of Product Growth at Smart Spatial).
+  const referralMode = isReferralMode();
+  const referralAngle = l.referralAngle||'';
 
-WHAT SMART SPATIAL DOES:
+  const referralHeader = referralMode ? `REFERRAL MODE ACTIVE: This prospect is not the ideal Smart Spatial buyer. For T2 onward, the goal is NOT to pitch — it's to build rapport and naturally ask if they can refer you to the right person internally. Keep it genuine and low-pressure. Suggested referral target: ${referralAngle||'their marketing, sales enablement, or product marketing lead'}. T1 is still a normal connection request.\n` : '';
+
+  const prompt=`You are writing a highly personalized LinkedIn outreach message on behalf of Vadik (Vadim Ananyev), Director of Product Growth at Smart Spatial. Smart Spatial turns complex technical products and environments into interactive 3D spatial experiences — replacing static slides and physical demos with scalable, immersive experiences across sales, marketing, enablement, and events. Vadik is doing outreach to prospects who may benefit from this. He is the sender — messages should read as coming from him personally, not from a generic company rep.
+
+${referralHeader}WHAT SMART SPATIAL DOES:
 Smart Spatial turns complex technical products and environments into interactive 3D spatial experiences — replacing explanation with experience across the entire GTM motion (sales, marketing, enablement, events).
 
-CANONICAL INSIGHT: In complex industrial and high-tech sales, value is lost not because products aren't good — but because buyers cannot experience the difference early and consistently. "If differentiation has to be explained, it's already lost."
+CANONICAL INSIGHT: In complex industrial and high-tech sales, value is lost not because products aren't good — but because buyers cannot experience the difference early and consistently. \"If differentiation has to be explained, it's already lost."
 
 BUYER PROBLEM TAXONOMY (9 canonical problems — anchor discovery and messages to these):
 1. SOLUTIONS HARD TO EXPLAIN [Sales, SAs, Marketing] — Slides/videos passive; demos rep-dependent; buyers can't visualize in context → longer cycles, deal slippage, late objections, lost deals
@@ -1429,39 +1531,40 @@ ${prevHistory||'None yet — this is the first outreach'}
 
 
 WRITING RULES (critical — follow exactly):
-- Write like a real person texting a professional contact — warm, direct, no fluff
-- Every sentence must earn its place. If it doesn't add meaning, cut it.
-- Use a comma after the first name: "Hi Brian," not "Hi Brian —"
+- Sound like a real human, not a sales tool. If it reads like a template, rewrite it.
+- Read the output back. If a real person wouldn't say it, cut it.
+- Short sentences. One idea per message. No filler between ideas.
+- Use a comma after the first name: "Hi Brian," — never a dash
 - No buzzwords: never use "leverage", "synergy", "innovative", "cutting-edge", "game-changing", "transformative", "seamlessly", "thrilled", "excited", "delighted", "pleasure"
-- No corporate filler: never start with "I hope this finds you well", "I wanted to reach out", "I came across your profile", "I'd love to", "Just wanted to", "Touching base"
-- No flattery or hollow openers about the prospect being impressive
+- No corporate filler: never use "I hope this finds you well", "I wanted to reach out", "I came across your profile", "I'd love to", "Just wanted to", "Touching base", "I'm reaching out because"
+- No flattery, no hollow openers, no observations that could apply to anyone
 - First name only at the start — never full name
-- Short sentences. Natural rhythm. One idea per message.
+- Never pad to hit a word count. Shorter is always better if meaning is preserved.
 - Never invent facts not in the profile. Use title + company if no bio provided.
 - Never repeat what was said in previous touches
 - Return ONLY the message text — no subject line, no sign-off, no preamble
-- NEVER refuse, flag issues, ask questions, or add meta-commentary. Always write the message. No exceptions.
+- NEVER refuse, flag issues, or add meta-commentary. Always write the message. No exceptions.
 
 TOUCH-SPECIFIC BEHAVIOR — follow instructions for the exact touch number being requested:
 
 CONNECTED PIPELINE touches (T0–T7):
 - T0: No message needed. Return empty string.
-- T1: Connection request note. 1-2 sentences max. Say hi, mention something specific about their role or company that caught your attention, say you'd like to connect. That's it. No insight, no setup, no cleverness. Should sound like something a person would actually type when sending a connection request on LinkedIn.
-- T2: First message after they accept. Max 50 words. Thank them briefly. Ask ONE discovery question tied to a buyer problem from the taxonomy above (anchor to their persona's problems). No pitch. No Smart Spatial name.
-- T3: Max 50 words. Build on T2 — name the pattern ("One thing we keep seeing..."). Make it feel like you've heard this before. No pitch yet. No Smart Spatial name.
-- T4: Max 60 words. Share a specific business outcome or insight. Frame around what teams like theirs are doing. You can mention Smart Spatial here. Include one proof link if relevant to their industry.
-- T5: Max 60 words. Share 1–2 proof examples with links that match their industry. Factual, not salesy.
-- T6: Max 60 words. Ask for a specific low-commitment next step (15-min call). Connect it to their role and the problem pattern identified above. Don't oversell.
-- T7: Max 40 words. Close the loop graciously. Leave the door open. No pressure.
+- T1: Connection request only. 1-2 short sentences. ONE specific observation about their role or company, then say you'd like to connect. NO value proposition. NO mention of what Smart Spatial does. NO setup for a pitch. If it sounds like marketing copy, rewrite it. Should read exactly like a short LinkedIn connection note a real person would type.
+- T2: First message after they accept. Max 3 sentences. Brief thanks, then ONE direct question tied to a real buyer problem. No setup, no preamble, no Smart Spatial name.
+- T3: Max 3 sentences. Reference something from T2, name a pattern you keep seeing in their world. Feels like a natural follow-up, not a new pitch. No Smart Spatial name.
+- T4: Max 4 sentences. Share a relevant outcome or example. Mention Smart Spatial naturally — not as a pitch, just as context. Include a proof link if their industry matches one.
+- T5: Max 4 sentences. Share 1–2 proof links that match their world. One line of why each is relevant. No hard sell.
+- T6: Max 3 sentences. Ask for a specific low-commitment next step — a quick call. Tie it to what came up in the thread. No oversell.
+- T7: Max 2 sentences. Graceful close. Leave the door open. No guilt, no pressure.
 
 NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prospects who haven't accepted yet:
 - T0: No message. Return empty string.
-- T1: Same as Connected T1 — max 20 words, ONE observation, earn the accept only. No pitch, no Smart Spatial.
-- T8 (Problem awareness — sent ~7 business days after T1): InMail. Max 60 words. Surface ONE buyer problem from the taxonomy that fits their persona. Ask a genuine question about whether they face this. Frame it as an industry pattern, not a pitch. Do NOT name Smart Spatial.
-- T9 (Visual proof — sent ~21 business days after T1): InMail. Max 60 words. Share a relevant proof example with a YouTube link from the list above. One sentence of why it applies to them. Low pressure close.
-- T10 (Industry insight — sent ~35 business days after T1): InMail. Max 60 words. Teach something — a shift, pattern, or observation relevant to their world. Position Smart Spatial as the team helping companies solve this. Different angle from T8/T9.
-- T11 (Alternative angle — sent ~50 business days after T1): InMail. Max 60 words. Reframe value from a completely different buyer problem angle than used in T8/T10. Use a different proof example if including one.
-- T12 (Breakup / referral — sent ~65 business days after T1): InMail. Max 40 words. Close the loop. Ask if there's a better person internally to connect with. No pressure.`;
+- T1: Same as Connected T1 — 1-2 sentences, ONE specific observation, earn the accept. No pitch, no Smart Spatial.
+- T8 (Problem awareness — sent ~7 business days after T1): Max 4 sentences. Surface ONE buyer problem relevant to their role. Frame as an industry pattern. Ask if they deal with it. No Smart Spatial name.
+- T9 (Visual proof — sent ~21 business days after T1): Max 4 sentences. Share one relevant proof link. One sentence on why it applies to them. Soft close.
+- T10 (Industry insight — sent ~35 business days after T1): Max 4 sentences. Share a real shift or observation in their world. Position Smart Spatial as the team helping with it. Different angle from T8.
+- T11 (Alternative angle — sent ~50 business days after T1): Max 4 sentences. Different buyer problem angle than T8/T10. Different proof example if including one.
+- T12 (Breakup / referral — sent ~65 business days after T1): Max 2 sentences. Close the loop. Ask if there's a better person to talk to. No pressure.`;
 
   try{
     const draft=await claudeAPI(prompt,600);
