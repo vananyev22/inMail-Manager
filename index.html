@@ -442,9 +442,10 @@ a:hover{text-decoration:underline}
         <input type="checkbox" id="log-referral-check" onchange="syncReferralToggle(this.checked)" style="cursor:pointer;width:16px;height:16px;flex-shrink:0">
       </label>
       <div id="log-gen-result" style="margin-bottom:6px;display:none">
-        <div id="log-gen-text" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;font-size:13px;line-height:1.75;color:var(--text);margin-bottom:6px;word-break:break-word"></div>
+        <div id="log-gen-text" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;font-size:13px;line-height:1.75;color:var(--text);margin-bottom:6px;word-break:break-word;white-space:pre-wrap"></div>
         <div style="display:flex;gap:6px">
           <button class="btn btn-sm btn-primary" onclick="useLogGenMsg()"><i class="ti ti-arrow-down"></i> Use this</button>
+          <button class="btn btn-sm" onclick="copyLogGenMsg()"><i class="ti ti-copy"></i> Copy</button>
           <button class="btn btn-sm" onclick="generateLogMsg()"><i class="ti ti-refresh"></i> Regenerate</button>
         </div>
       </div>
@@ -1321,10 +1322,10 @@ async function runDraft(){
   const referralMode = isReferralMode();
   const referralAngle = l.referralAngle||'';
 
-  const referralHeader = referralMode ? `REFERRAL MODE ACTIVE: This prospect is not the ideal direct buyer. For T2 onward, shift goal from pitching to rapport-building and asking for a referral to the right person internally. Still anchor messages to the taxonomy — use buyer problems to show you understand their world, but frame Smart Spatial as something their colleagues would benefit from, not the prospect directly. For touches that normally include a proof link (T4, T5, T9, T10, T11), ALWAYS include one — this is mandatory. Position it as something they can forward to the right person. Do not drop the link to shorten the message. Always end T3 onward with an explicit but low-pressure referral ask. Each touch must use a DIFFERENT approach — never repeat the same phrasing across touches. Choose from styles like:
+  const referralHeader = referralMode ? `REFERRAL MODE ACTIVE: This prospect is not the ideal direct buyer. For T2 onward, shift goal from pitching to rapport-building and asking for a referral to the right person internally. Still anchor messages to the taxonomy — use buyer problems to show you understand their world, but frame Smart Spatial as something their colleagues would benefit from, not the prospect directly. For touches that normally include a proof link (T4, T5, T9, T10, T11), ALWAYS include one — this is mandatory. Position it as something they can forward to the right person. Do not drop the link to shorten the message. Always end T3 onward with an explicit but low-pressure referral ask. IMPORTANT: Vadik is asking the prospect to refer HIM to the right person — not offering to connect the prospect with anyone. The ask is always 'can you point me to the right person at your company', never 'I can connect you with someone'. Each touch must use a DIFFERENT approach — never repeat the same phrasing across touches. Choose from styles like:
 - Direct ask: "Is there someone on your [team] who owns this I should connect with?"
-- Soft check: "Not sure if this lands with you or someone else at Ampure — happy to be pointed in the right direction."
-- Forward offer: "If it's more relevant to a colleague, happy to send something they can look at directly."
+- Soft check: "Not sure if this lands with you or someone else at [company] — happy to be pointed in the right direction."
+- Forward offer: "If it's more relevant to a colleague, I'm happy to reach out to them directly — just point me their way."
 - Permission ask: "Would it be odd to ask if there's a better person internally to run this by?"
 - Casual close: "If this isn't your world, no worries — just let me know who it might be relevant for."
 Pick whichever feels most natural for the tone of this specific message. Never use the same style twice in a sequence. Suggested referral target: ${referralAngle||'their marketing, sales enablement, or product marketing lead'}. T1 stays a normal connection request.\n` : '';
@@ -1425,12 +1426,13 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
 
   try{
     const draft=await claudeAPI(prompt,800);
-    el.innerHTML=`<div class="draft-box" id="draft-text">${draft.replace(/\n/g,'<br>')}</div>
+    el.innerHTML=`<div class="draft-box" id="draft-text"></div>
       <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
         <button class="btn btn-ai btn-sm" onclick="copyDraft()"><i class="ti ti-copy"></i> Copy</button>
         <button class="btn btn-primary btn-sm" onclick="useDraft(${touchNum})"><i class="ti ti-check"></i> Use &amp; log</button>
         <button class="btn btn-sm" onclick="runDraft()"><i class="ti ti-refresh"></i> Regenerate</button>
       </div>`;
+    document.getElementById('draft-text').textContent=draft;
   }catch(e){el.innerHTML=`<div style='font-size:12px;color:var(--coral)'>${e.message==='NO_KEY'?'<i class="ti ti-key"></i> No API key — click API key in the toolbar':'Error: '+e.message}</div>`;}
   btn.disabled=false;
 }
@@ -1488,10 +1490,10 @@ async function generateLogMsg(){
   const referralMode = isReferralMode();
   const referralAngle = l.referralAngle||'';
 
-  const referralHeader = referralMode ? `REFERRAL MODE ACTIVE: This prospect is not the ideal direct buyer. For T2 onward, shift goal from pitching to rapport-building and asking for a referral to the right person internally. Still anchor messages to the taxonomy — use buyer problems to show you understand their world, but frame Smart Spatial as something their colleagues would benefit from, not the prospect directly. For touches that normally include a proof link (T4, T5, T9, T10, T11), ALWAYS include one — this is mandatory. Position it as something they can forward to the right person. Do not drop the link to shorten the message. Always end T3 onward with an explicit but low-pressure referral ask. Each touch must use a DIFFERENT approach — never repeat the same phrasing across touches. Choose from styles like:
+  const referralHeader = referralMode ? `REFERRAL MODE ACTIVE: This prospect is not the ideal direct buyer. For T2 onward, shift goal from pitching to rapport-building and asking for a referral to the right person internally. Still anchor messages to the taxonomy — use buyer problems to show you understand their world, but frame Smart Spatial as something their colleagues would benefit from, not the prospect directly. For touches that normally include a proof link (T4, T5, T9, T10, T11), ALWAYS include one — this is mandatory. Position it as something they can forward to the right person. Do not drop the link to shorten the message. Always end T3 onward with an explicit but low-pressure referral ask. IMPORTANT: Vadik is asking the prospect to refer HIM to the right person — not offering to connect the prospect with anyone. The ask is always 'can you point me to the right person at your company', never 'I can connect you with someone'. Each touch must use a DIFFERENT approach — never repeat the same phrasing across touches. Choose from styles like:
 - Direct ask: "Is there someone on your [team] who owns this I should connect with?"
-- Soft check: "Not sure if this lands with you or someone else at Ampure — happy to be pointed in the right direction."
-- Forward offer: "If it's more relevant to a colleague, happy to send something they can look at directly."
+- Soft check: "Not sure if this lands with you or someone else at [company] — happy to be pointed in the right direction."
+- Forward offer: "If it's more relevant to a colleague, I'm happy to reach out to them directly — just point me their way."
 - Permission ask: "Would it be odd to ask if there's a better person internally to run this by?"
 - Casual close: "If this isn't your world, no worries — just let me know who it might be relevant for."
 Pick whichever feels most natural for the tone of this specific message. Never use the same style twice in a sequence. Suggested referral target: ${referralAngle||'their marketing, sales enablement, or product marketing lead'}. T1 stays a normal connection request.\n` : '';
@@ -1592,7 +1594,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
 
   try{
     const draft=await claudeAPI(prompt,600);
-    resultText.innerHTML=draft.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");
+    resultText.textContent=draft;
   }catch(e){
     resultText.textContent=e.message==='NO_KEY'?'No API key set — click the API key button in the toolbar to add yours':'Error: '+e.message;
   }
@@ -1604,6 +1606,14 @@ function useLogGenMsg(){
   const txt=document.getElementById('log-gen-text')?.textContent||'';
   document.getElementById('lt-msg').value=txt;
   document.getElementById('log-gen-result').style.display='none';
+}
+
+function copyLogGenMsg(){
+  const txt=document.getElementById('log-gen-text')?.textContent||'';
+  navigator.clipboard?.writeText(txt).then(()=>{
+    const btns=[...document.querySelectorAll('button')].find(b=>b.onclick?.toString().includes('copyLogGenMsg')||b.getAttribute('onclick')==='copyLogGenMsg()');
+    if(btns){const orig=btns.innerHTML;btns.innerHTML='<i class="ti ti-check"></i> Copied';setTimeout(()=>btns.innerHTML=orig,1500);}
+  });
 }
 
 // ── API key management ─────────────────────────────────────────────
