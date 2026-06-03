@@ -447,7 +447,13 @@ a:hover{text-decoration:underline}
           </optgroup>
         </select>
       </div>
-      <div class="form-row"><label>Date &amp; time</label><input type="datetime-local" id="lt-dt"></div>
+      <div class="form-row">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <label style="margin-bottom:0">Date & time</label>
+          <button id="lt-dt-unlock" style="display:none;font-size:11px;padding:2px 8px" class="btn btn-sm" onclick="unlockTouchDate()"><i class="ti ti-lock-open"></i> Edit date</button>
+        </div>
+        <input type="datetime-local" id="lt-dt">
+      </div>
     </div>
     <div class="form-row" id="msg-sent-row">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
@@ -1113,9 +1119,26 @@ function editTouch(lid,tnum){
   const t=leads.find(x=>x.id===lid)?.touches[tnum];
   document.getElementById('log-modal').classList.add('open');
   setLogTouchNum(tnum);
-  document.getElementById('lt-dt').value=t?.date||nowPacific();
+  const dtField=document.getElementById('lt-dt');
+  dtField.value=t?.date||nowPacific();
+  const isExisting=!!t?.date;
+  dtField.readOnly=isExisting;
+  dtField.style.opacity=isExisting?'0.5':'1';
+  dtField.title=isExisting?'Date locked — click "Edit date" to change':'';
+  const unlockBtn=document.getElementById('lt-dt-unlock');
+  if(unlockBtn) unlockBtn.style.display=isExisting?'':'none';
   document.getElementById('lt-msg').value=t?.msg||'';
   document.getElementById('lt-notes').value=t?.notes||'';
+  updateReferralUI(leads.find(x=>x.id===lid));
+}
+
+function unlockTouchDate(){
+  const dtField=document.getElementById('lt-dt');
+  dtField.readOnly=false;
+  dtField.style.opacity='1';
+  dtField.title='';
+  const unlockBtn=document.getElementById('lt-dt-unlock');
+  if(unlockBtn) unlockBtn.style.display='none';
 }
 
 function setLogTouchNum(val){
@@ -1137,7 +1160,13 @@ function openLogModal(){
   const next=getNextTouchStatus(l);
   document.getElementById('log-modal').classList.add('open');
   setLogTouchNum(next?next.touch:1);
-  document.getElementById('lt-dt').value=nowPacific();
+  const dtField=document.getElementById('lt-dt');
+  dtField.value=nowPacific();
+  dtField.readOnly=false;
+  dtField.style.opacity='1';
+  dtField.title='';
+  const unlockBtn=document.getElementById('lt-dt-unlock');
+  if(unlockBtn) unlockBtn.style.display='none';
   document.getElementById('lt-msg').value='';
   document.getElementById('lt-notes').value='';
   updateReferralUI(l);
@@ -1150,7 +1179,13 @@ function quickLog(id,tn){
   selectLead(id);
   document.getElementById('log-modal').classList.add('open');
   setLogTouchNum(tn);
-  document.getElementById('lt-dt').value=nowPacific();
+  const dtField=document.getElementById('lt-dt');
+  dtField.value=nowPacific();
+  dtField.readOnly=false;
+  dtField.style.opacity='1';
+  dtField.title='';
+  const unlockBtn2=document.getElementById('lt-dt-unlock');
+  if(unlockBtn2) unlockBtn2.style.display='none';
   document.getElementById('lt-msg').value='';
   document.getElementById('lt-notes').value='';
   updateReferralUI(leads.find(x=>x.id===id));
@@ -1163,7 +1198,12 @@ function saveTouch(){
   const msg=document.getElementById('lt-msg').value.trim();
   const notes=document.getElementById('lt-notes').value.trim();
   if(!dt){alert('Please set a date');return;}
-  l.touches[num]={date:dt,msg,notes};
+  // If touch already has a date saved, preserve it — only update msg and notes
+  // This prevents schedule from shifting when editing message content
+  const existingDate = l.touches[num]?.date;
+  const dtField = document.getElementById('lt-dt');
+  const finalDate = (existingDate && dtField.readOnly) ? existingDate : dt;
+  l.touches[num]={date:finalDate, msg, notes};
   if(num>=2&&num<=7) l.pipeline='connected';
   save();closeLogModal();renderStats();renderLeads();
   if(selId===l.id) renderTimeline();
