@@ -1305,7 +1305,11 @@ async function runDraft(){
 
   // Build previous touch history
   const prevHistory=statuses.filter(s=>s.status==='done'&&s.touch!==touchNum)
-    .map(s=>`T${s.touch} (${fmtDt(s.date)}): ${s.msg||'(no message recorded)'}`)
+    .map(s=>{
+      let entry=`T${s.touch} (${fmtDt(s.date)}): ${s.msg||'(no message recorded)'}`;
+      if(s.notes) entry+=`\n  → Reply/notes: ${s.notes}`;
+      return entry;
+    })
     .join('\n');
 
   // Due date context
@@ -1317,9 +1321,9 @@ async function runDraft(){
   const referralMode = isReferralMode();
   const referralAngle = l.referralAngle||'';
 
-  const referralHeader = referralMode ? `REFERRAL MODE ACTIVE: This prospect is not the ideal Smart Spatial buyer. For T2 onward, the goal is NOT to pitch — it's to build rapport and naturally ask if they can refer you to the right person internally. Keep it genuine and low-pressure. Suggested referral target: ${referralAngle||'their marketing, sales enablement, or product marketing lead'}. T1 is still a normal connection request.\n` : '';
+  const referralHeader = referralMode ? `REFERRAL MODE ACTIVE: This prospect is not the ideal direct buyer. For T2 onward, shift goal from pitching to rapport-building and eventually asking for a referral to the right person internally. Still anchor messages to the taxonomy — use buyer problems to show you understand their world, but don't push Smart Spatial as the solution. Suggested referral target: ${referralAngle||'their marketing, sales enablement, or product marketing lead'}. T1 stays a normal connection request.\n` : '';
 
-  const prompt=`You are writing a highly personalized LinkedIn outreach message on behalf of Vadik (Vadim Ananyev), Director of Product Growth at Smart Spatial. Smart Spatial turns complex technical products and environments into interactive 3D spatial experiences — replacing static slides and physical demos with scalable, immersive experiences across sales, marketing, enablement, and events. Vadik is doing outreach to prospects who may benefit from this. He is the sender — messages should read as coming from him personally, not from a generic company rep.
+  const prompt=`You are ghostwriting a LinkedIn message FOR Vadik (Vadim Ananyev), Director of Product Growth at Smart Spatial. Vadik is the SENDER. The prospect is the RECIPIENT. Never write from the prospect's perspective. Never use 'I' to describe the prospect's job, role, or experience. All 'I' statements refer to Vadik. Smart Spatial turns complex technical products into interactive 3D spatial experiences — replacing static slides and physical demos with scalable immersive experiences across sales, marketing, enablement, and events.
 
 ${referralHeader}WHAT SMART SPATIAL DOES:
 Smart Spatial turns complex technical products and environments into interactive 3D spatial experiences — replacing explanation with experience across the entire GTM motion (sales, marketing, enablement, events).
@@ -1373,6 +1377,8 @@ ${dueContext}
 
 PREVIOUS MESSAGES SENT:
 ${prevHistory||'None yet — this is the first outreach'}
+
+CRITICAL: Only reference a prospect reply or response if it appears in the "Reply/notes" field above. Never assume or invent a reply. Never write "appreciate the reply", "thanks for getting back to me", "following up on your answer", or anything that implies a response unless one is explicitly logged in the notes.
 
 
 WRITING RULES (critical — follow exactly):
@@ -1459,7 +1465,11 @@ async function generateLogMsg(){
   const touchLabel=thisStatus?.label||TLABELS[touchNum]||'Custom touch';
   const prevHistory=statuses
     .filter(s=>s.status==='done'&&s.touch!==touchNum)
-    .map(s=>`T${s.touch} (${fmtDt(s.date)}): ${s.msg||'(no message recorded)'}`)
+    .map(s=>{
+      let entry=`T${s.touch} (${fmtDt(s.date)}): ${s.msg||'(no message recorded)'}`;
+      if(s.notes) entry+=`\n  → Reply/notes: ${s.notes}`;
+      return entry;
+    })
     .join('\n');
   let dueContext='';
   if(thisStatus?.status==='due'){
@@ -1472,9 +1482,9 @@ async function generateLogMsg(){
   const referralMode = isReferralMode();
   const referralAngle = l.referralAngle||'';
 
-  const referralHeader = referralMode ? `REFERRAL MODE ACTIVE: This prospect is not the ideal Smart Spatial buyer. For T2 onward, the goal is NOT to pitch — it's to build rapport and naturally ask if they can refer you to the right person internally. Keep it genuine and low-pressure. Suggested referral target: ${referralAngle||'their marketing, sales enablement, or product marketing lead'}. T1 is still a normal connection request.\n` : '';
+  const referralHeader = referralMode ? `REFERRAL MODE ACTIVE: This prospect is not the ideal direct buyer. For T2 onward, shift goal from pitching to rapport-building and eventually asking for a referral to the right person internally. Still anchor messages to the taxonomy — use buyer problems to show you understand their world, but don't push Smart Spatial as the solution. Suggested referral target: ${referralAngle||'their marketing, sales enablement, or product marketing lead'}. T1 stays a normal connection request.\n` : '';
 
-  const prompt=`You are writing a highly personalized LinkedIn outreach message on behalf of Vadik (Vadim Ananyev), Director of Product Growth at Smart Spatial. Smart Spatial turns complex technical products and environments into interactive 3D spatial experiences — replacing static slides and physical demos with scalable, immersive experiences across sales, marketing, enablement, and events. Vadik is doing outreach to prospects who may benefit from this. He is the sender — messages should read as coming from him personally, not from a generic company rep.
+  const prompt=`You are ghostwriting a LinkedIn message FOR Vadik (Vadim Ananyev), Director of Product Growth at Smart Spatial. Vadik is the SENDER. The prospect is the RECIPIENT. Never write from the prospect's perspective. Never use 'I' to describe the prospect's job, role, or experience. All 'I' statements refer to Vadik. Smart Spatial turns complex technical products into interactive 3D spatial experiences — replacing static slides and physical demos with scalable immersive experiences across sales, marketing, enablement, and events.
 
 ${referralHeader}WHAT SMART SPATIAL DOES:
 Smart Spatial turns complex technical products and environments into interactive 3D spatial experiences — replacing explanation with experience across the entire GTM motion (sales, marketing, enablement, events).
@@ -1528,6 +1538,8 @@ ${dueContext}
 
 PREVIOUS MESSAGES SENT:
 ${prevHistory||'None yet — this is the first outreach'}
+
+CRITICAL: Only reference a prospect reply or response if it appears in the "Reply/notes" field above. Never assume or invent a reply. Never write "appreciate the reply", "thanks for getting back to me", "following up on your answer", or anything that implies a response unless one is explicitly logged in the notes.
 
 
 WRITING RULES (critical — follow exactly):
