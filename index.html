@@ -124,6 +124,8 @@ a:hover{text-decoration:underline}
 .profile-ta:focus{outline:none;border-color:var(--blue)}
 
 /* Draft */
+.ctx-item{padding:7px 12px;font-size:12px;cursor:pointer;border-radius:4px;display:flex;align-items:center;gap:8px;color:var(--text)}
+.ctx-item:hover{background:var(--surface2)}
 .draft-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:12px;line-height:1.7;color:var(--text);white-space:pre-wrap;word-break:break-word}
 .draft-select{width:100%;padding:7px 10px;font-size:12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;margin-bottom:8px}
 .draft-select:focus{outline:none;border-color:var(--blue)}
@@ -223,7 +225,13 @@ a:hover{text-decoration:underline}
     <option value="cadence-asc" selected>Cadence: Due soonest</option>
     <option value="cadence-desc">Cadence: Due latest</option>
   </select>
-  <button class="btn" onclick="exportData()"><i class="ti ti-download"></i> Export</button>
+  <div style="position:relative;display:inline-block" id="export-wrap">
+    <button class="btn" onclick="event.stopPropagation();toggleExportMenu()"><i class="ti ti-download"></i> Export <i class="ti ti-chevron-down" style="font-size:10px;margin-left:2px"></i></button>
+    <div id="export-menu" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 16px rgba(0,0,0,.12);padding:4px;min-width:140px;z-index:999">
+      <div class="ctx-item" onclick="event.stopPropagation();exportCSV();toggleExportMenu()"><i class="ti ti-file-spreadsheet"></i> Export CSV</div>
+      <div class="ctx-item" onclick="event.stopPropagation();exportData();toggleExportMenu()"><i class="ti ti-file-code"></i> Export JSON</div>
+    </div>
+  </div>
   <button class="btn" onclick="importClick()"><i class="ti ti-upload"></i> Import</button>
   <input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(event)">
   <button class="btn btn-primary" onclick="openAddModal()"><i class="ti ti-plus"></i> Add lead</button>
@@ -383,6 +391,18 @@ a:hover{text-decoration:underline}
     <div class="modal-footer">
       <button class="btn" onclick="closeAddModal()">Cancel</button>
       <button class="btn btn-primary" onclick="addLead()"><i class="ti ti-check"></i> Add lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm touch done modal -->
+<div class="modal-bg" id="confirm-touch-done-modal">
+  <div class="modal" style="max-width:360px">
+    <h2><i class="ti ti-circle-check" style="color:var(--green)"></i> Mark touch as done?</h2>
+    <p style="font-size:13px;color:var(--text2);margin:8px 0 20px">This will mark the touch as completed with today's date and no message. You can edit it later from the touch history.</p>
+    <div class="modal-footer">
+      <button class="btn" onclick="document.getElementById('confirm-touch-done-modal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmTouchDoneOk()"><i class="ti ti-circle-check"></i> Mark done</button>
     </div>
   </div>
 </div>
@@ -729,9 +749,25 @@ function fmtDt(iso){
 }
 
 // ── Stats ───────────────────────────────────────────────────────────
+
 function confirmDismiss(id){
   selId=id;
   document.getElementById('confirm-dismiss-modal').classList.add('open');
+}
+
+// Touch-level mark done confirmation
+let pendingTouchDone={lid:null,tnum:null};
+function confirmTouchDone(lid,tnum){
+  pendingTouchDone={lid,tnum};
+  document.getElementById('confirm-touch-done-modal').classList.add('open');
+}
+function confirmTouchDoneOk(){
+  document.getElementById('confirm-touch-done-modal').classList.remove('open');
+  const {lid,tnum}=pendingTouchDone;
+  const l=leads.find(x=>x.id===lid);if(!l)return;
+  if(!l.touches)l.touches={};
+  l.touches[tnum]={date:nowPacific(),msg:'',notes:''};
+  save();renderLeads();if(selId===lid){renderFit();renderTimeline();}
 }
 
 function confirmDismissOk(){
@@ -1059,6 +1095,7 @@ function renderTimeline(){
         <div class="tactions">
           ${s.msg?`<button class="btn btn-sm" onclick="copyMsg(${l.id},${s.touch})"><i class="ti ti-copy"></i> Copy</button>`:''}
           ${s.status==='due'?`<button class="btn btn-sm btn-primary" onclick="quickLog(${l.id},${s.touch})"><i class="ti ti-plus"></i> Log now</button>`:''}
+          ${s.status==='due'||s.status==='pending'?`<button class="btn btn-sm" onclick="confirmTouchDone(${l.id},${s.touch})"><i class="ti ti-circle-check"></i> Mark done</button>`:''}
           ${s.status==='done'?`<button class="btn btn-sm" onclick="editTouch(${l.id},${s.touch})"><i class="ti ti-edit"></i> Edit</button>`:''}
         </div>
       </div>
@@ -1402,6 +1439,7 @@ WRITING RULES (critical — follow exactly):
 - Never repeat what was said in previous touches
 - Return ONLY the message text — no subject line, no sign-off, no preamble
 - NEVER refuse, flag issues, or add meta-commentary. Always write the message. No exceptions.
+- DIRECTION RULE: Vadik is always asking the prospect for something — never offering to connect the prospect with someone else. If referencing another person internally, always frame it as Vadik asking to be pointed there, never as Vadik offering to make an introduction.
 
 TOUCH-SPECIFIC BEHAVIOR — follow instructions for the exact touch number being requested:
 
@@ -1410,8 +1448,8 @@ CONNECTED PIPELINE touches (T0–T7):
 - T1: Connection request only. 1-2 short sentences. ONE specific observation about their role or company, then say you'd like to connect. NO value proposition. NO mention of what Smart Spatial does. NO setup for a pitch. If it sounds like marketing copy, rewrite it. Should read exactly like a short LinkedIn connection note a real person would type.
 - T2: First message after they accept. Max 3 sentences. Brief thanks, then ONE direct question tied to a real buyer problem. No setup, no preamble, no Smart Spatial name.
 - T3: Max 3 sentences. Reference something from T2, name a pattern you keep seeing in their world. Feels like a natural follow-up, not a new pitch. No Smart Spatial name.
-- T4: Max 4 sentences. Share a relevant outcome or example. Mention Smart Spatial naturally — not as a pitch, just as context. Include a proof link if their industry matches one.
-- T5: Max 4 sentences. Share 1–2 proof links that match their world. One line of why each is relevant. No hard sell.
+- T4: Max 4 sentences. Share a relevant outcome or example. Mention Smart Spatial naturally — not as a pitch, just as context. ALWAYS include a proof link — pick the closest industry match from the list above. Mandatory, do not skip.
+- T5: Max 4 sentences. Share 1–2 proof links that match their world. One line of why each is relevant. No hard sell. ALWAYS include at least one link — mandatory.
 - T6: Max 3 sentences. Ask for a specific low-commitment next step — a quick call. Tie it to what came up in the thread. No oversell.
 - T7: Max 2 sentences. Graceful close. Leave the door open. No guilt, no pressure.
 
@@ -1419,9 +1457,9 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
 - T0: No message. Return empty string.
 - T1: Same as Connected T1 — 1-2 sentences, ONE specific observation, earn the accept. No pitch, no Smart Spatial.
 - T8 (Problem awareness — sent ~7 business days after T1): Max 4 sentences. Surface ONE buyer problem relevant to their role. Frame as an industry pattern. Ask if they deal with it. No Smart Spatial name.
-- T9 (Visual proof — sent ~21 business days after T1): Max 4 sentences. Share one relevant proof link. One sentence on why it applies to them. Soft close.
+- T9 (Visual proof — sent ~21 business days after T1): Max 4 sentences. ALWAYS include one relevant proof link — mandatory. One sentence on why it applies to them. Soft close.
 - T10 (Industry insight — sent ~35 business days after T1): Max 4 sentences. Share a real shift or observation in their world. Position Smart Spatial as the team helping with it. Different angle from T8.
-- T11 (Alternative angle — sent ~50 business days after T1): Max 4 sentences. Different buyer problem angle than T8/T10. Different proof example if including one.
+- T11 (Alternative angle — sent ~50 business days after T1): Max 4 sentences. Different buyer problem angle than T8/T10. ALWAYS include a proof link — use a different example than T9. Mandatory.
 - T12 (Breakup / referral — sent ~65 business days after T1): Max 2 sentences. Close the loop. Ask if there's a better person to talk to. No pressure.`;
 
   try{
@@ -1570,6 +1608,7 @@ WRITING RULES (critical — follow exactly):
 - Never repeat what was said in previous touches
 - Return ONLY the message text — no subject line, no sign-off, no preamble
 - NEVER refuse, flag issues, or add meta-commentary. Always write the message. No exceptions.
+- DIRECTION RULE: Vadik is always asking the prospect for something — never offering to connect the prospect with someone else. If referencing another person internally, always frame it as Vadik asking to be pointed there, never as Vadik offering to make an introduction.
 
 TOUCH-SPECIFIC BEHAVIOR — follow instructions for the exact touch number being requested:
 
@@ -1578,8 +1617,8 @@ CONNECTED PIPELINE touches (T0–T7):
 - T1: Connection request only. 1-2 short sentences. ONE specific observation about their role or company, then say you'd like to connect. NO value proposition. NO mention of what Smart Spatial does. NO setup for a pitch. If it sounds like marketing copy, rewrite it. Should read exactly like a short LinkedIn connection note a real person would type.
 - T2: First message after they accept. Max 3 sentences. Brief thanks, then ONE direct question tied to a real buyer problem. No setup, no preamble, no Smart Spatial name.
 - T3: Max 3 sentences. Reference something from T2, name a pattern you keep seeing in their world. Feels like a natural follow-up, not a new pitch. No Smart Spatial name.
-- T4: Max 4 sentences. Share a relevant outcome or example. Mention Smart Spatial naturally — not as a pitch, just as context. Include a proof link if their industry matches one.
-- T5: Max 4 sentences. Share 1–2 proof links that match their world. One line of why each is relevant. No hard sell.
+- T4: Max 4 sentences. Share a relevant outcome or example. Mention Smart Spatial naturally — not as a pitch, just as context. ALWAYS include a proof link — pick the closest industry match from the list above. Mandatory, do not skip.
+- T5: Max 4 sentences. Share 1–2 proof links that match their world. One line of why each is relevant. No hard sell. ALWAYS include at least one link — mandatory.
 - T6: Max 3 sentences. Ask for a specific low-commitment next step — a quick call. Tie it to what came up in the thread. No oversell.
 - T7: Max 2 sentences. Graceful close. Leave the door open. No guilt, no pressure.
 
@@ -1587,9 +1626,9 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
 - T0: No message. Return empty string.
 - T1: Same as Connected T1 — 1-2 sentences, ONE specific observation, earn the accept. No pitch, no Smart Spatial.
 - T8 (Problem awareness — sent ~7 business days after T1): Max 4 sentences. Surface ONE buyer problem relevant to their role. Frame as an industry pattern. Ask if they deal with it. No Smart Spatial name.
-- T9 (Visual proof — sent ~21 business days after T1): Max 4 sentences. Share one relevant proof link. One sentence on why it applies to them. Soft close.
+- T9 (Visual proof — sent ~21 business days after T1): Max 4 sentences. ALWAYS include one relevant proof link — mandatory. One sentence on why it applies to them. Soft close.
 - T10 (Industry insight — sent ~35 business days after T1): Max 4 sentences. Share a real shift or observation in their world. Position Smart Spatial as the team helping with it. Different angle from T8.
-- T11 (Alternative angle — sent ~50 business days after T1): Max 4 sentences. Different buyer problem angle than T8/T10. Different proof example if including one.
+- T11 (Alternative angle — sent ~50 business days after T1): Max 4 sentences. Different buyer problem angle than T8/T10. ALWAYS include a proof link — use a different example than T9. Mandatory.
 - T12 (Breakup / referral — sent ~65 business days after T1): Max 2 sentences. Close the loop. Ask if there's a better person to talk to. No pressure.`;
 
   try{
@@ -1677,10 +1716,59 @@ async function claudeAPI(prompt, max_tokens=800){
 }
 
 // ── Export / Import ─────────────────────────────────────────────────
+function toggleExportMenu(){
+  const menu=document.getElementById('export-menu');
+  menu.style.display=menu.style.display==='none'?'block':'none';
+}
+document.addEventListener('click',e=>{
+  if(!document.getElementById('export-wrap')?.contains(e.target))
+    document.getElementById('export-menu').style.display='none';
+});
+
 function exportData(){
   const blob=new Blob([JSON.stringify(leads,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download=`inmail_leads_${new Date().toISOString().slice(0,10)}.json`;a.click();
+}
+
+function exportCSV(){
+  const allTouchNums = [
+    ...Object.keys(CONN_CADENCE).map(Number),
+    ...NC_CADENCE.map(x=>x.touch).filter(t=>t>1)
+  ].filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>a-b);
+
+  const problemLabels={1:'Solution is hard to explain',2:'Messaging is inconsistent across teams',3:'Hard to differentiate from competitors',4:'Selling complexity burns too much rep time',5:'Demos don\'t scale beyond expert sellers',6:'Buyers go cold between meetings',7:'Physical demos & trade shows are costly',8:'No shared GTM product story',9:'Marketing content doesn\'t convert in sales'};
+  const esc = v => `"${String(v||'').replace(/"/g,'""')}"`;
+
+  const headers = [
+    'Name','Title','Company','LinkedIn','Pipeline','Persona',
+    'Fit Score','Fit Reason','Referral Angle','Likely Challenges','Dismissed',
+    ...allTouchNums.map(n=>`T${n} (${TLABELS[n]||'Touch '+n}) Date`),
+    ...allTouchNums.map(n=>`T${n} Message`),
+    ...allTouchNums.map(n=>`T${n} Notes`)
+  ];
+
+  const rows = leads.map(l=>{
+    const pip = inferPipeline(l);
+    const challenges = (l.fitProblems||[]).map(p=>problemLabels[p]||'P'+p).join('; ');
+    const base = [
+      l.name, l.title, l.company, l.linkedin||'',
+      pip==='connected'?'Connected':'Not Connected',
+      l.persona||'', l.fitScore||'', l.fitReason||'',
+      l.referralAngle||'', challenges, l.dismissed?'Yes':'No'
+    ];
+    const dates    = allTouchNums.map(n=>l.touches?.[n]?.date||'');
+    const messages = allTouchNums.map(n=>l.touches?.[n]?.msg||'');
+    const notes    = allTouchNums.map(n=>l.touches?.[n]?.notes||'');
+    return [...base,...dates,...messages,...notes].map(esc).join(',');
+  });
+
+  const csv = [headers.map(esc).join(','), ...rows].join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `inmail_leads_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
 }
 function importClick(){document.getElementById('import-input').click();}
 function importData(e){
