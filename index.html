@@ -226,6 +226,15 @@ a:hover{text-decoration:underline}
     <option value="cadence-asc" selected>Cadence: Due soonest</option>
     <option value="cadence-desc">Cadence: Due latest</option>
   </select>
+  <select id="fit-filter" onchange="renderLeads()" style="min-width:130px">
+    <option value="">All scores</option>
+    <option value="strong">Strong fit (9–10)</option>
+    <option value="good">Good fit (7–8)</option>
+    <option value="moderate">Moderate fit (5–6)</option>
+    <option value="weak">Weak fit (3–4)</option>
+    <option value="poor">Poor fit (1–2)</option>
+    <option value="none">Not analyzed</option>
+  </select>
   <div style="position:relative;display:inline-block" id="export-wrap">
     <button class="btn" onclick="event.stopPropagation();toggleExportMenu()"><i class="ti ti-download"></i> Export <i class="ti ti-chevron-down" style="font-size:10px;margin-left:2px"></i></button>
     <div id="export-menu" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 16px rgba(0,0,0,.12);padding:4px;min-width:140px;z-index:999">
@@ -861,6 +870,7 @@ function setView(v){
 function filtered(){
   const q=document.getElementById('search-inp').value.toLowerCase();
   const sf=document.getElementById('stage-filter').value;
+  const ff=document.getElementById('fit-filter')?.value||'';
   const sortBy=document.getElementById('sort-by')?.value||'';
 
   let result=leads.filter(l=>{
@@ -871,6 +881,17 @@ function filtered(){
       const n=getNextTouchStatus(l);
       const nt=n?n.touch:null;
       if(nt!==+sf) return false;
+    }
+    if(ff!==''){
+      const score=parseFloat(normalizeFitScore(l.fitScore||''));
+      if(ff==='none'&&l.fitScore) return false;
+      if(ff==='none'&&!l.fitScore) return true;
+      if(!l.fitScore) return false;
+      if(ff==='strong'&&score<9) return false;
+      if(ff==='good'&&(score<7||score>8)) return false;
+      if(ff==='moderate'&&(score<5||score>6)) return false;
+      if(ff==='weak'&&(score<3||score>4)) return false;
+      if(ff==='poor'&&score>2) return false;
     }
     return true;
   });
