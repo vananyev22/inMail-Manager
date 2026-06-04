@@ -1421,7 +1421,7 @@ async function runDraft(){
   const referralMode = isReferralMode();
   const referralAngle = l.referralAngle||'';
 
-  const referralHeader = !referralMode ? '' : 'REFERRAL MODE ACTIVE: This prospect is NOT the buyer. The only goal from T2 onward is to get a referral to the right person internally. Write every message with this as the primary intent from the first sentence.\nKey rules:\n- Never write as if this prospect might buy. You are talking TO them to get TO someone else.\n- Use buyer problems to show you understand their company world, but frame it as context for why a COLLEAGUE would care, not this person.\n- Do not pitch Smart Spatial to this prospect. Mention it only enough for them to know who to refer you to.\n- For touches with proof links (T4, T5, T9, T10, T11): ALWAYS include one, framed as something they can forward.\n- Every message T3+ must include a referral ask woven naturally into the message, not a separate paragraph bolted on at the end.\n- Vary the ask style each touch: embedded question, simple redirect, assumed referral, direct mid-message ask.\n- Avoid overusing no worries or if this isnt your domain, fine occasionally not every touch.\n- Vadik is always asking the prospect to point HIM somewhere. Never the reverse.\n- Suggested referral target: ' + (referralAngle||'their marketing, sales enablement, or product marketing lead') + '.\n- T1 stays a normal connection request.\n';
+  const referralHeader = !referralMode ? '' : 'REFERRAL MODE ACTIVE: This prospect is NOT the buyer. The only goal from T2 onward is to get a referral to the right person internally. Write every message with this as the primary intent from the first sentence.\nKey rules:\n- Never write as if this prospect might buy. You are talking TO them to get TO someone else.\n- Never acknowledge the mismatch between their role and Smart Spatial target buyer. Never say things like I know this is not your area or you are not the right fit, or anything that signals the prospect is the wrong person. Just write naturally as if reaching out to someone who can help.\n- Use buyer problems to show you understand their company world, but frame it as context for why a COLLEAGUE would care, not this person.\n- Do not pitch Smart Spatial to this prospect. Mention it only enough for them to know who to refer you to.\n- For touches with proof links (T4, T5, T9, T10, T11): ALWAYS include one, framed as something they can forward.\n- Every message T3+ must include a referral ask woven naturally into the message, not a separate paragraph bolted on at the end.\n- Vary the ask style each touch: embedded question, simple redirect, assumed referral, direct mid-message ask.\n- Avoid overusing no worries or if this isnt your domain, fine occasionally not every touch.\n- Vadik is always asking the prospect to point HIM somewhere. Never the reverse.\n- Suggested referral target: ' + (referralAngle||'their marketing, sales enablement, or product marketing lead') + '.\n- T1 stays a normal connection request.\n';
 
   const prompt=`You are ghostwriting a LinkedIn message FOR Vadik (Vadim Ananyev), Director of Product Growth at Smart Spatial. Vadik is the SENDER. The prospect is the RECIPIENT. Never write from the prospect's perspective. Never use 'I' to describe the prospect's job, role, or experience. All 'I' statements refer to Vadik. Smart Spatial turns complex technical products into interactive 3D spatial experiences — replacing static slides and physical demos with scalable immersive experiences across sales, marketing, enablement, and events.
 
@@ -1532,6 +1532,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
         <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Subject line</div>
         <div style="display:flex;align-items:center;gap:6px">
           <div id="draft-subject" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:6px 10px;font-size:12px;color:var(--text);flex:1"></div>
+          <button class="btn btn-sm" onclick="regenSubject('draft')" title="Regenerate subject"><i class="ti ti-refresh"></i></button>
           <button class="btn btn-sm" onclick="copyDraftSubject()" style="flex-shrink:0"><i class="ti ti-copy"></i></button>
         </div>
       </div>`:''}
@@ -1544,6 +1545,24 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     if(subject) document.getElementById('draft-subject').textContent=subject;
     document.getElementById('draft-text').textContent=body;
   }catch(e){el.innerHTML=`<div style='font-size:12px;color:var(--coral)'>${e.message==='NO_KEY'?'<i class="ti ti-key"></i> No API key — click API key in the toolbar':'Error: '+e.message}</div>`;}
+  btn.disabled=false;
+}
+
+async function regenSubject(context){
+  const msgEl = context==='log' ? document.getElementById('log-gen-text') : document.getElementById('draft-text');
+  const subjectEl = context==='log' ? document.getElementById('log-gen-subject') : document.getElementById('draft-subject');
+  if(!msgEl||!subjectEl) return;
+  const msgText = msgEl.textContent||'';
+  if(!msgText.trim()){return;}
+  const btn = event.currentTarget;
+  const orig = btn.innerHTML;
+  btn.innerHTML='<div class="spinner" style="display:inline-block;width:10px;height:10px;border-width:1.5px"></div>';
+  btn.disabled=true;
+  try{
+    const result = await claudeAPI(`Generate a short, specific LinkedIn InMail subject line for this message. Return ONLY the subject line text, nothing else, no quotes, no preamble.\n\nMessage:\n${msgText}`, 50);
+    subjectEl.textContent = result.trim().replace(/^["']|["']$/g,'');
+  }catch(e){console.error(e);}
+  btn.innerHTML=orig;
   btn.disabled=false;
 }
 
@@ -1625,7 +1644,7 @@ async function generateLogMsg(){
   const referralMode = isReferralMode();
   const referralAngle = l.referralAngle||'';
 
-  const referralHeader = !referralMode ? '' : 'REFERRAL MODE ACTIVE: This prospect is NOT the buyer. The only goal from T2 onward is to get a referral to the right person internally. Write every message with this as the primary intent from the first sentence.\nKey rules:\n- Never write as if this prospect might buy. You are talking TO them to get TO someone else.\n- Use buyer problems to show you understand their company world, but frame it as context for why a COLLEAGUE would care, not this person.\n- Do not pitch Smart Spatial to this prospect. Mention it only enough for them to know who to refer you to.\n- For touches with proof links (T4, T5, T9, T10, T11): ALWAYS include one, framed as something they can forward.\n- Every message T3+ must include a referral ask woven naturally into the message, not a separate paragraph bolted on at the end.\n- Vary the ask style each touch: embedded question, simple redirect, assumed referral, direct mid-message ask.\n- Avoid overusing no worries or if this isnt your domain, fine occasionally not every touch.\n- Vadik is always asking the prospect to point HIM somewhere. Never the reverse.\n- Suggested referral target: ' + (referralAngle||'their marketing, sales enablement, or product marketing lead') + '.\n- T1 stays a normal connection request.\n';
+  const referralHeader = !referralMode ? '' : 'REFERRAL MODE ACTIVE: This prospect is NOT the buyer. The only goal from T2 onward is to get a referral to the right person internally. Write every message with this as the primary intent from the first sentence.\nKey rules:\n- Never write as if this prospect might buy. You are talking TO them to get TO someone else.\n- Never acknowledge the mismatch between their role and Smart Spatial target buyer. Never say things like I know this is not your area or you are not the right fit, or anything that signals the prospect is the wrong person. Just write naturally as if reaching out to someone who can help.\n- Use buyer problems to show you understand their company world, but frame it as context for why a COLLEAGUE would care, not this person.\n- Do not pitch Smart Spatial to this prospect. Mention it only enough for them to know who to refer you to.\n- For touches with proof links (T4, T5, T9, T10, T11): ALWAYS include one, framed as something they can forward.\n- Every message T3+ must include a referral ask woven naturally into the message, not a separate paragraph bolted on at the end.\n- Vary the ask style each touch: embedded question, simple redirect, assumed referral, direct mid-message ask.\n- Avoid overusing no worries or if this isnt your domain, fine occasionally not every touch.\n- Vadik is always asking the prospect to point HIM somewhere. Never the reverse.\n- Suggested referral target: ' + (referralAngle||'their marketing, sales enablement, or product marketing lead') + '.\n- T1 stays a normal connection request.\n';
 
   const prompt=`You are ghostwriting a LinkedIn message FOR Vadik (Vadim Ananyev), Director of Product Growth at Smart Spatial. Vadik is the SENDER. The prospect is the RECIPIENT. Never write from the prospect's perspective. Never use 'I' to describe the prospect's job, role, or experience. All 'I' statements refer to Vadik. Smart Spatial turns complex technical products into interactive 3D spatial experiences — replacing static slides and physical demos with scalable immersive experiences across sales, marketing, enablement, and events.
 
@@ -1732,7 +1751,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     const raw=await claudeAPI(prompt,600);
     const {subject,body}=parseSubjectBody(raw);
     // Show subject above message if present
-    const subjectHtml = subject ? `<div style="margin-bottom:8px"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Subject line</div><div style="display:flex;align-items:center;gap:6px"><div id="log-gen-subject" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px;font-size:12px;color:var(--text);flex:1">${subject}</div><button class="btn btn-sm" onclick="copyLogSubject()" style="flex-shrink:0"><i class="ti ti-copy"></i></button></div></div>` : '';
+    const subjectHtml = subject ? `<div style="margin-bottom:8px"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Subject line</div><div style="display:flex;align-items:center;gap:6px"><div id="log-gen-subject" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px;font-size:12px;color:var(--text);flex:1">${subject}</div><button class="btn btn-sm" onclick="regenSubject('log')" title="Regenerate subject"><i class="ti ti-refresh"></i></button><button class="btn btn-sm" onclick="copyLogSubject()" style="flex-shrink:0"><i class="ti ti-copy"></i></button></div></div>` : '';
     resultBox.style.display='block';
     resultText.parentElement.insertAdjacentHTML('afterbegin', subjectHtml);
     resultText.textContent=body;
