@@ -483,6 +483,7 @@ a:hover{text-decoration:underline}
           <button class="btn btn-sm btn-primary" onclick="useLogGenMsg()"><i class="ti ti-arrow-down"></i> Use this</button>
           <button class="btn btn-sm" onclick="copyLogGenMsg()"><i class="ti ti-copy"></i> Copy</button>
           <button class="btn btn-sm" onclick="generateLogMsg()"><i class="ti ti-refresh"></i> Regenerate</button>
+          <button class="btn btn-sm" onclick="reviewDraft('log')"><i class="ti ti-wand"></i> Review & clean</button>
         </div>
       </div>
       <textarea id="lt-msg" style="height:110px" placeholder="Paste or generate the message you sent…"></textarea>
@@ -1541,10 +1542,28 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
         <button class="btn btn-ai btn-sm" onclick="copyDraft()"><i class="ti ti-copy"></i> Copy</button>
         <button class="btn btn-primary btn-sm" onclick="useDraft(${touchNum})"><i class="ti ti-check"></i> Use &amp; log</button>
         <button class="btn btn-sm" onclick="runDraft()"><i class="ti ti-refresh"></i> Regenerate</button>
+        <button class="btn btn-sm" onclick="reviewDraft('draft')"><i class="ti ti-wand"></i> Review & clean</button>
       </div>`;
     if(subject) document.getElementById('draft-subject').textContent=subject;
     document.getElementById('draft-text').textContent=body;
   }catch(e){el.innerHTML=`<div style='font-size:12px;color:var(--coral)'>${e.message==='NO_KEY'?'<i class="ti ti-key"></i> No API key — click API key in the toolbar':'Error: '+e.message}</div>`;}
+  btn.disabled=false;
+}
+
+async function reviewDraft(context){
+  const msgEl = context==='log' ? document.getElementById('log-gen-text') : document.getElementById('draft-text');
+  if(!msgEl) return;
+  const original = msgEl.textContent||'';
+  if(!original.trim()) return;
+  const btn = event.currentTarget;
+  const orig = btn.innerHTML;
+  btn.innerHTML='<div class="spinner" style="display:inline-block;width:10px;height:10px;border-width:1.5px;margin-right:4px"></div>Cleaning…';
+  btn.disabled=true;
+  try{
+    const cleaned = await claudeAPI(`You are a copyeditor reviewing a short LinkedIn outreach message. Fix any grammar issues, awkward phrasing, or run-on sentences. Also remove any em dashes (—) — replace them with a period or comma. Do not change the meaning, tone, or content. Return ONLY the cleaned message text, nothing else.\n\nMessage:\n${original}`, 400);
+    msgEl.textContent = cleaned.trim();
+  }catch(e){console.error(e);}
+  btn.innerHTML=orig;
   btn.disabled=false;
 }
 
