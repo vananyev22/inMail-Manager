@@ -1495,7 +1495,11 @@ WRITING RULES (critical — follow exactly):
 - Never pad to hit a word count. Shorter is always better if meaning is preserved.
 - Never invent facts not in the profile. Use title + company if no bio provided.
 - Never repeat what was said in previous touches
-- Return ONLY the message text — no subject line, no sign-off, no preamble
+- Return the subject line on the first line in this exact format: SUBJECT: [subject here]. Then a blank line. Then the message body. No other preamble or sign-off. Example format:
+SUBJECT: How your teams explain complex solutions at scale
+
+Hi [Name],
+[message body]
 - NEVER refuse, flag issues, or add meta-commentary. Always write the message. No exceptions.
 - DIRECTION RULE: Vadik is always asking the prospect for something — never offering to connect the prospect with someone else. If referencing another person internally, always frame it as Vadik asking to be pointed there, never as Vadik offering to make an introduction.
 
@@ -1521,16 +1525,46 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
 - T12 (Breakup / referral — sent ~65 business days after T1): Max 2 sentences. Close the loop. Ask if there's a better person to talk to. No pressure.`;
 
   try{
-    const draft=await claudeAPI(prompt,800);
-    el.innerHTML=`<div class="draft-box" id="draft-text"></div>
+    const raw=await claudeAPI(prompt,800);
+    const {subject,body}=parseSubjectBody(raw);
+    el.innerHTML=`
+      ${subject?`<div style="margin-bottom:6px">
+        <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Subject line</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div id="draft-subject" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:6px 10px;font-size:12px;color:var(--text);flex:1"></div>
+          <button class="btn btn-sm" onclick="copyDraftSubject()" style="flex-shrink:0"><i class="ti ti-copy"></i></button>
+        </div>
+      </div>`:''}
+      <div class="draft-box" id="draft-text"></div>
       <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
         <button class="btn btn-ai btn-sm" onclick="copyDraft()"><i class="ti ti-copy"></i> Copy</button>
         <button class="btn btn-primary btn-sm" onclick="useDraft(${touchNum})"><i class="ti ti-check"></i> Use &amp; log</button>
         <button class="btn btn-sm" onclick="runDraft()"><i class="ti ti-refresh"></i> Regenerate</button>
       </div>`;
-    document.getElementById('draft-text').textContent=draft;
+    if(subject) document.getElementById('draft-subject').textContent=subject;
+    document.getElementById('draft-text').textContent=body;
   }catch(e){el.innerHTML=`<div style='font-size:12px;color:var(--coral)'>${e.message==='NO_KEY'?'<i class="ti ti-key"></i> No API key — click API key in the toolbar':'Error: '+e.message}</div>`;}
   btn.disabled=false;
+}
+
+function parseSubjectBody(raw){
+  const lines = raw.trim().split('\n');
+  if(lines[0].toUpperCase().startsWith('SUBJECT:')){
+    const subject = lines[0].replace(/^SUBJECT:\s*/i,'').trim();
+    const body = lines.slice(1).join('\n').replace(/^\n/,'').trim();
+    return {subject, body};
+  }
+  return {subject:'', body:raw.trim()};
+}
+
+function copyDraftSubject(){
+  const txt=document.getElementById('draft-subject')?.textContent||'';
+  navigator.clipboard?.writeText(txt).then(()=>{
+    const b=event.currentTarget;
+    const orig=b.innerHTML;
+    b.innerHTML='<i class="ti ti-check"></i>';
+    setTimeout(()=>b.innerHTML=orig,1500);
+  });
 }
 
 function copyDraft(){
@@ -1543,8 +1577,10 @@ function copyDraft(){
 
 function useDraft(tn){
   const l=leads.find(x=>x.id===selId);if(!l) return;
-  const draft=document.getElementById('draft-text')?.innerText||'';
-  l.touches[tn]={date:nowPacific(),msg:draft,notes:'AI-generated'};
+  const body=document.getElementById('draft-text')?.innerText||'';
+  const subject=document.getElementById('draft-subject')?.textContent||'';
+  const msg=subject?`SUBJECT: ${subject}\n\n${body}`:body;
+  l.touches[tn]={date:nowPacific(),msg,notes:'AI-generated'};
   if(tn>=2&&tn<=7) l.pipeline='connected';
   save();renderTimeline();renderLeads();
   document.getElementById('draft-result').innerHTML=`<div style="font-size:12px;color:var(--green);padding:6px 0"><i class="ti ti-check"></i> Logged as T${tn}</div>`;
@@ -1561,6 +1597,9 @@ async function generateLogMsg(){
   btn.disabled=true;
   btn.innerHTML='<div class="spinner" style="display:inline-block;width:11px;height:11px;border-width:1.5px;margin-right:5px"></div>Generating…';
   resultBox.style.display='block';
+  // Clear any previous subject line
+  const prevSubj=document.getElementById('log-gen-subject');
+  if(prevSubj) prevSubj.closest('div[style*="margin-bottom:8px"]')?.remove();
   resultText.textContent='Thinking…';
 
   const pip=inferPipeline(l);
@@ -1660,7 +1699,11 @@ WRITING RULES (critical — follow exactly):
 - Never pad to hit a word count. Shorter is always better if meaning is preserved.
 - Never invent facts not in the profile. Use title + company if no bio provided.
 - Never repeat what was said in previous touches
-- Return ONLY the message text — no subject line, no sign-off, no preamble
+- Return the subject line on the first line in this exact format: SUBJECT: [subject here]. Then a blank line. Then the message body. No other preamble or sign-off. Example format:
+SUBJECT: How your teams explain complex solutions at scale
+
+Hi [Name],
+[message body]
 - NEVER refuse, flag issues, or add meta-commentary. Always write the message. No exceptions.
 - DIRECTION RULE: Vadik is always asking the prospect for something — never offering to connect the prospect with someone else. If referencing another person internally, always frame it as Vadik asking to be pointed there, never as Vadik offering to make an introduction.
 
@@ -1686,8 +1729,13 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
 - T12 (Breakup / referral — sent ~65 business days after T1): Max 2 sentences. Close the loop. Ask if there's a better person to talk to. No pressure.`;
 
   try{
-    const draft=await claudeAPI(prompt,600);
-    resultText.textContent=draft;
+    const raw=await claudeAPI(prompt,600);
+    const {subject,body}=parseSubjectBody(raw);
+    // Show subject above message if present
+    const subjectHtml = subject ? `<div style="margin-bottom:8px"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Subject line</div><div style="display:flex;align-items:center;gap:6px"><div id="log-gen-subject" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px;font-size:12px;color:var(--text);flex:1">${subject}</div><button class="btn btn-sm" onclick="copyLogSubject()" style="flex-shrink:0"><i class="ti ti-copy"></i></button></div></div>` : '';
+    resultBox.style.display='block';
+    resultText.parentElement.insertAdjacentHTML('afterbegin', subjectHtml);
+    resultText.textContent=body;
   }catch(e){
     resultText.textContent=e.message==='NO_KEY'?'No API key set — click the API key button in the toolbar to add yours':'Error: '+e.message;
   }
@@ -1695,9 +1743,21 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
   btn.innerHTML='<i class="ti ti-sparkles"></i> Generate message';
 }
 
+function copyLogSubject(){
+  const txt=document.getElementById('log-gen-subject')?.textContent||'';
+  navigator.clipboard?.writeText(txt).then(()=>{
+    const b=event.currentTarget;
+    const orig=b.innerHTML;
+    b.innerHTML='<i class="ti ti-check"></i>';
+    setTimeout(()=>b.innerHTML=orig,1500);
+  });
+}
+
 function useLogGenMsg(){
-  const txt=document.getElementById('log-gen-text')?.textContent||'';
-  document.getElementById('lt-msg').value=txt;
+  const body=document.getElementById('log-gen-text')?.textContent||'';
+  const subject=document.getElementById('log-gen-subject')?.textContent||'';
+  const msg=subject?`SUBJECT: ${subject}\n\n${body}`:body;
+  document.getElementById('lt-msg').value=msg;
   document.getElementById('log-gen-result').style.display='none';
 }
 
