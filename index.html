@@ -1421,13 +1421,13 @@ async function runDraft(){
   const referralMode = isReferralMode();
   const referralAngle = l.referralAngle||'';
 
-  const referralHeader = referralMode ? `REFERRAL MODE ACTIVE: This prospect is not the ideal direct buyer. For T2 onward, shift goal from pitching to rapport-building and asking for a referral to the right person internally. Still anchor messages to the taxonomy — use buyer problems to show you understand their world, but frame Smart Spatial as something their colleagues would benefit from, not the prospect directly. For touches that normally include a proof link (T4, T5, T9, T10, T11), ALWAYS include one — this is mandatory. Position it as something they can forward to the right person. Do not drop the link to shorten the message. Always end T3 onward with an explicit but low-pressure referral ask. IMPORTANT: Vadik is asking the prospect to refer HIM to the right person — not offering to connect the prospect with anyone. The ask is always 'can you point me to the right person at your company', never 'I can connect you with someone'. Each touch must use a DIFFERENT approach — never repeat the same phrasing across touches. Choose from styles like:
-- Direct ask: "Is there someone on your [team] who owns this I should connect with?"
-- Soft check: "Not sure if this lands with you or someone else at [company] — happy to be pointed in the right direction."
-- Forward offer: "If it's more relevant to a colleague, I'm happy to reach out to them directly — just point me their way."
-- Permission ask: "Would it be odd to ask if there's a better person internally to run this by?"
-- Casual close: "If this isn't your world, no worries — just let me know who it might be relevant for."
-Pick whichever feels most natural for the tone of this specific message. Never use the same style twice in a sequence. Suggested referral target: ${referralAngle||'their marketing, sales enablement, or product marketing lead'}. T1 stays a normal connection request.\n` : '';
+  const referralHeader = referralMode ? `REFERRAL MODE ACTIVE: This prospect is not the ideal direct buyer. For T2 onward, shift goal from pitching to rapport-building and asking for a referral to the right person internally. Still anchor messages to the taxonomy — use buyer problems to show you understand their world, but frame Smart Spatial as something their colleagues would benefit from, not the prospect directly. For touches that normally include a proof link (T4, T5, T9, T10, T11), ALWAYS include one — this is mandatory. Position it as something they can forward to the right person. Do not drop the link to shorten the message. Always end T3 onward with a referral ask. IMPORTANT: Vadik is asking the prospect to point HIM to the right person — never the reverse. The ask should feel confident and natural. Avoid overusing "no worries" or "if this isn't your domain" — they're fine occasionally but should not appear in every touch. Each touch must use a genuinely different approach — not just different words for the same idea. Choose from these distinct styles:
+- Embedded question: End the main point with "...or is that more [team]'s world at [company]?" — makes the referral ask part of the sentence, not a separate paragraph.
+- Simple redirect: One short sentence at the end: "Who on your team owns how [solutions] get in front of buyers?"
+- Assumed referral: "If there's a better person to loop in on this, just say the word."
+- Direct ask mid-message: Ask for the referral in the middle, not tacked on at the end.
+- Nothing extra: Sometimes the message body naturally implies the referral — end cleanly without a separate ask if the redirect is already clear from context.
+Never start the referral ask with "If this isn't..." and never use the same style twice in a sequence. Suggested referral target: ${referralAngle||'their marketing, sales enablement, or product marketing lead'}. T1 stays a normal connection request.\n` : '';
 
   const prompt=`You are ghostwriting a LinkedIn message FOR Vadik (Vadim Ananyev), Director of Product Growth at Smart Spatial. Vadik is the SENDER. The prospect is the RECIPIENT. Never write from the prospect's perspective. Never use 'I' to describe the prospect's job, role, or experience. All 'I' statements refer to Vadik. Smart Spatial turns complex technical products into interactive 3D spatial experiences — replacing static slides and physical demos with scalable immersive experiences across sales, marketing, enablement, and events.
 
@@ -1488,13 +1488,14 @@ CRITICAL: Only reference a prospect reply or response if it appears in the "Repl
 
 
 WRITING RULES (critical — follow exactly):
+- NEVER use em dashes (—) anywhere in the message. Not once. Replace with a period, comma, or rewrite the sentence. This is non-negotiable.
 - Sound like a real human, not a sales tool. If it reads like a template, rewrite it.
 - Read the output back. If a real person wouldn't say it, cut it.
 - Short sentences. One idea per message. No filler between ideas.
 - Use a comma after the first name: "Hi Brian," — never a dash
 - No buzzwords: never use "leverage", "synergy", "innovative", "cutting-edge", "game-changing", "transformative", "seamlessly", "thrilled", "excited", "delighted", "pleasure"
 - No corporate filler: never use "I hope this finds you well", "I wanted to reach out", "I came across your profile", "I'd love to", "Just wanted to", "Touching base", "I'm reaching out because"
-- Never use em dashes (—) in messages. Use a period, comma, or rewrite the sentence instead.
+
 - No flattery, no hollow openers, no observations that could apply to anyone
 - First name only at the start — never full name
 - Never pad to hit a word count. Shorter is always better if meaning is preserved.
@@ -1591,13 +1592,13 @@ async function generateLogMsg(){
   const referralMode = isReferralMode();
   const referralAngle = l.referralAngle||'';
 
-  const referralHeader = referralMode ? `REFERRAL MODE ACTIVE: This prospect is not the ideal direct buyer. For T2 onward, shift goal from pitching to rapport-building and asking for a referral to the right person internally. Still anchor messages to the taxonomy — use buyer problems to show you understand their world, but frame Smart Spatial as something their colleagues would benefit from, not the prospect directly. For touches that normally include a proof link (T4, T5, T9, T10, T11), ALWAYS include one — this is mandatory. Position it as something they can forward to the right person. Do not drop the link to shorten the message. Always end T3 onward with an explicit but low-pressure referral ask. IMPORTANT: Vadik is asking the prospect to refer HIM to the right person — not offering to connect the prospect with anyone. The ask is always 'can you point me to the right person at your company', never 'I can connect you with someone'. Each touch must use a DIFFERENT approach — never repeat the same phrasing across touches. Choose from styles like:
-- Direct ask: "Is there someone on your [team] who owns this I should connect with?"
-- Soft check: "Not sure if this lands with you or someone else at [company] — happy to be pointed in the right direction."
-- Forward offer: "If it's more relevant to a colleague, I'm happy to reach out to them directly — just point me their way."
-- Permission ask: "Would it be odd to ask if there's a better person internally to run this by?"
-- Casual close: "If this isn't your world, no worries — just let me know who it might be relevant for."
-Pick whichever feels most natural for the tone of this specific message. Never use the same style twice in a sequence. Suggested referral target: ${referralAngle||'their marketing, sales enablement, or product marketing lead'}. T1 stays a normal connection request.\n` : '';
+  const referralHeader = referralMode ? `REFERRAL MODE ACTIVE: This prospect is not the ideal direct buyer. For T2 onward, shift goal from pitching to rapport-building and asking for a referral to the right person internally. Still anchor messages to the taxonomy — use buyer problems to show you understand their world, but frame Smart Spatial as something their colleagues would benefit from, not the prospect directly. For touches that normally include a proof link (T4, T5, T9, T10, T11), ALWAYS include one — this is mandatory. Position it as something they can forward to the right person. Do not drop the link to shorten the message. Always end T3 onward with a referral ask. IMPORTANT: Vadik is asking the prospect to point HIM to the right person — never the reverse. The ask should feel confident and natural. Avoid overusing "no worries" or "if this isn't your domain" — they're fine occasionally but should not appear in every touch. Each touch must use a genuinely different approach — not just different words for the same idea. Choose from these distinct styles:
+- Embedded question: End the main point with "...or is that more [team]'s world at [company]?" — makes the referral ask part of the sentence, not a separate paragraph.
+- Simple redirect: One short sentence at the end: "Who on your team owns how [solutions] get in front of buyers?"
+- Assumed referral: "If there's a better person to loop in on this, just say the word."
+- Direct ask mid-message: Ask for the referral in the middle, not tacked on at the end.
+- Nothing extra: Sometimes the message body naturally implies the referral — end cleanly without a separate ask if the redirect is already clear from context.
+Never start the referral ask with "If this isn't..." and never use the same style twice in a sequence. Suggested referral target: ${referralAngle||'their marketing, sales enablement, or product marketing lead'}. T1 stays a normal connection request.\n` : '';
 
   const prompt=`You are ghostwriting a LinkedIn message FOR Vadik (Vadim Ananyev), Director of Product Growth at Smart Spatial. Vadik is the SENDER. The prospect is the RECIPIENT. Never write from the prospect's perspective. Never use 'I' to describe the prospect's job, role, or experience. All 'I' statements refer to Vadik. Smart Spatial turns complex technical products into interactive 3D spatial experiences — replacing static slides and physical demos with scalable immersive experiences across sales, marketing, enablement, and events.
 
@@ -1658,13 +1659,14 @@ CRITICAL: Only reference a prospect reply or response if it appears in the "Repl
 
 
 WRITING RULES (critical — follow exactly):
+- NEVER use em dashes (—) anywhere in the message. Not once. Replace with a period, comma, or rewrite the sentence. This is non-negotiable.
 - Sound like a real human, not a sales tool. If it reads like a template, rewrite it.
 - Read the output back. If a real person wouldn't say it, cut it.
 - Short sentences. One idea per message. No filler between ideas.
 - Use a comma after the first name: "Hi Brian," — never a dash
 - No buzzwords: never use "leverage", "synergy", "innovative", "cutting-edge", "game-changing", "transformative", "seamlessly", "thrilled", "excited", "delighted", "pleasure"
 - No corporate filler: never use "I hope this finds you well", "I wanted to reach out", "I came across your profile", "I'd love to", "Just wanted to", "Touching base", "I'm reaching out because"
-- Never use em dashes (—) in messages. Use a period, comma, or rewrite the sentence instead.
+
 - No flattery, no hollow openers, no observations that could apply to anyone
 - First name only at the start — never full name
 - Never pad to hit a word count. Shorter is always better if meaning is preserved.
