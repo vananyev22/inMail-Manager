@@ -1374,14 +1374,21 @@ SMART SPATIAL IS UNIQUELY CREDIBLE BECAUSE:
 - Designed for selling and GTM, not engineering visualization
 - Reduces cognitive load for both buyer and seller
 
-Analyze this prospect and identify which of the 9 problems most likely apply to their world, then score fit:
+SCORING INSTRUCTIONS — READ BEFORE ANALYZING:
+1. BASE THE SCORE ON THE CURRENT ROLE ONLY. The current role = their present title + company + any responsibility description written under that position. This is the primary and dominant signal.
+2. If an About/summary section is present in the profile, use it as supporting context only. If it summarizes an entire career arc rather than the current role, do not let it override the current title and company as the scoring anchor.
+3. Previous roles are NOT scoring inputs. Do not let past employers, past titles, or past industry exposure influence the score up or down.
+4. Previous roles ARE referral inputs. If the current role scores 5 or below, scan prior roles and employers to identify whether a past colleague, current peer, or internal function at their present company would be a stronger Smart Spatial prospect. Use that to inform the referral_angle field.
+5. If the current role has no personal responsibility description (only a company boilerplate), score based on title + company alone and note the inference in the reason field.
+
+Analyze this prospect and identify which of the 9 problems most likely apply to their current role, then score fit:
 Name: ${l.first} ${l.last}
 Title: ${l.title}
 Company: ${l.company}
 Profile: ${profile||'(not provided — infer from title and company)'}
 
 Respond ONLY with valid JSON, no markdown:
-{"score":"1-10 integer","problems":[list of 1-3 problem numbers most relevant],"reason":"2-3 sentences explaining fit in plain language — describe which specific challenges this person likely faces in their role and why Smart Spatial is relevant. Do NOT reference problem numbers or labels like 'Problem 1'. Write as if explaining to a salesperson who has never heard of the taxonomy.","referral_angle":"Only populate if score is 5 or below. One sentence identifying who internally at this company would be a better Smart Spatial prospect — be specific about the role or function (e.g. 'Their VP of Marketing or Sales Enablement lead would own the problem Smart Spatial solves'). Leave empty string if score is 6 or above."}`;
+{"score":"1-10 integer","problems":[list of 1-3 problem numbers most relevant],"reason":"2-3 sentences explaining fit in plain language — describe which specific challenges this person likely faces in their current role and why Smart Spatial is relevant. Do NOT reference problem numbers or labels like 'Problem 1'. Write as if explaining to a salesperson who has never heard of the taxonomy. If scoring was based on title and company only with no personal responsibility description, note that briefly.","referral_angle":"Only populate if score is 5 or below. One sentence identifying who at the same company would be a better Smart Spatial prospect — be specific about the role or function (e.g. 'Their VP of Marketing or Sales Enablement lead would own the problem Smart Spatial solves'). Leave empty string if score is 6 or above."}`;
   try{
     const raw=await claudeAPI(prompt,500);
     const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
