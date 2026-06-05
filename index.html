@@ -758,7 +758,11 @@ function isComplete(l){
 function fmtDaysUntil(n){
   if(n<0) return `<span style="color:var(--coral);font-weight:600">Overdue ${Math.abs(n)}d</span>`;
   if(n===0) return `<span style="color:var(--amber);font-weight:600">Due today</span>`;
-  if(n===1) return `<span style="color:var(--amber);font-weight:600">Due tomorrow</span>`;
+  if(n===1){
+    const dow=new Date().getDay();
+    const label=(dow===4||dow===5)?'Due Monday':'Due tomorrow';
+    return `<span style="color:var(--amber);font-weight:600">${label}</span>`;
+  }
   return `<span style="color:var(--text2)">Due in ${n}d</span>`;
 }
 
