@@ -241,8 +241,15 @@ a:hover{text-decoration:underline}
       <div class="ctx-item" onclick="event.stopPropagation();exportData();toggleExportMenu()"><i class="ti ti-file-code"></i> Export JSON</div>
     </div>
   </div>
-  <button class="btn" onclick="importClick()"><i class="ti ti-upload"></i> Import</button>
-  <input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(event)">
+  <div style="position:relative" id="import-wrap">
+    <button class="btn" onclick="toggleImportMenu()"><i class="ti ti-upload"></i> Import</button>
+    <div id="import-menu" style="display:none;position:absolute;top:100%;right:0;margin-top:4px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);z-index:100;min-width:160px;padding:4px">
+      <button class="btn" style="width:100%;justify-content:flex-start;font-size:12px;padding:6px 10px;background:none;border:none" onclick="importClick('json')"><i class="ti ti-file-code"></i> Import JSON</button>
+      <button class="btn" style="width:100%;justify-content:flex-start;font-size:12px;padding:6px 10px;background:none;border:none" onclick="importClick('csv')"><i class="ti ti-file-spreadsheet"></i> Import CSV</button>
+    </div>
+  </div>
+  <input type="file" id="import-input-json" accept=".json" style="display:none" onchange="importData(event,'json')">
+  <input type="file" id="import-input-csv" accept=".csv" style="display:none" onchange="importData(event,'csv')">
   <button class="btn btn-primary" onclick="openAddModal()"><i class="ti ti-plus"></i> Add lead</button>
 </div>
 
@@ -1557,29 +1564,24 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
 
   // T1 short-circuit: use a completely separate minimal prompt
   const profileText = (typeof profile !== 'undefined' ? profile : null) || l.profile || 'not provided';
-  // Pick a random sentence structure to force variety
-  const t1Structures = [
-    'Start the sentence with the company name ' + l.company + '. Example pattern: [Company] [does something] that [creates a specific challenge], would love to connect.',
-    'Start the sentence with the industry or market they operate in. Example pattern: [Industry] [involves a specific dynamic] that [creates a challenge], would love to connect.',
-    'Start the sentence with the specific product or solution they sell or market. Example pattern: [Product/solution] [has a specific property] that [makes something hard], curious to connect.',
-    'Start the sentence with the word The followed by a specific challenge. Example pattern: The [specific challenge] in [their world] is [observation], would love to exchange notes.',
-    'Start the sentence with the prospect first name ' + l.first + ' followed by a direct observation. Example pattern: ' + l.first + ', [specific observation about their situation], would love to connect.',
-    'Start with a scale or scope signal from their company or role. Example pattern: A [scale fact] like [company detail] still [faces a specific challenge], curious to connect.'
+  // Randomly pick an opener style to force variety
+  const openers = [
+    l.first + ',',
+    l.company + ',',
+    'Your work at ' + l.company,
+    'Been following ' + l.company,
+    l.first + ', your background in',
+    'Came across your profile'
   ];
-  const chosenStructure = t1Structures[Math.floor(Math.random() * t1Structures.length)];
-  const t1Prompt = 'Write a one-sentence LinkedIn connection request from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+  const opener = openers[Math.floor(Math.random() * openers.length)];
+  const t1Prompt = 'Write a LinkedIn connection request note from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Profile: ' + profileText.substring(0, 500) + '. ' +
-    'This is just a knock on the door. Its only job is to feel safe enough to accept. ' +
-    'One sentence, under 15 words. Start with their first name. ' +
-    'Make one brief, genuine observation about their background or role, then say you would love to connect. ' +
-    'Sound like a real person who noticed them, not a salesperson who researched them. ' +
-    'No flattery, no analysis, no pitch, no Smart Spatial. No dashes of any kind. Write one complete grammatical sentence. ' +
-    'Good: Tim, your background in industrial marketing caught my attention, would love to connect. ' +
-    'Good: Karl, your work leading infrastructure at AECOM caught my eye, would love to connect. ' +
-    'Good: Jenny, your career spanning global P&L and commercial leadership is impressive, would love to connect. ' +
-    'Bad: Tim, researching Nalcos marketing team and your work came up, would love to connect. ' +
-    'Bad: Tim, industrial water treatment involves such diverse markets that leading innovation across all of them is impressive. ' +
-    'Keep it simple, warm, and human. Return only the message text. Nothing else.';
+    'Start the sentence with: ' + opener + ' ' +
+    'One sentence only. Under 15 words total. End with would love to connect or similar close. ' +
+    'It should sound like a genuine human note, not a sales pitch. ' +
+    'Reference something specific and real about their role, company, or background. ' +
+    'No flattery, no problem framing, no pitch, no Smart Spatial, no dashes. ' +
+    'Return only the message text. Nothing else.';
   const finalPrompt = touchNum===1 ? t1Prompt : prompt;
 
   try{
@@ -1836,29 +1838,24 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
 
   // T1 short-circuit: use a completely separate minimal prompt
   const profileText = (typeof profile !== 'undefined' ? profile : null) || l.profile || 'not provided';
-  // Pick a random sentence structure to force variety
-  const t1Structures = [
-    'Start the sentence with the company name ' + l.company + '. Example pattern: [Company] [does something] that [creates a specific challenge], would love to connect.',
-    'Start the sentence with the industry or market they operate in. Example pattern: [Industry] [involves a specific dynamic] that [creates a challenge], would love to connect.',
-    'Start the sentence with the specific product or solution they sell or market. Example pattern: [Product/solution] [has a specific property] that [makes something hard], curious to connect.',
-    'Start the sentence with the word The followed by a specific challenge. Example pattern: The [specific challenge] in [their world] is [observation], would love to exchange notes.',
-    'Start the sentence with the prospect first name ' + l.first + ' followed by a direct observation. Example pattern: ' + l.first + ', [specific observation about their situation], would love to connect.',
-    'Start with a scale or scope signal from their company or role. Example pattern: A [scale fact] like [company detail] still [faces a specific challenge], curious to connect.'
+  // Randomly pick an opener style to force variety
+  const openers = [
+    l.first + ',',
+    l.company + ',',
+    'Your work at ' + l.company,
+    'Been following ' + l.company,
+    l.first + ', your background in',
+    'Came across your profile'
   ];
-  const chosenStructure = t1Structures[Math.floor(Math.random() * t1Structures.length)];
-  const t1Prompt = 'Write a one-sentence LinkedIn connection request from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+  const opener = openers[Math.floor(Math.random() * openers.length)];
+  const t1Prompt = 'Write a LinkedIn connection request note from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Profile: ' + profileText.substring(0, 500) + '. ' +
-    'This is just a knock on the door. Its only job is to feel safe enough to accept. ' +
-    'One sentence, under 15 words. Start with their first name. ' +
-    'Make one brief, genuine observation about their background or role, then say you would love to connect. ' +
-    'Sound like a real person who noticed them, not a salesperson who researched them. ' +
-    'No flattery, no analysis, no pitch, no Smart Spatial. No dashes of any kind. Write one complete grammatical sentence. ' +
-    'Good: Tim, your background in industrial marketing caught my attention, would love to connect. ' +
-    'Good: Karl, your work leading infrastructure at AECOM caught my eye, would love to connect. ' +
-    'Good: Jenny, your career spanning global P&L and commercial leadership is impressive, would love to connect. ' +
-    'Bad: Tim, researching Nalcos marketing team and your work came up, would love to connect. ' +
-    'Bad: Tim, industrial water treatment involves such diverse markets that leading innovation across all of them is impressive. ' +
-    'Keep it simple, warm, and human. Return only the message text. Nothing else.';
+    'Start the sentence with: ' + opener + ' ' +
+    'One sentence only. Under 15 words total. End with would love to connect or similar close. ' +
+    'It should sound like a genuine human note, not a sales pitch. ' +
+    'Reference something specific and real about their role, company, or background. ' +
+    'No flattery, no problem framing, no pitch, no Smart Spatial, no dashes. ' +
+    'Return only the message text. Nothing else.';
   const finalPrompt = touchNum===1 ? t1Prompt : prompt;
 
   try{
@@ -2017,19 +2014,157 @@ function exportCSV(){
   a.download = `inmail_leads_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 }
-function importClick(){document.getElementById('import-input').click();}
-function importData(e){
+function toggleImportMenu(){
+  const menu=document.getElementById('import-menu');
+  menu.style.display=menu.style.display==='none'?'block':'none';
+}
+document.addEventListener('click',e=>{
+  if(!document.getElementById('import-wrap')?.contains(e.target))
+    {const m=document.getElementById('import-menu');if(m)m.style.display='none';}
+});
+function importClick(type){
+  document.getElementById('import-menu').style.display='none';
+  document.getElementById(type==='csv'?'import-input-csv':'import-input-json').click();
+}
+function importData(e,type){
   const file=e.target.files[0];if(!file) return;
   const r=new FileReader();
   r.onload=ev=>{
-    try{
-      const data=JSON.parse(ev.target.result);
-      if(Array.isArray(data)){leads=data;save();renderStats();renderLeads();alert(`Imported ${data.length} leads.`);}
-      else alert('Invalid file format.');
-    }catch{alert('Could not parse JSON file.');}
+    if(type==='csv'){
+      importCSV(ev.target.result);
+    } else {
+      try{
+        const data=JSON.parse(ev.target.result);
+        if(Array.isArray(data)){leads=data;save();renderStats();renderLeads();alert(`Imported ${data.length} leads.`);}
+        else alert('Invalid file format.');
+      }catch{alert('Could not parse JSON file.');}
+    }
   };
   r.readAsText(file);
   e.target.value='';
+}
+
+function importCSV(text){
+  const allRows = parseCSVFull(text.trim());
+  if(allRows.length < 2){alert('CSV appears empty.');return;}
+
+  // Parse headers from first row
+  const headers = allRows[0].map(h=>h.trim().toLowerCase().replace(/^\uFEFF/,'').replace(/[^a-z0-9\s]/g,'').trim());
+
+  // Column index helpers
+  const col = (...names) => {
+    for(const n of names){
+      const i = headers.indexOf(n.toLowerCase());
+      if(i>=0) return i;
+    }
+    return -1;
+  };
+
+  const iFirst    = col('first name','first','firstname');
+  const iLast     = col('last name','last','lastname');
+  const iName     = col('name'); // combined name column from export
+  const iTitle    = col('title','job title','position');
+  const iCompany  = col('company','organization','employer');
+  const iUrl      = col('linkedin url','linkedin','url','profile url','linkedin profile');
+  const iPersona  = col('persona');
+  const iEmail    = col('email','email address');
+
+  if(iFirst<0&&iLast<0&&iName<0){alert('CSV must have a Name column or First Name and Last Name columns.');return;}
+
+  // Build lookup of existing leads by LinkedIn URL
+  const existingByUrl = {};
+  leads.forEach(l=>{if(l.url) existingByUrl[l.url.trim().toLowerCase()]=true;});
+
+  // Build lookup by normalized name (strip credentials, punctuation, extra spaces)
+  const normName = str => str.toLowerCase().replace(/[^a-z\s]/g,'').replace(/\s+/g,' ').trim();
+  const existingByName = {};
+  leads.forEach(l=>{existingByName[normName(`${l.first} ${l.last}`)]=true;});
+
+  let added=0, skipped=0;
+  const maxId = leads.reduce((m,l)=>Math.max(m,l.id||0),0);
+  let nextId = maxId+1;
+
+  for(let i=1;i<allRows.length;i++){
+    const row = allRows[i];
+    if(!row.length||row.every(c=>!c.trim())) continue;
+
+    let first = iFirst>=0 ? row[iFirst]?.trim()||'' : '';
+    let last  = iLast>=0  ? row[iLast]?.trim()||''  : '';
+    // Handle combined Name column (e.g. "Tim Cassidy")
+    if((!first||!last) && iName>=0 && row[iName]){
+      const parts = row[iName].trim().split(/\s+/);
+      if(parts.length>=2){first=parts[0];last=parts.slice(1).join(' ');}
+      else if(parts.length===1){first=parts[0];last='';}
+    }
+    const title   = iTitle>=0   ? row[iTitle]?.trim()||''   : '';
+    const company = iCompany>=0 ? row[iCompany]?.trim()||'' : '';
+    const url     = iUrl>=0     ? row[iUrl]?.trim()||''     : '';
+    const persona = iPersona>=0 ? row[iPersona]?.trim()||'' : 'commercial';
+    const email   = iEmail>=0   ? row[iEmail]?.trim()||''   : '';
+
+    if(!first||!last){skipped++;continue;}
+
+    // Skip duplicates
+    const urlKey = url.toLowerCase();
+    const nameKey = normName(`${first} ${last}`);
+    if((url&&existingByUrl[urlKey])||existingByName[nameKey]){skipped++;continue;}
+
+    const lead = {
+      id: nextId++,
+      first, last, title, company,
+      url: url||'',
+      pipeline: 'noconn',
+      persona: persona||'commercial',
+      profile: '',
+      fitScore: null,
+      fitReason: '',
+      touches: {}
+    };
+    if(email) lead.email = email;
+
+    leads.push(lead);
+    if(url) existingByUrl[urlKey]=true;
+    existingByName[normName(`${first} ${last}`)]=true;
+    added++;
+  }
+
+  save();renderStats();renderLeads();
+  alert(`CSV import complete.\nAdded: ${added} new leads\nSkipped (duplicates or missing name): ${skipped}`);
+}
+
+function parseCSVRow(line){
+  const cells=[];let cur='';let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}
+    else if(c===','&&!inQ){cells.push(cur);cur='';}
+    else cur+=c;
+  }
+  cells.push(cur);
+  return cells.map(c=>c.trim().replace(/^"|"$/g,''));
+}
+
+function parseCSVFull(text){
+  // Full CSV parser that handles multiline quoted fields
+  const rows=[];
+  let row=[];let cur='';let inQ=false;
+  const t=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  for(let i=0;i<t.length;i++){
+    const c=t[i];
+    if(c==='"'){
+      if(inQ&&t[i+1]==='"'){cur+='"';i++;}
+      else inQ=!inQ;
+    } else if(c===','&&!inQ){
+      row.push(cur);cur='';
+    } else if(c==='\n'&&!inQ){
+      row.push(cur);cur='';
+      rows.push(row);row=[];
+    } else {
+      cur+=c;
+    }
+  }
+  if(cur||row.length){row.push(cur);rows.push(row);}
+  return rows;
 }
 
 
