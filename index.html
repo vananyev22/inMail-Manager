@@ -433,7 +433,19 @@ a:hover{text-decoration:underline}
 <!-- Log touch modal -->
 <div class="modal-bg" id="log-modal">
   <div class="modal">
-    <h2><i class="ti ti-pencil" style="color:var(--blue)"></i> Log touch</h2>
+    <h2 style="margin-bottom:8px"><i class="ti ti-pencil" style="color:var(--blue)"></i> Log touch</h2>
+    <div id="log-modal-prospect" style="padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;display:none">
+      <div id="log-modal-name" style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px"></div>
+      <div id="log-modal-meta" style="font-size:11px;color:var(--text2);margin-bottom:6px"></div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <a id="log-modal-li" href="#" target="_blank" style="font-size:11px;display:inline-flex;align-items:center;gap:3px;color:var(--blue);text-decoration:none"><i class="ti ti-brand-linkedin"></i> LinkedIn</a>
+        <span id="log-modal-email-row" style="display:none;align-items:center;gap:4px">
+          <i class="ti ti-mail" style="font-size:11px;color:var(--text2)"></i>
+          <span id="log-modal-email" style="font-size:11px;color:var(--text2)"></span>
+          <button onclick="copyLogEmail()" style="background:none;border:none;cursor:pointer;padding:0;color:var(--text3);display:inline-flex;align-items:center" title="Copy email"><i class="ti ti-copy" style="font-size:11px"></i></button>
+        </span>
+      </div>
+    </div>
     <div class="form-grid">
       <div class="form-row"><label>Touch #</label>
         <select id="lt-num" onchange="setLogTouchNum(this.value)">
@@ -1113,6 +1125,7 @@ function editTouch(lid,tnum){
   selId=lid;
   const t=leads.find(x=>x.id===lid)?.touches[tnum];
   document.getElementById('log-modal').classList.add('open');
+  setLogModalLi();
   setLogTouchNum(tnum);
   const dtField=document.getElementById('lt-dt');
   dtField.value=t?.date||nowPacific();
@@ -1154,6 +1167,7 @@ function openLogModal(){
   const l=leads.find(x=>x.id===selId);if(!l) return;
   const next=getNextTouchStatus(l);
   document.getElementById('log-modal').classList.add('open');
+  setLogModalLi();
   setLogTouchNum(next?next.touch:1);
   const dtField=document.getElementById('lt-dt');
   dtField.value=nowPacific();
@@ -1167,12 +1181,43 @@ function openLogModal(){
   updateReferralUI(l);
 }
 
+function setLogModalLi(){
+  const l=leads.find(x=>x.id===selId);
+  if(!l) return;
+  const a=document.getElementById('log-modal-li');
+  if(a) a.href=l.url||'#';
+  const block=document.getElementById('log-modal-prospect');
+  const nameEl=document.getElementById('log-modal-name');
+  const metaEl=document.getElementById('log-modal-meta');
+  const emailRow=document.getElementById('log-modal-email-row');
+  const emailEl=document.getElementById('log-modal-email');
+  if(nameEl) nameEl.textContent=`${l.first} ${l.last}`;
+  if(metaEl) metaEl.textContent=`${l.title||''}${l.title&&l.company?' · ':''}${l.company||''}`;
+  if(emailRow&&emailEl){
+    if(l.email){
+      emailEl.textContent=l.email;
+      emailRow.style.display='inline-flex';
+    } else {
+      emailRow.style.display='none';
+    }
+  }
+  if(block) block.style.display='block';
+}
+function copyLogEmail(){
+  const l=leads.find(x=>x.id===selId);
+  if(!l||!l.email) return;
+  navigator.clipboard?.writeText(l.email).then(()=>{
+    const btn=document.querySelector('#log-modal-email-row button');
+    if(btn){const orig=btn.innerHTML;btn.innerHTML='<i class="ti ti-check" style="font-size:11px"></i>';setTimeout(()=>btn.innerHTML=orig,1500);}
+  });
+}
 function closeLogModal(){document.getElementById('log-modal').classList.remove('open');}
 
 function quickLog(id,tn){
   selId=id;
   selectLead(id);
   document.getElementById('log-modal').classList.add('open');
+  setLogModalLi();
   setLogTouchNum(tn);
   const dtField=document.getElementById('lt-dt');
   dtField.value=nowPacific();
