@@ -1512,20 +1512,29 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
 
   // T1 short-circuit: use a completely separate minimal prompt
   const profileText = (typeof profile !== 'undefined' ? profile : null) || l.profile || 'not provided';
-  const t1Prompt = 'You are writing a short LinkedIn connection request note. ' +
-    'Sender: Vadik Ananyev. Recipient: ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+  // Pick a random sentence structure to force variety
+  const t1Structures = [
+    'Start the sentence with the company name ' + l.company + '. Example pattern: [Company] [does something] that [creates a specific challenge], would love to connect.',
+    'Start the sentence with the industry or market they operate in. Example pattern: [Industry] [involves a specific dynamic] that [creates a challenge], would love to connect.',
+    'Start the sentence with the specific product or solution they sell or market. Example pattern: [Product/solution] [has a specific property] that [makes something hard], curious to connect.',
+    'Start the sentence with the word The followed by a specific challenge. Example pattern: The [specific challenge] in [their world] is [observation], would love to exchange notes.',
+    'Start the sentence with the prospect first name ' + l.first + ' followed by a direct observation. Example pattern: ' + l.first + ', [specific observation about their situation], would love to connect.',
+    'Start with a scale or scope signal from their company or role. Example pattern: A [scale fact] like [company detail] still [faces a specific challenge], curious to connect.'
+  ];
+  const chosenStructure = t1Structures[Math.floor(Math.random() * t1Structures.length)];
+  const t1Prompt = 'Write a one-sentence LinkedIn connection request from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Profile: ' + profileText.substring(0, 500) + '. ' +
-    'Rules: ' +
-    '1. ONE sentence only. Under 20 words. ' +
-    '2. Must sound like a real LinkedIn connection note a human would type, not a sales message. ' +
-    '3. Reference something specific about their role or company that shows you actually looked at their profile. ' +
-    '4. End with asking to connect or saying you would like to connect. ' +
-    '5. No pitch, no value prop, no Smart Spatial, no questions about their problems. ' +
-    '6. Do not start with I imagine, I noticed, Your work, or Balancing. ' +
-    '7. No em dashes. ' +
-    'Good example: Scaling water treatment sales across industrial segments is a tough story to tell consistently, would love to connect. ' +
-    'Bad example: I imagine balancing global launches while ensuring local teams adapt messaging creates friction in your role. ' +
-    'Return only the message text. Nothing else.';
+    'This is just a knock on the door. Its only job is to feel safe enough to accept. ' +
+    'One sentence, under 15 words. Start with their first name. ' +
+    'Make one brief, genuine observation about their background or role, then say you would love to connect. ' +
+    'Sound like a real person who noticed them, not a salesperson who researched them. ' +
+    'No flattery, no analysis, no pitch, no Smart Spatial, no em dashes. ' +
+    'Good: Tim, your background in industrial marketing caught my attention, would love to connect. ' +
+    'Good: Karl, your work leading infrastructure at AECOM caught my eye, would love to connect. ' +
+    'Good: Jenny, your career spanning global P&L and commercial leadership is impressive, would love to connect. ' +
+    'Bad: Tim, researching Nalcos marketing team and your work came up, would love to connect. ' +
+    'Bad: Tim, industrial water treatment involves such diverse markets that leading innovation across all of them is impressive. ' +
+    'Keep it simple, warm, and human. Return only the message text. Nothing else.';
   const finalPrompt = touchNum===1 ? t1Prompt : prompt;
 
   try{
@@ -1589,6 +1598,8 @@ async function regenSubject(context){
 }
 
 function parseSubjectBody(raw){
+  // Strip em dashes regardless of AI compliance — replace with comma+space for natural flow
+  raw = raw.replace(/\s*—\s*/g, ', ');
   const lines = raw.trim().split('\n');
   if(lines[0].toUpperCase().startsWith('SUBJECT:')){
     const subject = lines[0].replace(/^SUBJECT:\s*/i,'').trim();
@@ -1776,20 +1787,29 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
 
   // T1 short-circuit: use a completely separate minimal prompt
   const profileText = (typeof profile !== 'undefined' ? profile : null) || l.profile || 'not provided';
-  const t1Prompt = 'You are writing a short LinkedIn connection request note. ' +
-    'Sender: Vadik Ananyev. Recipient: ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+  // Pick a random sentence structure to force variety
+  const t1Structures = [
+    'Start the sentence with the company name ' + l.company + '. Example pattern: [Company] [does something] that [creates a specific challenge], would love to connect.',
+    'Start the sentence with the industry or market they operate in. Example pattern: [Industry] [involves a specific dynamic] that [creates a challenge], would love to connect.',
+    'Start the sentence with the specific product or solution they sell or market. Example pattern: [Product/solution] [has a specific property] that [makes something hard], curious to connect.',
+    'Start the sentence with the word The followed by a specific challenge. Example pattern: The [specific challenge] in [their world] is [observation], would love to exchange notes.',
+    'Start the sentence with the prospect first name ' + l.first + ' followed by a direct observation. Example pattern: ' + l.first + ', [specific observation about their situation], would love to connect.',
+    'Start with a scale or scope signal from their company or role. Example pattern: A [scale fact] like [company detail] still [faces a specific challenge], curious to connect.'
+  ];
+  const chosenStructure = t1Structures[Math.floor(Math.random() * t1Structures.length)];
+  const t1Prompt = 'Write a one-sentence LinkedIn connection request from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Profile: ' + profileText.substring(0, 500) + '. ' +
-    'Rules: ' +
-    '1. ONE sentence only. Under 20 words. ' +
-    '2. Must sound like a real LinkedIn connection note a human would type, not a sales message. ' +
-    '3. Reference something specific about their role or company that shows you actually looked at their profile. ' +
-    '4. End with asking to connect or saying you would like to connect. ' +
-    '5. No pitch, no value prop, no Smart Spatial, no questions about their problems. ' +
-    '6. Do not start with I imagine, I noticed, Your work, or Balancing. ' +
-    '7. No em dashes. ' +
-    'Good example: Scaling water treatment sales across industrial segments is a tough story to tell consistently, would love to connect. ' +
-    'Bad example: I imagine balancing global launches while ensuring local teams adapt messaging creates friction in your role. ' +
-    'Return only the message text. Nothing else.';
+    'This is just a knock on the door. Its only job is to feel safe enough to accept. ' +
+    'One sentence, under 15 words. Start with their first name. ' +
+    'Make one brief, genuine observation about their background or role, then say you would love to connect. ' +
+    'Sound like a real person who noticed them, not a salesperson who researched them. ' +
+    'No flattery, no analysis, no pitch, no Smart Spatial, no em dashes. ' +
+    'Good: Tim, your background in industrial marketing caught my attention, would love to connect. ' +
+    'Good: Karl, your work leading infrastructure at AECOM caught my eye, would love to connect. ' +
+    'Good: Jenny, your career spanning global P&L and commercial leadership is impressive, would love to connect. ' +
+    'Bad: Tim, researching Nalcos marketing team and your work came up, would love to connect. ' +
+    'Bad: Tim, industrial water treatment involves such diverse markets that leading innovation across all of them is impressive. ' +
+    'Keep it simple, warm, and human. Return only the message text. Nothing else.';
   const finalPrompt = touchNum===1 ? t1Prompt : prompt;
 
   try{
