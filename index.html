@@ -604,16 +604,19 @@ function addCalendarDays(date, days){
 }
 
 function businessDaysBetween(d1, d2){
-  let start = new Date(Math.min(d1,d2));
-  let end = new Date(Math.max(d1,d2));
+  let start = new Date(d1); start.setHours(0,0,0,0);
+  let end = new Date(d2); end.setHours(0,0,0,0);
+  const sign = end >= start ? 1 : -1;
+  let lo = new Date(Math.min(start,end));
+  let hi = new Date(Math.max(start,end));
   let count = 0;
-  let cur = new Date(start);
-  while(cur < end){
+  let cur = new Date(lo);
+  while(cur < hi){
     cur.setDate(cur.getDate()+1);
     const dow = cur.getDay();
     if(dow!==0 && dow!==6) count++;
   }
-  return d2 >= d1 ? count : -count;
+  return sign * count;
 }
 
 function calDaysBetween(d1, d2){
