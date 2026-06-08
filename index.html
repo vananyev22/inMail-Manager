@@ -1465,7 +1465,7 @@ CRITICAL: Only reference a prospect reply or response if it appears in the "Repl
 
 
 WRITING RULES (critical — follow exactly):
-- NEVER use em dashes (—) anywhere in the message. Not once. Replace with a period, comma, or rewrite the sentence. This is non-negotiable.
+- NEVER use dashes of any kind (em dash, en dash, double hyphen). Not once, not anywhere. If you feel the urge to use a dash, rewrite the sentence as two complete sentences or use a comma instead. Every sentence must be grammatically complete and standalone.
 - Sound like a real human, not a sales tool. If it reads like a template, rewrite it.
 - Read the output back. If a real person wouldn't say it, cut it.
 - Short sentences. One idea per message. No filler between ideas.
@@ -1528,7 +1528,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'One sentence, under 15 words. Start with their first name. ' +
     'Make one brief, genuine observation about their background or role, then say you would love to connect. ' +
     'Sound like a real person who noticed them, not a salesperson who researched them. ' +
-    'No flattery, no analysis, no pitch, no Smart Spatial, no em dashes. ' +
+    'No flattery, no analysis, no pitch, no Smart Spatial. No dashes of any kind. Write one complete grammatical sentence. ' +
     'Good: Tim, your background in industrial marketing caught my attention, would love to connect. ' +
     'Good: Karl, your work leading infrastructure at AECOM caught my eye, would love to connect. ' +
     'Good: Jenny, your career spanning global P&L and commercial leadership is impressive, would love to connect. ' +
@@ -1598,8 +1598,12 @@ async function regenSubject(context){
 }
 
 function parseSubjectBody(raw){
-  // Strip em dashes regardless of AI compliance — replace with comma+space for natural flow
-  raw = raw.replace(/\s*—\s*/g, ', ');
+  // Strip all dash types and ensure clean sentences
+  raw = raw
+    .replace(/\s*\u2014\s*/g, ', ')   // em dash
+    .replace(/\s*\u2013\s*/g, ', ')   // en dash
+    .replace(/\s*---\s*/g, ', ')       // triple hyphen
+    .replace(/\s*--\s*/g, ', ');       // double hyphen
   const lines = raw.trim().split('\n');
   if(lines[0].toUpperCase().startsWith('SUBJECT:')){
     const subject = lines[0].replace(/^SUBJECT:\s*/i,'').trim();
@@ -1740,7 +1744,7 @@ CRITICAL: Only reference a prospect reply or response if it appears in the "Repl
 
 
 WRITING RULES (critical — follow exactly):
-- NEVER use em dashes (—) anywhere in the message. Not once. Replace with a period, comma, or rewrite the sentence. This is non-negotiable.
+- NEVER use dashes of any kind (em dash, en dash, double hyphen). Not once, not anywhere. If you feel the urge to use a dash, rewrite the sentence as two complete sentences or use a comma instead. Every sentence must be grammatically complete and standalone.
 - Sound like a real human, not a sales tool. If it reads like a template, rewrite it.
 - Read the output back. If a real person wouldn't say it, cut it.
 - Short sentences. One idea per message. No filler between ideas.
@@ -1803,7 +1807,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'One sentence, under 15 words. Start with their first name. ' +
     'Make one brief, genuine observation about their background or role, then say you would love to connect. ' +
     'Sound like a real person who noticed them, not a salesperson who researched them. ' +
-    'No flattery, no analysis, no pitch, no Smart Spatial, no em dashes. ' +
+    'No flattery, no analysis, no pitch, no Smart Spatial. No dashes of any kind. Write one complete grammatical sentence. ' +
     'Good: Tim, your background in industrial marketing caught my attention, would love to connect. ' +
     'Good: Karl, your work leading infrastructure at AECOM caught my eye, would love to connect. ' +
     'Good: Jenny, your career spanning global P&L and commercial leadership is impressive, would love to connect. ' +
