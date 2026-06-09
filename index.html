@@ -202,8 +202,8 @@ a:hover{text-decoration:underline}
       <option value="2">Touch 2 · Problem discovery</option>
       <option value="3">Touch 3 · Pain expansion</option>
       <option value="4">Touch 4 · Credibility</option>
-      <option value="5">Touch 5 · Proof</option>
-      <option value="6">Touch 6 · CTA</option>
+      <option value="5">Touch 5 · Soft ask</option>
+      <option value="6">Touch 6 · Meeting ask</option>
       <option value="7">Touch 7 · Breakup</option>
     </optgroup>
     <optgroup label="— Not Connected —">
@@ -353,8 +353,8 @@ a:hover{text-decoration:underline}
             <option value="2">Touch 2 · Problem discovery</option>
             <option value="3">Touch 3 · Pain expansion</option>
             <option value="4">Touch 4 · Credibility</option>
-            <option value="5">Touch 5 · Proof</option>
-            <option value="6">Touch 6 · CTA</option>
+            <option value="5">Touch 5 · Soft ask</option>
+            <option value="6">Touch 6 · Meeting ask</option>
             <option value="7">Touch 7 · Breakup</option>
           </optgroup>
           <optgroup label="— Not Connected —">
@@ -462,8 +462,8 @@ a:hover{text-decoration:underline}
             <option value="2">Touch 2 · Problem discovery</option>
             <option value="3">Touch 3 · Pain expansion</option>
             <option value="4">Touch 4 · Credibility</option>
-            <option value="5">Touch 5 · Proof</option>
-            <option value="6">Touch 6 · CTA</option>
+            <option value="5">Touch 5 · Soft ask</option>
+            <option value="6">Touch 6 · Meeting ask</option>
             <option value="7">Touch 7 · Breakup</option>
           </optgroup>
           <optgroup label="— Not Connected —">
@@ -544,8 +544,8 @@ const TLABELS={
   2:'Problem discovery',
   3:'Pain expansion',
   4:'Credibility',
-  5:'Proof',
-  6:'CTA',
+  5:'Soft ask',
+  6:'Meeting ask',
   7:'Breakup',
   8:'NC · Problem awareness',
   9:'NC · Visual proof',
@@ -561,8 +561,8 @@ const CONN_CADENCE = {
   2: {label:'Problem discovery',    dayNote:'3 business days after acceptance', goal:'Problem discovery',              bdays:3},
   3: {label:'Pain expansion',       dayNote:'3 business days later',            goal:'Pain expansion',                 bdays:3},
   4: {label:'Credibility',          dayNote:'4 business days later',            goal:'Credibility + business outcome', bdays:4},
-  5: {label:'Proof',                dayNote:'4 business days later',            goal:'Proof (HPE example)',             bdays:4},
-  6: {label:'CTA',                  dayNote:'5 business days later',            goal:'CTA',                            bdays:5},
+  5: {label:'Soft ask',             dayNote:'6 business days later',            goal:'Soft ask (did you see the example?)', bdays:6},
+  6: {label:'Meeting ask',          dayNote:'7 business days later',            goal:'Direct meeting ask',             bdays:7},
   7: {label:'Breakup',              dayNote:'5 business days later',            goal:'Breakup',                        bdays:5},
 };
 
@@ -573,10 +573,10 @@ const NC_CADENCE = [
   {touch:0,  label:'Profile view',        dayNote:'Day 0',                          goal:'Familiarity',             anchorTouch:null, bdays:0},
   {touch:1,  label:'Connection request',  dayNote:'Day 1',                          goal:'Acceptance',              anchorTouch:null, bdays:1},
   {touch:8,  label:'Problem awareness',   dayNote:'7 business days after Touch 1',  goal:'Surface potential pain',  anchorTouch:1,    bdays:7},
-  {touch:9,  label:'Visual proof',        dayNote:'21 business days after Touch 1', goal:'Show example',            anchorTouch:1,    bdays:21},
-  {touch:10, label:'Industry insight',    dayNote:'35 business days after Touch 1', goal:'Teach / create relevance',anchorTouch:1,    bdays:35},
-  {touch:11, label:'Alternative angle',   dayNote:'50 business days after Touch 1', goal:'Reframe value',           anchorTouch:1,    bdays:50},
-  {touch:12, label:'Breakup / referral',  dayNote:'65 business days after Touch 1', goal:'Close loop',              anchorTouch:1,    bdays:65},
+  {touch:9,  label:'Visual proof',        dayNote:'14 business days after Touch 1', goal:'Show example',            anchorTouch:1,    bdays:14},
+  {touch:10, label:'Industry insight',    dayNote:'24 business days after Touch 1', goal:'Teach / create relevance',anchorTouch:1,    bdays:24},
+  {touch:11, label:'Alternative angle',   dayNote:'34 business days after Touch 1', goal:'Reframe value',           anchorTouch:1,    bdays:34},
+  {touch:12, label:'Breakup / referral',  dayNote:'41 business days after Touch 1', goal:'Close loop',              anchorTouch:1,    bdays:41},
 ];
 
 
@@ -1450,6 +1450,7 @@ async function runDraft(){
   if(thisStatus?.status==='due'){
     dueContext=thisStatus.daysUntil<0?`This touch is ${Math.abs(thisStatus.daysUntil)} days overdue.`:thisStatus.daysUntil===0?'This touch is due today.':'This touch is due in '+thisStatus.daysUntil+' days.';
   }
+  const todayStr = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 
   const referralMode = isReferralMode();
   const referralAngle = l.referralAngle||'';
@@ -1510,6 +1511,8 @@ Pipeline type: ${pip==='connected'?'Connected (accepted connection)':'Not connec
 Touch category: ${touchNum<=7?'Connected pipeline (T0–T7)':'Not Connected InMail (T8=Problem awareness, T9=Visual proof, T10=Industry insight, T11=Alternative angle, T12=Breakup/referral)'}
 ${dueContext}
 
+Today's date: ${todayStr}
+
 PREVIOUS MESSAGES SENT:
 ${prevHistory||'None yet — this is the first outreach'}
 
@@ -1518,6 +1521,8 @@ CRITICAL: Only reference a prospect reply or response if it appears in the "Repl
 
 WRITING RULES (critical — follow exactly):
 - NEVER use dashes of any kind (em dash, en dash, double hyphen). Not once, not anywhere. If you feel the urge to use a dash, rewrite the sentence as two complete sentences or use a comma instead. Every sentence must be grammatically complete and standalone.
+- Always write words out in full — never abbreviate. This applies to the message body and subject line. Instead of BD write business development. Instead of ROI write return on investment. Instead of AEC write architecture and engineering. Instead of POC write pilot or trial. Instead of SA or SE write technical rep. The only exceptions are proper nouns and brand names like HPE, DDC, ZutaCore, PowerMax.
+- NEVER reference problem numbers in messages. Never write 'problem #8' or 'Problem 3' or any numbered reference to the taxonomy. Describe the actual problem in plain words.
 - Sound like a real human, not a sales tool. If it reads like a template, rewrite it.
 - Read the output back. If a real person wouldn't say it, cut it.
 - Short sentences. One idea per message. No filler between ideas.
@@ -1529,6 +1534,7 @@ WRITING RULES (critical — follow exactly):
 - First name only at the start — never full name
 - Never pad to hit a word count. Shorter is always better if meaning is preserved.
 - Never invent facts not in the profile. Use title + company if no bio provided.
+- Do not refer to previous messages as a note. Use I reached out, I shared an example, or I have been in touch instead.
 - Never repeat what was said in previous touches
 - If this is Touch 1 (connection request): return ONLY the message text, no subject line, no preamble.
 - For all other touches: return the subject line on the first line in this exact format: SUBJECT: [subject here]. Then a blank line. Then the message body. No other preamble or sign-off. Example format:
@@ -1546,21 +1552,21 @@ TOUCH-SPECIFIC BEHAVIOR — follow instructions for the exact touch number being
 CONNECTED PIPELINE touches (T0–T7):
 - T0: No message needed. Return empty string.
 - T1: ONE sentence. Under 20 words. Observation about their role or company + ask to connect. No questions. No subject line. No Smart Spatial. No pitch. Nothing else.
-- T2: First message after they accept. Max 3 sentences. Brief thanks, then ONE direct question tied to a real buyer problem. No setup, no preamble, no Smart Spatial name.
-- T3: Max 3 sentences. Reference something from T2, name a pattern you keep seeing in their world. Feels like a natural follow-up, not a new pitch. No Smart Spatial name.
-- T4: Max 4 sentences. Share a relevant outcome or example. Mention Smart Spatial naturally — not as a pitch, just as context. ALWAYS include a proof link — pick the closest industry match from the list above. Mandatory, do not skip.
-- T5: Max 4 sentences. Share 1–2 proof links that match their world. One line of why each is relevant. No hard sell. ALWAYS include at least one link — mandatory.
+- T2: First message after they accept. HARD LIMIT: 2 sentences maximum. No exceptions. Sentence 1: brief thanks. Sentence 2: one short direct question tied to a real buyer problem. Plain conversational language — short words, no jargon, no formal phrasing. If you have written more than 2 sentences, delete until you have 2. No Smart Spatial name.
+- T3: Max 3 sentences. Reference something from T2, name a pattern you keep seeing in their world. Deepen the pain — make them feel the weight of the problem. No proof links, no examples, no Smart Spatial name. If you feel the urge to share an example, save it for T4.
+- T4: Max 3 sentences. Share ONE relevant outcome from ONE company. Mention Smart Spatial naturally — not as a pitch, just as context. ALWAYS include exactly ONE proof link for that one company — pick the single closest industry match. Do not mention two companies. Do not share two links. Mandatory, do not skip. End with one natural closing sentence that connects the example to their specific world. Do NOT ask for a meeting or next step — that comes in T5. Let the proof land on its own.
+- T5: Max 3 sentences. Soft ask based on what came up in T4. If T4 is in the touch history, reference the specific proof or example you shared there. Ask if it's worth a quick conversation. Low commitment, no pressure. No new proof links needed.
 - T6: Max 3 sentences. Ask for a specific low-commitment next step — a quick call. Tie it to what came up in the thread. No oversell.
-- T7: Max 2 sentences. Graceful close. Leave the door open. No guilt, no pressure.
+- T7: Max 2 sentences. Graceful close. Leave the door open. No guilt, no pressure. You may reference the same example as T6 but must use completely different wording, sentence structure, and framing. Do not paraphrase T6 — write it fresh from a different angle.
 
 NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prospects who haven't accepted yet:
 - T0: No message. Return empty string.
 - T1: Same as Connected T1 — 1-2 sentences, ONE specific observation, earn the accept. No pitch, no Smart Spatial.
-- T8 (Problem awareness — sent ~7 business days after T1): Max 4 sentences. Surface ONE buyer problem relevant to their role. Frame as an industry pattern. Ask if they deal with it. No Smart Spatial name.
-- T9 (Visual proof — sent ~21 business days after T1): Max 4 sentences. ALWAYS include one relevant proof link — mandatory. One sentence on why it applies to them. Soft close.
-- T10 (Industry insight — sent ~35 business days after T1): Max 4 sentences. Share a real shift or observation in their world. Position Smart Spatial as the team helping with it. Different angle from T8.
-- T11 (Alternative angle — sent ~50 business days after T1): Max 4 sentences. Different buyer problem angle than T8/T10. ALWAYS include a proof link — use a different example than T9. Mandatory.
-- T12 (Breakup / referral — sent ~65 business days after T1): Max 2 sentences. Close the loop. Ask if there's a better person to talk to. No pressure.`;
+- T8 (Problem awareness — sent ~7 business days after T1): Max 3 sentences. Surface ONE buyer problem relevant to their role. Frame as an industry pattern. Ask if they deal with it. No Smart Spatial name.
+- T9 (Visual proof — sent ~14 business days after T1): Max 3 sentences. ALWAYS include one relevant proof link — mandatory. Mention Smart Spatial naturally when sharing the link — the videos already reveal the source so don't hide it. One sentence on why it applies to them. Soft close.
+- T10 (Industry insight — sent ~24 business days after T1): Max 4 sentences. Share ONE specific shift or trend happening in their industry that is relevant to how complex products get sold or understood by buyers. This is an observation, not a pitch. Do NOT include a proof link. Do NOT ask for a meeting. Do NOT pitch Smart Spatial directly. You may mention Smart Spatial briefly as context for why you are watching this trend, but the focus is on the insight itself. Different angle from T8 — do not repeat the same problem. End with a soft observation or light question, not a CTA.
+- T11 (Alternative angle — sent ~34 business days after T1): Max 3 sentences. Different buyer problem angle than T8/T10. Smart Spatial has already been introduced — mention it naturally if relevant. ALWAYS include a proof link — use a different example than T9. Mandatory.
+- T12 (Breakup / referral — sent ~41 business days after T1): Max 3 sentences. Briefly reference the example or video shared earlier if there is one in the touch history. If you mention when it was sent, use the actual date from the touch history to calculate accurately — do not guess or use vague estimates like a few weeks back if the actual timing is different. Ask if they had a chance to see it. Then ask if there is a better person to talk to or if it is worth closing the loop. No pressure.`;
 
   // T1 short-circuit: use a completely separate minimal prompt
   const profileText = (typeof profile !== 'undefined' ? profile : null) || l.profile || 'not provided';
@@ -1582,7 +1588,184 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Reference something specific and real about their role, company, or background. ' +
     'No flattery, no problem framing, no pitch, no Smart Spatial, no dashes. ' +
     'Return only the message text. Nothing else.';
-  const finalPrompt = touchNum===1 ? t1Prompt : prompt;
+  const t2Prompt = 'Write a 2-sentence LinkedIn message from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+    'Today is ' + todayStr + '. ' +
+    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Persona: ' + l.persona + '. ' +
+    (prevHistory ? 'Previous touch history (for context only — do not repeat or reference directly): ' + prevHistory + '. ' : '') +
+    'Use this buyer problem taxonomy to pick the most relevant challenge for this person. ' +
+    'Problems: ' +
+    '1. Solutions are hard to explain — buyers cannot visualize complex products, demos are rep-dependent. ' +
+    '2. Messaging is inconsistent — every rep explains the product differently. ' +
+    '3. Weak differentiation — value props stay abstract, buyers default to price. ' +
+    '4. Selling complexity takes too much human effort — reps repeat the same explanations constantly. ' +
+    '5. Demos do not scale — expert sellers required, new reps struggle. ' +
+    '6. Buyer engagement drops between meetings — nothing self-guided for the buyer to share internally. ' +
+    '7. Trade shows and site tours are expensive — experiences tied to location and hardware. ' +
+    '8. No shared storytelling system — product, marketing, and sales create their own assets and drift apart. ' +
+    '9. Marketing content does not drive sales — content unused by reps, shadow decks created. ' +
+    'Persona problem anchors: Sales/Commercial = problems 1,3,4,5,6. Product Marketing = problems 2,3,8,9. Marketing = problems 2,7,9. Technical/SA = problems 1,4,5. ' +
+    'Pick the ONE most relevant problem for this prospect based on their title, company, and persona. ' +
+    'Sentence 1: thank them briefly for connecting. ' +
+    'Sentence 2: ask one short direct question about that specific problem in plain simple language. ' +
+    'No abbreviations or acronyms — always write out what you mean in full plain language. If you are about to write POC, SA, SE, GTM or any abbreviation, stop and write what it actually means instead. Never reference problem numbers. No mention of Smart Spatial. No proof links. No pitch. Short words, short sentences. ' +
+    'HARD LIMIT: exactly 2 sentences. Count them. If you have written 3 or more sentences, delete until you have exactly 2. Return only the 2-sentence message. Nothing else.';
+  const t10Prompt = 'Write a 3-sentence LinkedIn message from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+    'Today is ' + todayStr + '. ' +
+    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Persona: ' + l.persona + '. ' +
+    (referralMode ? referralHeader : '') +
+    (prevHistory ? 'Previous messages for context — do not repeat anything already said: ' + prevHistory.substring(0, 800) + '. ' : '') +
+    'Use this buyer problem taxonomy to pick ONE relevant problem to anchor the insight around, different from what was already discussed in previous messages: ' +
+    '1. Solutions hard to explain — buyers cannot visualize complex products. ' +
+    '2. Messaging inconsistent — every rep explains differently. ' +
+    '3. Weak differentiation — value props stay abstract, deals default to price. ' +
+    '4. Selling complexity takes too much human effort — reps repeat the same explanations. ' +
+    '5. Demos do not scale — expert sellers required, new reps struggle. ' +
+    '6. Buyer engagement drops between meetings — nothing self-guided for buyers to share internally. ' +
+    '7. Trade shows and site tours are expensive — experiences tied to location. ' +
+    '8. No shared storytelling system — product, marketing, and sales drift apart. ' +
+    '9. Marketing content does not drive sales — content unused by reps. ' +
+    'Persona anchors: Sales/Commercial = problems 1,3,4,5,6. Product Marketing = problems 2,3,8,9. Marketing = problems 2,7,9. Technical = problems 1,4,5. ' +
+    'This is an INDUSTRY INSIGHT message. HARD LIMIT: 3 sentences maximum after the greeting. ' +
+    'If there is a proof link in T9, open with one short sentence asking if they had a chance to see it — reference it by name, not by timing. ' +
+    'Then share ONE specific shift or trend in their industry. It must be a genuinely different angle from what was discussed in T8 — do not repeat the same problem. ' +
+    'This is a pure observation — not a pitch, not a demo request. ' +
+    'You may mention Smart Spatial briefly as context but do not pitch it. ' +
+    'NO proof links. NO meeting ask. NO full paragraphs — short sentences only. End with a light question. ' +
+    'Plain conversational language. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. ' +
+    'Format: separate each distinct thought with a blank line. Do not write everything as one long paragraph. ' +
+    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+  // Find which proof link was used in T9 to avoid repeating it in T11
+  const t9Status = statuses.find(s=>s.status==='done'&&s.touch===9);
+  const t9Msg = t9Status?.msg||'';
+  const t9LinkMatch = t9Msg.match(/https:\/\/youtu\.be\/\S+/);
+  const t9UsedLink = t9LinkMatch?t9LinkMatch[0]:'';
+  const allProofLinks = [
+    {id:'SerOifwyF1Y', label:'Micron (semiconductor/memory, AI compute)', url:'https://youtu.be/SerOifwyF1Y'},
+    {id:'rLw8tOnfbMM', label:'Schneider Electric POD (modular data center, product demo replacement)', url:'https://youtu.be/rLw8tOnfbMM'},
+    {id:'J_65fPoSApM', label:'DDC (data center cooling, liquid cooling)', url:'https://youtu.be/J_65fPoSApM'},
+    {id:'ylhJsnPgj1I', label:'HPE (enterprise AI servers, sales enablement)', url:'https://youtu.be/ylhJsnPgj1I'},
+    {id:'RnsRvIh8UPo', label:'ZutaCore (two-phase liquid cooling, AI data centers)', url:'https://youtu.be/RnsRvIh8UPo'},
+    {id:'gzyUxTcJGbM', label:'PNY (GPU/AI hardware, AI factory deployments)', url:'https://youtu.be/gzyUxTcJGbM'},
+    {id:'GVS0AHAgFyU', label:'Schneider Electric AI Factory (full AI factory data center)', url:'https://youtu.be/GVS0AHAgFyU'},
+  ];
+  const availableLinks = allProofLinks.filter(l=>!t9UsedLink.includes(l.id));
+  const availableLinkStr = availableLinks.map(l=>l.label+': '+l.url).join('. ');
+  const t11Prompt = 'Write a 3-sentence LinkedIn message from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+    'Today is ' + todayStr + '. ' +
+    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Persona: ' + l.persona + '. ' +
+    (referralMode ? referralHeader : '') +
+    (prevHistory ? 'Previous messages for context — do not repeat any angle already used: ' + prevHistory.substring(0, 800) + '. ' : '') +
+    'Use this buyer problem taxonomy to pick ONE problem that has NOT been covered in previous messages: ' +
+    '1. Solutions hard to explain — buyers cannot visualize complex products. ' +
+    '2. Messaging inconsistent — every rep explains differently, partners misrepresent. ' +
+    '3. Weak differentiation — value props stay abstract, deals default to price. ' +
+    '4. Selling complexity takes too much human effort — reps repeat the same explanations constantly. ' +
+    '5. Demos do not scale — expert sellers required, new reps struggle to demo independently. ' +
+    '6. Buyer engagement drops between meetings — nothing self-guided for buyers to share internally. ' +
+    '7. Trade shows and site tours are expensive — experiences tied to location and hardware. ' +
+    '8. No shared storytelling system — product, marketing, and sales drift apart and create their own assets. ' +
+    '9. Marketing content does not drive sales — content unused by reps, shadow decks created. ' +
+    'Persona anchors: Sales/Commercial = problems 1,3,4,5,6. Product Marketing = problems 2,3,8,9. Marketing = problems 2,7,9. Technical = problems 1,4,5. ' +
+    'This is an ALTERNATIVE ANGLE message — it must surface a genuinely different problem from what was discussed in T8 and T10. ' +
+    'Open with the new problem angle. Then include ONE proof link from the AVAILABLE links below — these have NOT been used in T9: ' +
+    availableLinkStr + '. ' +
+    'No meeting ask. No CTA. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. ' +
+    'Format: separate each distinct thought with a blank line. Do not write everything as one long paragraph. ' +
+    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+  // Find T4 message specifically for T5 reference
+  const t4Status = statuses.find(s=>s.status==='done'&&s.touch===4);
+  const t4Msg = t4Status?.msg||'';
+  const t4LinkMatch = t4Msg.match(/https:\/\/youtu\.be\/[^\s]+/);
+  const t4Link = t4LinkMatch?t4LinkMatch[0]:'';
+  const proofLabels = {
+    'SerOifwyF1Y':'the Micron example',
+    'rLw8tOnfbMM':'the Schneider Electric POD example',
+    'J_65fPoSApM':'the DDC example',
+    'ylhJsnPgj1I':'the HPE example',
+    'RnsRvIh8UPo':'the ZutaCore example',
+    'gzyUxTcJGbM':'the PNY example',
+    'GVS0AHAgFyU':'the Schneider AI Factory example'
+  };
+  const t4LinkId = t4Link.split('/').pop();
+  const t4Label = proofLabels[t4LinkId]||'the example I shared';
+  const t5Prompt = 'Write a 2-3 sentence LinkedIn message from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+    'Today is ' + todayStr + '. ' +
+    (referralMode ? referralHeader : '') +
+    (prevHistory ? 'Previous messages for context: ' + prevHistory.substring(0, 800) + '. ' : '') +
+    'The specific example shared in T4 was: ' + t4Label + '. Reference this exact example by name, not any other. ' +
+    'This is a SOFT ASK message — a temperature check, not a meeting request. ' +
+    'Sentence 1: Ask if they had a chance to look at the example. Reference it by name using the exact label provided above. ' +
+    'Sentence 2: Ask if it resonated or if there is something here worth exploring further. Do NOT ask for a call or meeting — that comes in the next touch. Keep it genuinely low commitment. ' +
+    'No new proof links. No pitch. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Plain conversational language. ' +
+    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+  const t4Prompt = 'Write a 3-sentence LinkedIn message from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+    'Today is ' + todayStr + '. ' +
+    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Persona: ' + l.persona + '. ' +
+    (prevHistory ? 'Previous messages — do not repeat anything already said: ' + prevHistory.substring(0, 600) + '. ' : '') +
+    (referralMode ? referralHeader : '') +
+    'Use this buyer problem taxonomy to anchor the message to the most relevant problem for this prospect: ' +
+    '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
+    'Persona anchors: Sales/Commercial = 1,3,4,5,6. Product Marketing = 2,3,8,9. Marketing = 2,7,9. Technical = 1,4,5. ' +
+    'This is a CREDIBILITY message. Introduce Smart Spatial naturally — not as a pitch, just as context. ' +
+    'Pick EXACTLY ONE company from this list that best matches the prospect industry and use ONLY that company and its link: ' +
+    'Micron (semiconductor/memory, AI compute): https://youtu.be/SerOifwyF1Y ' +
+    'Schneider Electric POD (modular data center, product demo replacement): https://youtu.be/rLw8tOnfbMM ' +
+    'DDC (data center cooling, liquid cooling): https://youtu.be/J_65fPoSApM ' +
+    'HPE (enterprise AI servers, sales enablement): https://youtu.be/ylhJsnPgj1I ' +
+    'ZutaCore (two-phase liquid cooling, AI data centers): https://youtu.be/RnsRvIh8UPo ' +
+    'PNY (GPU/AI hardware, AI factory deployments): https://youtu.be/gzyUxTcJGbM ' +
+    'Schneider Electric AI Factory (full AI factory data center): https://youtu.be/GVS0AHAgFyU ' +
+    'ONE company. ONE link. Do not mention any other companies. Do not include any other links. ' +
+    'Structure: Open by moving directly to the proof — do not restate the problem since T3 already covered that. The opening should feel like a natural next step from the conversation, not a fresh start and not a repeat. Then introduce Smart Spatial and the ONE company example with the link. End with a natural closing line connecting it to their world. Vary your opening each time — do not default to the same phrasing. ' +
+    'No meeting ask. No CTA. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. ' +
+    'Format: separate each sentence with a blank line. ' +
+    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+  const t3Prompt = 'Write a 3-sentence LinkedIn message from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+    'Today is ' + todayStr + '. ' +
+    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Persona: ' + l.persona + '. ' +
+    (prevHistory ? 'Previous messages — T2 is the most important reference. Build directly on what was asked in T2. Do not repeat the same angle. Do not introduce a new problem that ignores T2: ' + prevHistory.substring(0, 600) + '. ' : '') +
+    (referralMode ? referralHeader : '') +
+    'Use this buyer problem taxonomy to stay anchored to the same problem raised in T2: ' +
+    '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
+    'IMPORTANT: Do not assume the prospect replied to T2 unless their reply appears in the touch history notes. Do not write as if they shared something or responded — they likely did not. ' +
+    'This is a PAIN EXPANSION message. Deepen the specific pain from T2 — name a pattern or consequence that makes the problem feel more real and urgent. Do not introduce proof, examples, or Smart Spatial. Do not ask a new question that ignores T2. ' +
+    'End with one question that deepens the T2 thread or a sharp observation that makes them feel seen. ' +
+    'No Smart Spatial. No proof links. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. ' +
+    'Format: separate each thought with a blank line. ' +
+    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+  const t8Prompt = 'Write a 3-sentence LinkedIn InMail from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+    'Today is ' + todayStr + '. ' +
+    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Persona: ' + l.persona + '. ' +
+    (prevHistory ? 'Previous messages for context: ' + prevHistory.substring(0, 400) + '. ' : '') +
+    (referralMode ? referralHeader : '') +
+    'Use this buyer problem taxonomy to pick ONE relevant problem for this prospect: ' +
+    '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
+    'Persona anchors: Sales/Commercial = 1,3,4,5,6. Product Marketing = 2,3,8,9. Marketing = 2,7,9. Technical = 1,4,5. ' +
+    'This is a PROBLEM AWARENESS message. Surface ONE buyer problem as an industry pattern. Ask if they deal with it. ' +
+    'NO Smart Spatial. NO proof links. NO meeting ask. NO pitch. ' +
+    'Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering. Only exceptions are proper nouns and brand names. ' +
+    'Never reference problem numbers. Plain conversational language. Short sentences. ' +
+    'Format: separate thoughts with blank lines. ' +
+    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+  // Extract T6 message to ensure T7 uses different wording
+  const t6Status = statuses.find(s=>s.status==='done'&&s.touch===6);
+  const t6Msg = t6Status?.msg||'';
+  const t7Prompt = 'Write a 2-sentence LinkedIn breakup message from Vadik Ananyev to ' + l.first + ' ' + l.last + ' at ' + l.company + '. ' +
+    (t6Msg ? 'The previous message (T6) said: ' + t6Msg.substring(0,300) + '. You must use completely different wording, sentence structure, and framing. Do not paraphrase it. ' : '') +
+    (referralMode ? referralHeader : '') +
+    'Graceful close. Reference the example shared if relevant but in fresh language. Leave the door open. No guilt, no pressure. No abbreviations. ' +
+    'Do NOT say this is the final time, last message, one final time, or anything that signals this is the last outreach. Just close naturally as if the conversation might continue. ' +
+    'Do NOT assume the prospect engaged, considered, or took time to review anything — they likely never replied. Do not say I appreciate your time or thank them for considering. Acknowledge the silence naturally without making assumptions about what they did. ' +
+    'Do not refer to previous messages as a note. Say I reached out, I shared an example, or I have been in touch instead. ' +
+    'Always end with a light referral ask — ask if there is someone else on their team who would be a better person to talk to. Keep it natural, not pushy. ' +
+    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+  const finalPrompt = touchNum===1 ? t1Prompt : touchNum===2 ? t2Prompt : touchNum===3 ? t3Prompt : touchNum===4 ? t4Prompt : touchNum===5 ? t5Prompt : touchNum===7 ? t7Prompt : touchNum===8 ? t8Prompt : touchNum===10 ? t10Prompt : touchNum===11 ? t11Prompt : prompt;
 
   try{
     const raw=await claudeAPI(finalPrompt,800);
@@ -1645,12 +1828,29 @@ async function regenSubject(context){
 }
 
 function parseSubjectBody(raw){
-  // Strip all dash types and ensure clean sentences
+  // Strip all dash types, system tags, and ensure clean sentences
   raw = raw
     .replace(/\s*\u2014\s*/g, ', ')   // em dash
     .replace(/\s*\u2013\s*/g, ', ')   // en dash
     .replace(/\s*---\s*/g, ', ')       // triple hyphen
-    .replace(/\s*--\s*/g, ', ');       // double hyphen
+    .replace(/\s*--\s*/g, ', ')        // double hyphen
+    .replace(/<[^>]*>/g, '')           // strip any XML/HTML tags
+    .trim();
+  // Expand common abbreviations
+  const abbrevMap = {
+    '\\bBD\\b': 'business development',
+    '\\bROI\\b': 'return on investment',
+    '\\bAEC\\b': 'architecture and engineering',
+    '\\bPOC\\b': 'pilot',
+    '\\bGTM\\b': 'go-to-market',
+    '\\bVR\\b': 'virtual reality',
+    '\\bAR\\b': 'augmented reality',
+    '\\bAI\\b': 'AI',
+    '\\b3D\\b': '3D',
+  };
+  Object.entries(abbrevMap).forEach(([pattern, replacement]) => {
+    raw = raw.replace(new RegExp(pattern, 'g'), replacement);
+  });
   const lines = raw.trim().split('\n');
   if(lines[0].toUpperCase().startsWith('SUBJECT:')){
     const subject = lines[0].replace(/^SUBJECT:\s*/i,'').trim();
@@ -1724,6 +1924,7 @@ async function generateLogMsg(){
       :thisStatus.daysUntil===0?'This touch is due today.'
       :`This touch is due in ${thisStatus.daysUntil} days.`;
   }
+  const todayStr = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 
   const referralMode = isReferralMode();
   const referralAngle = l.referralAngle||'';
@@ -1784,6 +1985,8 @@ Pipeline type: ${pip==='connected'?'Connected (accepted connection)':'Not connec
 Touch category: ${touchNum<=7?'Connected pipeline (T0–T7)':'Not Connected InMail (T8=Problem awareness, T9=Visual proof, T10=Industry insight, T11=Alternative angle, T12=Breakup/referral)'}
 ${dueContext}
 
+Today's date: ${todayStr}
+
 PREVIOUS MESSAGES SENT:
 ${prevHistory||'None yet — this is the first outreach'}
 
@@ -1792,6 +1995,8 @@ CRITICAL: Only reference a prospect reply or response if it appears in the "Repl
 
 WRITING RULES (critical — follow exactly):
 - NEVER use dashes of any kind (em dash, en dash, double hyphen). Not once, not anywhere. If you feel the urge to use a dash, rewrite the sentence as two complete sentences or use a comma instead. Every sentence must be grammatically complete and standalone.
+- Always write words out in full — never abbreviate. This applies to the message body and subject line. Instead of BD write business development. Instead of ROI write return on investment. Instead of AEC write architecture and engineering. Instead of POC write pilot or trial. Instead of SA or SE write technical rep. The only exceptions are proper nouns and brand names like HPE, DDC, ZutaCore, PowerMax.
+- NEVER reference problem numbers in messages. Never write 'problem #8' or 'Problem 3' or any numbered reference to the taxonomy. Describe the actual problem in plain words.
 - Sound like a real human, not a sales tool. If it reads like a template, rewrite it.
 - Read the output back. If a real person wouldn't say it, cut it.
 - Short sentences. One idea per message. No filler between ideas.
@@ -1803,6 +2008,7 @@ WRITING RULES (critical — follow exactly):
 - First name only at the start — never full name
 - Never pad to hit a word count. Shorter is always better if meaning is preserved.
 - Never invent facts not in the profile. Use title + company if no bio provided.
+- Do not refer to previous messages as a note. Use I reached out, I shared an example, or I have been in touch instead.
 - Never repeat what was said in previous touches
 - If this is Touch 1 (connection request): return ONLY the message text, no subject line, no preamble.
 - For all other touches: return the subject line on the first line in this exact format: SUBJECT: [subject here]. Then a blank line. Then the message body. No other preamble or sign-off. Example format:
@@ -1820,21 +2026,21 @@ TOUCH-SPECIFIC BEHAVIOR — follow instructions for the exact touch number being
 CONNECTED PIPELINE touches (T0–T7):
 - T0: No message needed. Return empty string.
 - T1: ONE sentence. Under 20 words. Observation about their role or company + ask to connect. No questions. No subject line. No Smart Spatial. No pitch. Nothing else.
-- T2: First message after they accept. Max 3 sentences. Brief thanks, then ONE direct question tied to a real buyer problem. No setup, no preamble, no Smart Spatial name.
-- T3: Max 3 sentences. Reference something from T2, name a pattern you keep seeing in their world. Feels like a natural follow-up, not a new pitch. No Smart Spatial name.
-- T4: Max 4 sentences. Share a relevant outcome or example. Mention Smart Spatial naturally — not as a pitch, just as context. ALWAYS include a proof link — pick the closest industry match from the list above. Mandatory, do not skip.
-- T5: Max 4 sentences. Share 1–2 proof links that match their world. One line of why each is relevant. No hard sell. ALWAYS include at least one link — mandatory.
+- T2: First message after they accept. HARD LIMIT: 2 sentences maximum. No exceptions. Sentence 1: brief thanks. Sentence 2: one short direct question tied to a real buyer problem. Plain conversational language — short words, no jargon, no formal phrasing. If you have written more than 2 sentences, delete until you have 2. No Smart Spatial name.
+- T3: Max 3 sentences. Reference something from T2, name a pattern you keep seeing in their world. Deepen the pain — make them feel the weight of the problem. No proof links, no examples, no Smart Spatial name. If you feel the urge to share an example, save it for T4.
+- T4: Max 3 sentences. Share ONE relevant outcome from ONE company. Mention Smart Spatial naturally — not as a pitch, just as context. ALWAYS include exactly ONE proof link for that one company — pick the single closest industry match. Do not mention two companies. Do not share two links. Mandatory, do not skip. End with one natural closing sentence that connects the example to their specific world. Do NOT ask for a meeting or next step — that comes in T5. Let the proof land on its own.
+- T5: Max 3 sentences. Soft ask based on what came up in T4. If T4 is in the touch history, reference the specific proof or example you shared there. Ask if it's worth a quick conversation. Low commitment, no pressure. No new proof links needed.
 - T6: Max 3 sentences. Ask for a specific low-commitment next step — a quick call. Tie it to what came up in the thread. No oversell.
-- T7: Max 2 sentences. Graceful close. Leave the door open. No guilt, no pressure.
+- T7: Max 2 sentences. Graceful close. Leave the door open. No guilt, no pressure. You may reference the same example as T6 but must use completely different wording, sentence structure, and framing. Do not paraphrase T6 — write it fresh from a different angle.
 
 NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prospects who haven't accepted yet:
 - T0: No message. Return empty string.
 - T1: Same as Connected T1 — 1-2 sentences, ONE specific observation, earn the accept. No pitch, no Smart Spatial.
-- T8 (Problem awareness — sent ~7 business days after T1): Max 4 sentences. Surface ONE buyer problem relevant to their role. Frame as an industry pattern. Ask if they deal with it. No Smart Spatial name.
-- T9 (Visual proof — sent ~21 business days after T1): Max 4 sentences. ALWAYS include one relevant proof link — mandatory. One sentence on why it applies to them. Soft close.
-- T10 (Industry insight — sent ~35 business days after T1): Max 4 sentences. Share a real shift or observation in their world. Position Smart Spatial as the team helping with it. Different angle from T8.
-- T11 (Alternative angle — sent ~50 business days after T1): Max 4 sentences. Different buyer problem angle than T8/T10. ALWAYS include a proof link — use a different example than T9. Mandatory.
-- T12 (Breakup / referral — sent ~65 business days after T1): Max 2 sentences. Close the loop. Ask if there's a better person to talk to. No pressure.`;
+- T8 (Problem awareness — sent ~7 business days after T1): Max 3 sentences. Surface ONE buyer problem relevant to their role. Frame as an industry pattern. Ask if they deal with it. No Smart Spatial name.
+- T9 (Visual proof — sent ~14 business days after T1): Max 3 sentences. ALWAYS include one relevant proof link — mandatory. Mention Smart Spatial naturally when sharing the link — the videos already reveal the source so don't hide it. One sentence on why it applies to them. Soft close.
+- T10 (Industry insight — sent ~24 business days after T1): Max 4 sentences. Share ONE specific shift or trend happening in their industry that is relevant to how complex products get sold or understood by buyers. This is an observation, not a pitch. Do NOT include a proof link. Do NOT ask for a meeting. Do NOT pitch Smart Spatial directly. You may mention Smart Spatial briefly as context for why you are watching this trend, but the focus is on the insight itself. Different angle from T8 — do not repeat the same problem. End with a soft observation or light question, not a CTA.
+- T11 (Alternative angle — sent ~34 business days after T1): Max 3 sentences. Different buyer problem angle than T8/T10. Smart Spatial has already been introduced — mention it naturally if relevant. ALWAYS include a proof link — use a different example than T9. Mandatory.
+- T12 (Breakup / referral — sent ~41 business days after T1): Max 3 sentences. Briefly reference the example or video shared earlier if there is one in the touch history. If you mention when it was sent, use the actual date from the touch history to calculate accurately — do not guess or use vague estimates like a few weeks back if the actual timing is different. Ask if they had a chance to see it. Then ask if there is a better person to talk to or if it is worth closing the loop. No pressure.`;
 
   // T1 short-circuit: use a completely separate minimal prompt
   const profileText = (typeof profile !== 'undefined' ? profile : null) || l.profile || 'not provided';
@@ -1856,7 +2062,184 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Reference something specific and real about their role, company, or background. ' +
     'No flattery, no problem framing, no pitch, no Smart Spatial, no dashes. ' +
     'Return only the message text. Nothing else.';
-  const finalPrompt = touchNum===1 ? t1Prompt : prompt;
+  const t2Prompt = 'Write a 2-sentence LinkedIn message from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+    'Today is ' + todayStr + '. ' +
+    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Persona: ' + l.persona + '. ' +
+    (prevHistory ? 'Previous touch history (for context only — do not repeat or reference directly): ' + prevHistory + '. ' : '') +
+    'Use this buyer problem taxonomy to pick the most relevant challenge for this person. ' +
+    'Problems: ' +
+    '1. Solutions are hard to explain — buyers cannot visualize complex products, demos are rep-dependent. ' +
+    '2. Messaging is inconsistent — every rep explains the product differently. ' +
+    '3. Weak differentiation — value props stay abstract, buyers default to price. ' +
+    '4. Selling complexity takes too much human effort — reps repeat the same explanations constantly. ' +
+    '5. Demos do not scale — expert sellers required, new reps struggle. ' +
+    '6. Buyer engagement drops between meetings — nothing self-guided for the buyer to share internally. ' +
+    '7. Trade shows and site tours are expensive — experiences tied to location and hardware. ' +
+    '8. No shared storytelling system — product, marketing, and sales create their own assets and drift apart. ' +
+    '9. Marketing content does not drive sales — content unused by reps, shadow decks created. ' +
+    'Persona problem anchors: Sales/Commercial = problems 1,3,4,5,6. Product Marketing = problems 2,3,8,9. Marketing = problems 2,7,9. Technical/SA = problems 1,4,5. ' +
+    'Pick the ONE most relevant problem for this prospect based on their title, company, and persona. ' +
+    'Sentence 1: thank them briefly for connecting. ' +
+    'Sentence 2: ask one short direct question about that specific problem in plain simple language. ' +
+    'No abbreviations or acronyms — always write out what you mean in full plain language. If you are about to write POC, SA, SE, GTM or any abbreviation, stop and write what it actually means instead. Never reference problem numbers. No mention of Smart Spatial. No proof links. No pitch. Short words, short sentences. ' +
+    'HARD LIMIT: exactly 2 sentences. Count them. If you have written 3 or more sentences, delete until you have exactly 2. Return only the 2-sentence message. Nothing else.';
+  const t10Prompt = 'Write a 3-sentence LinkedIn message from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+    'Today is ' + todayStr + '. ' +
+    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Persona: ' + l.persona + '. ' +
+    (referralMode ? referralHeader : '') +
+    (prevHistory ? 'Previous messages for context — do not repeat anything already said: ' + prevHistory.substring(0, 800) + '. ' : '') +
+    'Use this buyer problem taxonomy to pick ONE relevant problem to anchor the insight around, different from what was already discussed in previous messages: ' +
+    '1. Solutions hard to explain — buyers cannot visualize complex products. ' +
+    '2. Messaging inconsistent — every rep explains differently. ' +
+    '3. Weak differentiation — value props stay abstract, deals default to price. ' +
+    '4. Selling complexity takes too much human effort — reps repeat the same explanations. ' +
+    '5. Demos do not scale — expert sellers required, new reps struggle. ' +
+    '6. Buyer engagement drops between meetings — nothing self-guided for buyers to share internally. ' +
+    '7. Trade shows and site tours are expensive — experiences tied to location. ' +
+    '8. No shared storytelling system — product, marketing, and sales drift apart. ' +
+    '9. Marketing content does not drive sales — content unused by reps. ' +
+    'Persona anchors: Sales/Commercial = problems 1,3,4,5,6. Product Marketing = problems 2,3,8,9. Marketing = problems 2,7,9. Technical = problems 1,4,5. ' +
+    'This is an INDUSTRY INSIGHT message. HARD LIMIT: 3 sentences maximum after the greeting. ' +
+    'If there is a proof link in T9, open with one short sentence asking if they had a chance to see it — reference it by name, not by timing. ' +
+    'Then share ONE specific shift or trend in their industry. It must be a genuinely different angle from what was discussed in T8 — do not repeat the same problem. ' +
+    'This is a pure observation — not a pitch, not a demo request. ' +
+    'You may mention Smart Spatial briefly as context but do not pitch it. ' +
+    'NO proof links. NO meeting ask. NO full paragraphs — short sentences only. End with a light question. ' +
+    'Plain conversational language. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. ' +
+    'Format: separate each distinct thought with a blank line. Do not write everything as one long paragraph. ' +
+    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+  // Find which proof link was used in T9 to avoid repeating it in T11
+  const t9Status = statuses.find(s=>s.status==='done'&&s.touch===9);
+  const t9Msg = t9Status?.msg||'';
+  const t9LinkMatch = t9Msg.match(/https:\/\/youtu\.be\/\S+/);
+  const t9UsedLink = t9LinkMatch?t9LinkMatch[0]:'';
+  const allProofLinks = [
+    {id:'SerOifwyF1Y', label:'Micron (semiconductor/memory, AI compute)', url:'https://youtu.be/SerOifwyF1Y'},
+    {id:'rLw8tOnfbMM', label:'Schneider Electric POD (modular data center, product demo replacement)', url:'https://youtu.be/rLw8tOnfbMM'},
+    {id:'J_65fPoSApM', label:'DDC (data center cooling, liquid cooling)', url:'https://youtu.be/J_65fPoSApM'},
+    {id:'ylhJsnPgj1I', label:'HPE (enterprise AI servers, sales enablement)', url:'https://youtu.be/ylhJsnPgj1I'},
+    {id:'RnsRvIh8UPo', label:'ZutaCore (two-phase liquid cooling, AI data centers)', url:'https://youtu.be/RnsRvIh8UPo'},
+    {id:'gzyUxTcJGbM', label:'PNY (GPU/AI hardware, AI factory deployments)', url:'https://youtu.be/gzyUxTcJGbM'},
+    {id:'GVS0AHAgFyU', label:'Schneider Electric AI Factory (full AI factory data center)', url:'https://youtu.be/GVS0AHAgFyU'},
+  ];
+  const availableLinks = allProofLinks.filter(l=>!t9UsedLink.includes(l.id));
+  const availableLinkStr = availableLinks.map(l=>l.label+': '+l.url).join('. ');
+  const t11Prompt = 'Write a 3-sentence LinkedIn message from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+    'Today is ' + todayStr + '. ' +
+    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Persona: ' + l.persona + '. ' +
+    (referralMode ? referralHeader : '') +
+    (prevHistory ? 'Previous messages for context — do not repeat any angle already used: ' + prevHistory.substring(0, 800) + '. ' : '') +
+    'Use this buyer problem taxonomy to pick ONE problem that has NOT been covered in previous messages: ' +
+    '1. Solutions hard to explain — buyers cannot visualize complex products. ' +
+    '2. Messaging inconsistent — every rep explains differently, partners misrepresent. ' +
+    '3. Weak differentiation — value props stay abstract, deals default to price. ' +
+    '4. Selling complexity takes too much human effort — reps repeat the same explanations constantly. ' +
+    '5. Demos do not scale — expert sellers required, new reps struggle to demo independently. ' +
+    '6. Buyer engagement drops between meetings — nothing self-guided for buyers to share internally. ' +
+    '7. Trade shows and site tours are expensive — experiences tied to location and hardware. ' +
+    '8. No shared storytelling system — product, marketing, and sales drift apart and create their own assets. ' +
+    '9. Marketing content does not drive sales — content unused by reps, shadow decks created. ' +
+    'Persona anchors: Sales/Commercial = problems 1,3,4,5,6. Product Marketing = problems 2,3,8,9. Marketing = problems 2,7,9. Technical = problems 1,4,5. ' +
+    'This is an ALTERNATIVE ANGLE message — it must surface a genuinely different problem from what was discussed in T8 and T10. ' +
+    'Open with the new problem angle. Then include ONE proof link from the AVAILABLE links below — these have NOT been used in T9: ' +
+    availableLinkStr + '. ' +
+    'No meeting ask. No CTA. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. ' +
+    'Format: separate each distinct thought with a blank line. Do not write everything as one long paragraph. ' +
+    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+  // Find T4 message specifically for T5 reference
+  const t4Status = statuses.find(s=>s.status==='done'&&s.touch===4);
+  const t4Msg = t4Status?.msg||'';
+  const t4LinkMatch = t4Msg.match(/https:\/\/youtu\.be\/[^\s]+/);
+  const t4Link = t4LinkMatch?t4LinkMatch[0]:'';
+  const proofLabels = {
+    'SerOifwyF1Y':'the Micron example',
+    'rLw8tOnfbMM':'the Schneider Electric POD example',
+    'J_65fPoSApM':'the DDC example',
+    'ylhJsnPgj1I':'the HPE example',
+    'RnsRvIh8UPo':'the ZutaCore example',
+    'gzyUxTcJGbM':'the PNY example',
+    'GVS0AHAgFyU':'the Schneider AI Factory example'
+  };
+  const t4LinkId = t4Link.split('/').pop();
+  const t4Label = proofLabels[t4LinkId]||'the example I shared';
+  const t5Prompt = 'Write a 2-3 sentence LinkedIn message from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+    'Today is ' + todayStr + '. ' +
+    (referralMode ? referralHeader : '') +
+    (prevHistory ? 'Previous messages for context: ' + prevHistory.substring(0, 800) + '. ' : '') +
+    'The specific example shared in T4 was: ' + t4Label + '. Reference this exact example by name, not any other. ' +
+    'This is a SOFT ASK message — a temperature check, not a meeting request. ' +
+    'Sentence 1: Ask if they had a chance to look at the example. Reference it by name using the exact label provided above. ' +
+    'Sentence 2: Ask if it resonated or if there is something here worth exploring further. Do NOT ask for a call or meeting — that comes in the next touch. Keep it genuinely low commitment. ' +
+    'No new proof links. No pitch. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Plain conversational language. ' +
+    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+  const t4Prompt = 'Write a 3-sentence LinkedIn message from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+    'Today is ' + todayStr + '. ' +
+    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Persona: ' + l.persona + '. ' +
+    (prevHistory ? 'Previous messages — do not repeat anything already said: ' + prevHistory.substring(0, 600) + '. ' : '') +
+    (referralMode ? referralHeader : '') +
+    'Use this buyer problem taxonomy to anchor the message to the most relevant problem for this prospect: ' +
+    '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
+    'Persona anchors: Sales/Commercial = 1,3,4,5,6. Product Marketing = 2,3,8,9. Marketing = 2,7,9. Technical = 1,4,5. ' +
+    'This is a CREDIBILITY message. Introduce Smart Spatial naturally — not as a pitch, just as context. ' +
+    'Pick EXACTLY ONE company from this list that best matches the prospect industry and use ONLY that company and its link: ' +
+    'Micron (semiconductor/memory, AI compute): https://youtu.be/SerOifwyF1Y ' +
+    'Schneider Electric POD (modular data center, product demo replacement): https://youtu.be/rLw8tOnfbMM ' +
+    'DDC (data center cooling, liquid cooling): https://youtu.be/J_65fPoSApM ' +
+    'HPE (enterprise AI servers, sales enablement): https://youtu.be/ylhJsnPgj1I ' +
+    'ZutaCore (two-phase liquid cooling, AI data centers): https://youtu.be/RnsRvIh8UPo ' +
+    'PNY (GPU/AI hardware, AI factory deployments): https://youtu.be/gzyUxTcJGbM ' +
+    'Schneider Electric AI Factory (full AI factory data center): https://youtu.be/GVS0AHAgFyU ' +
+    'ONE company. ONE link. Do not mention any other companies. Do not include any other links. ' +
+    'Structure: Open by moving directly to the proof — do not restate the problem since T3 already covered that. The opening should feel like a natural next step from the conversation, not a fresh start and not a repeat. Then introduce Smart Spatial and the ONE company example with the link. End with a natural closing line connecting it to their world. Vary your opening each time — do not default to the same phrasing. ' +
+    'No meeting ask. No CTA. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. ' +
+    'Format: separate each sentence with a blank line. ' +
+    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+  const t3Prompt = 'Write a 3-sentence LinkedIn message from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+    'Today is ' + todayStr + '. ' +
+    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Persona: ' + l.persona + '. ' +
+    (prevHistory ? 'Previous messages — T2 is the most important reference. Build directly on what was asked in T2. Do not repeat the same angle. Do not introduce a new problem that ignores T2: ' + prevHistory.substring(0, 600) + '. ' : '') +
+    (referralMode ? referralHeader : '') +
+    'Use this buyer problem taxonomy to stay anchored to the same problem raised in T2: ' +
+    '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
+    'IMPORTANT: Do not assume the prospect replied to T2 unless their reply appears in the touch history notes. Do not write as if they shared something or responded — they likely did not. ' +
+    'This is a PAIN EXPANSION message. Deepen the specific pain from T2 — name a pattern or consequence that makes the problem feel more real and urgent. Do not introduce proof, examples, or Smart Spatial. Do not ask a new question that ignores T2. ' +
+    'End with one question that deepens the T2 thread or a sharp observation that makes them feel seen. ' +
+    'No Smart Spatial. No proof links. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. ' +
+    'Format: separate each thought with a blank line. ' +
+    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+  const t8Prompt = 'Write a 3-sentence LinkedIn InMail from Vadik Ananyev to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
+    'Today is ' + todayStr + '. ' +
+    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Persona: ' + l.persona + '. ' +
+    (prevHistory ? 'Previous messages for context: ' + prevHistory.substring(0, 400) + '. ' : '') +
+    (referralMode ? referralHeader : '') +
+    'Use this buyer problem taxonomy to pick ONE relevant problem for this prospect: ' +
+    '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
+    'Persona anchors: Sales/Commercial = 1,3,4,5,6. Product Marketing = 2,3,8,9. Marketing = 2,7,9. Technical = 1,4,5. ' +
+    'This is a PROBLEM AWARENESS message. Surface ONE buyer problem as an industry pattern. Ask if they deal with it. ' +
+    'NO Smart Spatial. NO proof links. NO meeting ask. NO pitch. ' +
+    'Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering. Only exceptions are proper nouns and brand names. ' +
+    'Never reference problem numbers. Plain conversational language. Short sentences. ' +
+    'Format: separate thoughts with blank lines. ' +
+    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+  // Extract T6 message to ensure T7 uses different wording
+  const t6Status = statuses.find(s=>s.status==='done'&&s.touch===6);
+  const t6Msg = t6Status?.msg||'';
+  const t7Prompt = 'Write a 2-sentence LinkedIn breakup message from Vadik Ananyev to ' + l.first + ' ' + l.last + ' at ' + l.company + '. ' +
+    (t6Msg ? 'The previous message (T6) said: ' + t6Msg.substring(0,300) + '. You must use completely different wording, sentence structure, and framing. Do not paraphrase it. ' : '') +
+    (referralMode ? referralHeader : '') +
+    'Graceful close. Reference the example shared if relevant but in fresh language. Leave the door open. No guilt, no pressure. No abbreviations. ' +
+    'Do NOT say this is the final time, last message, one final time, or anything that signals this is the last outreach. Just close naturally as if the conversation might continue. ' +
+    'Do NOT assume the prospect engaged, considered, or took time to review anything — they likely never replied. Do not say I appreciate your time or thank them for considering. Acknowledge the silence naturally without making assumptions about what they did. ' +
+    'Do not refer to previous messages as a note. Say I reached out, I shared an example, or I have been in touch instead. ' +
+    'Always end with a light referral ask — ask if there is someone else on their team who would be a better person to talk to. Keep it natural, not pushy. ' +
+    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+  const finalPrompt = touchNum===1 ? t1Prompt : touchNum===2 ? t2Prompt : touchNum===3 ? t3Prompt : touchNum===4 ? t4Prompt : touchNum===5 ? t5Prompt : touchNum===7 ? t7Prompt : touchNum===8 ? t8Prompt : touchNum===10 ? t10Prompt : touchNum===11 ? t11Prompt : prompt;
 
   try{
     const raw=await claudeAPI(finalPrompt,600);
