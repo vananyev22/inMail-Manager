@@ -1953,10 +1953,19 @@ function parseSubjectBody(raw){
   const lines = raw.trim().split('\n');
   if(lines[0].toUpperCase().startsWith('SUBJECT:')){
     const subject = lines[0].replace(/^SUBJECT:\s*/i,'').trim();
-    const body = lines.slice(1).join('\n').replace(/^\n/,'').trim();
+    let body = lines.slice(1).join('\n').replace(/^\n/,'').trim();
+    body = ensureNameLineBreak(body);
     return {subject, body};
   }
-  return {subject:'', body:raw.trim()};
+  let body = raw.trim();
+  body = ensureNameLineBreak(body);
+  return {subject:'', body};
+}
+
+function ensureNameLineBreak(text){
+  // If the message starts with "Name," or "Name," followed immediately by text on the same line,
+  // insert a blank line after the greeting so it reads: "Sam,\n\nsomething I keep noticing..."
+  return text.replace(/^([A-Z][a-zA-Z\-]+,)\s*(?!\n\n)(.)/m, '$1\n\n$2');
 }
 
 function copyDraftSubject(){
