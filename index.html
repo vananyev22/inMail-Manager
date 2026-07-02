@@ -1963,9 +1963,9 @@ function parseSubjectBody(raw){
 }
 
 function ensureNameLineBreak(text){
-  // If the message starts with "Name," or "Name," followed immediately by text on the same line,
-  // insert a blank line after the greeting so it reads: "Sam,\n\nsomething I keep noticing..."
-  return text.replace(/^([A-Z][a-zA-Z\-]+,)\s*(?!\n\n)(.)/m, '$1\n\n$2');
+  // If the message starts with "Name," followed immediately by text on the same line,
+  // insert a blank line and capitalize the first letter of the continuation
+  return text.replace(/^([A-Z][a-zA-Z\-]+,)\s*(?!\n\n)([a-z])/m, (m, greeting, letter) => greeting + '\n\n' + letter.toUpperCase());
 }
 
 function copyDraftSubject(){
