@@ -1560,6 +1560,8 @@ WRITING RULES (critical — follow exactly):
 - Always write words out in full — never abbreviate. This applies to the message body and subject line. Instead of BD write business development. Instead of ROI write return on investment. Instead of AEC write architecture and engineering. Instead of POC write pilot or trial. Instead of SA or SE write technical rep. The only exceptions are proper nouns and brand names like HPE, DDC, ZutaCore, PowerMax.
 - NEVER reference problem numbers in messages. Never write 'problem #8' or 'Problem 3' or any numbered reference to the taxonomy. Describe the actual problem in plain words.
 - Sound like a real human, not a sales tool. If it reads like a template, rewrite it.
+- Write as a peer sharing a genuine observation — not a consultant presenting a problem, not a thought leader making a declaration. Warm, curious, direct.
+- Use the prospect's first name naturally at least once per message — not at the start of every sentence, just where it feels natural.
 - Read the output back. If a real person wouldn't say it, cut it.
 - Short sentences. One idea per message. No filler between ideas. Each sentence should be under 20 words — if a sentence runs long, cut it in half or remove the weaker half entirely. Never pad a sentence with context the reader can infer.
 - Use a comma after the first name: "Hi Brian," — never a dash
@@ -1644,8 +1646,9 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     '9. Marketing content does not drive sales — content unused by reps, shadow decks created. ' +
     'Persona problem anchors: Sales/Commercial = problems 1,3,4,5,6. Product Marketing = problems 2,3,8,9. Marketing = problems 2,7,9. Technical/SA = problems 1,4,5. Sales Enablement = problems 1,2,4,5,8. ' +
     'Pick the ONE most relevant problem for this prospect based on their title, company, and persona. ' +
-    'Sentence 1: thank them briefly for connecting. ' +
-    'Sentence 2: ask one short direct question about that specific problem in plain simple language. ' +
+    'Sentence 1: thank them warmly and briefly for connecting — use their first name, keep it natural and human, like a peer. ' +
+    'Sentence 2: ask one short curious question about the specific problem — frame it as genuine curiosity, not an interrogation. Use "curious" or "wondering" rather than direct questioning. Example tone: "Curious whether that comes up for your team at Dell." ' +
+    'The overall tone should feel like a real person reaching out to a peer — warm, conversational, not a sales opener. ' +
     'No abbreviations or acronyms — always write out what you mean in full plain language. If you are about to write POC, SA, SE, GTM or any abbreviation, stop and write what it actually means instead. Never reference problem numbers. No mention of Smart Spatial. No proof links. No pitch. Short words, short sentences. ' +
     'HARD LIMIT: exactly 2 sentences. Count them. If you have written 3 or more sentences, delete until you have exactly 2. Return only the 2-sentence message. Nothing else.';
   const t10Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
@@ -1772,8 +1775,8 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Use this buyer problem taxonomy to stay anchored to the same problem raised in T2: ' +
     '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
     'IMPORTANT: Do not assume the prospect replied to T2 unless their reply appears in the touch history notes. Do not write as if they shared something or responded — they likely did not. ' +
-    'This is a PAIN EXPANSION message. Deepen the specific pain from T2 — name a pattern or consequence that makes the problem feel more real and urgent. Do not introduce proof, examples, or Smart Spatial. Do not ask a new question that ignores T2. ' +
-    'End with one question that deepens the T2 thread or a sharp observation that makes them feel seen. ' +
+    'This is a PAIN EXPANSION message. Use their first name naturally somewhere in the message. Deepen the specific pain from T2 — share it as something you personally keep noticing, not as a proclamation or industry declaration. Write as if you are a peer sharing an observation, not a consultant presenting a problem. Do not introduce proof, examples, or Smart Spatial. Do not ask a new question that ignores T2. ' +
+    'End with one curious question that deepens the T2 thread — frame it as genuine interest, not a challenge. ' +
     'No Smart Spatial. No proof links. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. ' +
     'SENTENCE LENGTH: Every sentence must be under 20 words. If a sentence runs long, split it into two. Never stack multiple ideas into one sentence with commas. One idea per sentence. ' +
     'Format: separate each thought with a blank line. ' +
@@ -1787,7 +1790,8 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Use this buyer problem taxonomy to pick ONE relevant problem for this prospect: ' +
     '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
     'Persona anchors: Sales/Commercial = 1,3,4,5,6. Product Marketing = 2,3,8,9. Marketing = 2,7,9. Technical = 1,4,5. Sales Enablement = 1,2,4,5,8. ' +
-    'This is a PROBLEM AWARENESS message. Surface ONE buyer problem as an industry pattern. Ask if they deal with it. ' +
+    'This is a PROBLEM AWARENESS message. Use their first name naturally in the message. Surface ONE buyer problem as something you personally keep seeing — not a proclamation, not a market trend statement. Write as if you are sharing a casual observation with a peer. Ask if they run into it. ' +
+    'Tone: curious and warm, not formal or declarative. A real human observation, not a thought leadership opening. ' +
     'NO Smart Spatial. NO proof links. NO meeting ask. NO pitch. ' +
     'Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering. Only exceptions are proper nouns and brand names. ' +
     'Never reference problem numbers. Plain conversational language. Short sentences — every sentence under 20 words. If a sentence runs long, split it. One idea per sentence. ' +
@@ -2092,6 +2096,8 @@ WRITING RULES (critical — follow exactly):
 - Always write words out in full — never abbreviate. This applies to the message body and subject line. Instead of BD write business development. Instead of ROI write return on investment. Instead of AEC write architecture and engineering. Instead of POC write pilot or trial. Instead of SA or SE write technical rep. The only exceptions are proper nouns and brand names like HPE, DDC, ZutaCore, PowerMax.
 - NEVER reference problem numbers in messages. Never write 'problem #8' or 'Problem 3' or any numbered reference to the taxonomy. Describe the actual problem in plain words.
 - Sound like a real human, not a sales tool. If it reads like a template, rewrite it.
+- Write as a peer sharing a genuine observation — not a consultant presenting a problem, not a thought leader making a declaration. Warm, curious, direct.
+- Use the prospect's first name naturally at least once per message — not at the start of every sentence, just where it feels natural.
 - Read the output back. If a real person wouldn't say it, cut it.
 - Short sentences. One idea per message. No filler between ideas. Each sentence should be under 20 words — if a sentence runs long, cut it in half or remove the weaker half entirely. Never pad a sentence with context the reader can infer.
 - Use a comma after the first name: "Hi Brian," — never a dash
@@ -2176,8 +2182,9 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     '9. Marketing content does not drive sales — content unused by reps, shadow decks created. ' +
     'Persona problem anchors: Sales/Commercial = problems 1,3,4,5,6. Product Marketing = problems 2,3,8,9. Marketing = problems 2,7,9. Technical/SA = problems 1,4,5. Sales Enablement = problems 1,2,4,5,8. ' +
     'Pick the ONE most relevant problem for this prospect based on their title, company, and persona. ' +
-    'Sentence 1: thank them briefly for connecting. ' +
-    'Sentence 2: ask one short direct question about that specific problem in plain simple language. ' +
+    'Sentence 1: thank them warmly and briefly for connecting — use their first name, keep it natural and human, like a peer. ' +
+    'Sentence 2: ask one short curious question about the specific problem — frame it as genuine curiosity, not an interrogation. Use "curious" or "wondering" rather than direct questioning. Example tone: "Curious whether that comes up for your team at Dell." ' +
+    'The overall tone should feel like a real person reaching out to a peer — warm, conversational, not a sales opener. ' +
     'No abbreviations or acronyms — always write out what you mean in full plain language. If you are about to write POC, SA, SE, GTM or any abbreviation, stop and write what it actually means instead. Never reference problem numbers. No mention of Smart Spatial. No proof links. No pitch. Short words, short sentences. ' +
     'HARD LIMIT: exactly 2 sentences. Count them. If you have written 3 or more sentences, delete until you have exactly 2. Return only the 2-sentence message. Nothing else.';
   const t10Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
@@ -2304,8 +2311,8 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Use this buyer problem taxonomy to stay anchored to the same problem raised in T2: ' +
     '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
     'IMPORTANT: Do not assume the prospect replied to T2 unless their reply appears in the touch history notes. Do not write as if they shared something or responded — they likely did not. ' +
-    'This is a PAIN EXPANSION message. Deepen the specific pain from T2 — name a pattern or consequence that makes the problem feel more real and urgent. Do not introduce proof, examples, or Smart Spatial. Do not ask a new question that ignores T2. ' +
-    'End with one question that deepens the T2 thread or a sharp observation that makes them feel seen. ' +
+    'This is a PAIN EXPANSION message. Use their first name naturally somewhere in the message. Deepen the specific pain from T2 — share it as something you personally keep noticing, not as a proclamation or industry declaration. Write as if you are a peer sharing an observation, not a consultant presenting a problem. Do not introduce proof, examples, or Smart Spatial. Do not ask a new question that ignores T2. ' +
+    'End with one curious question that deepens the T2 thread — frame it as genuine interest, not a challenge. ' +
     'No Smart Spatial. No proof links. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. ' +
     'SENTENCE LENGTH: Every sentence must be under 20 words. If a sentence runs long, split it into two. Never stack multiple ideas into one sentence with commas. One idea per sentence. ' +
     'Format: separate each thought with a blank line. ' +
@@ -2319,7 +2326,8 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Use this buyer problem taxonomy to pick ONE relevant problem for this prospect: ' +
     '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
     'Persona anchors: Sales/Commercial = 1,3,4,5,6. Product Marketing = 2,3,8,9. Marketing = 2,7,9. Technical = 1,4,5. Sales Enablement = 1,2,4,5,8. ' +
-    'This is a PROBLEM AWARENESS message. Surface ONE buyer problem as an industry pattern. Ask if they deal with it. ' +
+    'This is a PROBLEM AWARENESS message. Use their first name naturally in the message. Surface ONE buyer problem as something you personally keep seeing — not a proclamation, not a market trend statement. Write as if you are sharing a casual observation with a peer. Ask if they run into it. ' +
+    'Tone: curious and warm, not formal or declarative. A real human observation, not a thought leadership opening. ' +
     'NO Smart Spatial. NO proof links. NO meeting ask. NO pitch. ' +
     'Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering. Only exceptions are proper nouns and brand names. ' +
     'Never reference problem numbers. Plain conversational language. Short sentences — every sentence under 20 words. If a sentence runs long, split it. One idea per sentence. ' +
