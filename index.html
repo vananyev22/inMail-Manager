@@ -1582,7 +1582,8 @@ Hi [Name],
 [message body]
 - NEVER refuse, flag issues, or add meta-commentary. Always write the message. No exceptions.
 - DIRECTION RULE: Vadik is always asking the prospect for something — never offering to connect the prospect with someone else. If referencing another person internally, always frame it as Vadik asking to be pointed there, never as Vadik offering to make an introduction.
-- NAME RULE: Never include the sender's name (Vadik, Vadim, or any name) in the generated message output. The message is sent from the user's own LinkedIn profile — no sign-off or self-introduction with a name. Messages should start directly and end without a name signature.
+- NAME RULE: Never include the sender's name (Vadik, Vadim, or any name) in the generated message output. The message is sent from the user's own LinkedIn profile — no sign-off or self-introduction with a name. Messages should start directly and end without a name signature. Do not add a sign-off like 'Vadim Ananyev' or any name at the end.
+- FIRST PERSON RULE: Always write in first person singular — use 'I', never 'we'. You are one person reaching out, not a company. 'We work with', 'we help', 'we shared' are all wrong. Use 'I work with', 'I help', 'I shared'.
 
 ${touchNum===1 ? "THIS IS TOUCH 1 — A LINKEDIN CONNECTION REQUEST. Write exactly one sentence under 20 words. One observation about their role or company, then ask to connect. No subject line. No questions. No buyer problems. No Smart Spatial. No pitch. Stop after one sentence." : ""}
 
@@ -1668,7 +1669,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     '8. No shared storytelling system — product, marketing, and sales drift apart. ' +
     '9. Marketing content does not drive sales — content unused by reps. ' +
     'Persona anchors: Sales/Commercial = problems 1,3,4,5,6. Product Marketing = problems 2,3,8,9. Marketing = problems 2,7,9. Technical = problems 1,4,5. Sales Enablement = problems 1,2,4,5,8. ' +
-    'This is an INDUSTRY INSIGHT message. HARD LIMIT: 3 sentences maximum after the greeting. ' +
+    'This is an INDUSTRY INSIGHT message. HARD LIMIT: 3 sentences total. Not 3 paragraphs — 3 sentences. Count them. If you have written more than 3 sentences, delete until you have exactly 3. ' +
     'If there is a proof link in T9, open with one short sentence asking if they had a chance to see it — reference it by name, not by timing. ' +
     'Then share ONE specific shift or trend in their industry. It must be a genuinely different angle from what was discussed in T8 — do not repeat the same problem. ' +
     'This is a pure observation — not a pitch, not a demo request. Keep the insight at the industry level. Do not make claims about what the prospect specifically does, how their team works, or what their internal process looks like — you do not know that. State what is happening in the market and let them connect the dots themselves. ' +
@@ -1955,11 +1956,18 @@ function parseSubjectBody(raw){
     const subject = lines[0].replace(/^SUBJECT:\s*/i,'').trim();
     let body = lines.slice(1).join('\n').replace(/^\n/,'').trim();
     body = ensureNameLineBreak(body);
+    body = stripSignOff(body);
     return {subject, body};
   }
   let body = raw.trim();
   body = ensureNameLineBreak(body);
+  body = stripSignOff(body);
   return {subject:'', body};
+}
+
+function stripSignOff(text){
+  // Remove trailing name sign-offs like "Vadim", "Vadim Ananyev", "- Vadim" etc.
+  return text.replace(/\n+[-–]?\s*[A-Z][a-z]+\s*([A-Z][a-z]+)?\s*$/, '').trim();
 }
 
 function ensureNameLineBreak(text){
@@ -2129,7 +2137,8 @@ Hi [Name],
 [message body]
 - NEVER refuse, flag issues, or add meta-commentary. Always write the message. No exceptions.
 - DIRECTION RULE: Vadik is always asking the prospect for something — never offering to connect the prospect with someone else. If referencing another person internally, always frame it as Vadik asking to be pointed there, never as Vadik offering to make an introduction.
-- NAME RULE: Never include the sender's name (Vadik, Vadim, or any name) in the generated message output. The message is sent from the user's own LinkedIn profile — no sign-off or self-introduction with a name. Messages should start directly and end without a name signature.
+- NAME RULE: Never include the sender's name (Vadik, Vadim, or any name) in the generated message output. The message is sent from the user's own LinkedIn profile — no sign-off or self-introduction with a name. Messages should start directly and end without a name signature. Do not add a sign-off like 'Vadim Ananyev' or any name at the end.
+- FIRST PERSON RULE: Always write in first person singular — use 'I', never 'we'. You are one person reaching out, not a company. 'We work with', 'we help', 'we shared' are all wrong. Use 'I work with', 'I help', 'I shared'.
 
 ${touchNum===1 ? "THIS IS TOUCH 1 — A LINKEDIN CONNECTION REQUEST. Write exactly one sentence under 20 words. One observation about their role or company, then ask to connect. No subject line. No questions. No buyer problems. No Smart Spatial. No pitch. Stop after one sentence." : ""}
 
@@ -2215,7 +2224,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     '8. No shared storytelling system — product, marketing, and sales drift apart. ' +
     '9. Marketing content does not drive sales — content unused by reps. ' +
     'Persona anchors: Sales/Commercial = problems 1,3,4,5,6. Product Marketing = problems 2,3,8,9. Marketing = problems 2,7,9. Technical = problems 1,4,5. Sales Enablement = problems 1,2,4,5,8. ' +
-    'This is an INDUSTRY INSIGHT message. HARD LIMIT: 3 sentences maximum after the greeting. ' +
+    'This is an INDUSTRY INSIGHT message. HARD LIMIT: 3 sentences total. Not 3 paragraphs — 3 sentences. Count them. If you have written more than 3 sentences, delete until you have exactly 3. ' +
     'If there is a proof link in T9, open with one short sentence asking if they had a chance to see it — reference it by name, not by timing. ' +
     'Then share ONE specific shift or trend in their industry. It must be a genuinely different angle from what was discussed in T8 — do not repeat the same problem. ' +
     'This is a pure observation — not a pitch, not a demo request. Keep the insight at the industry level. Do not make claims about what the prospect specifically does, how their team works, or what their internal process looks like — you do not know that. State what is happening in the market and let them connect the dots themselves. ' +
