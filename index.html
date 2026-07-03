@@ -1652,12 +1652,27 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Do NOT write observations, declarations, or industry statements. Do NOT write 3 sentences. The entire message is: greeting with name + one curious question. Nothing else. ' +
     'No abbreviations or acronyms — always write out what you mean in full plain language. Never reference problem numbers. No mention of Smart Spatial. No proof links. No pitch. ' +
     'HARD LIMIT: exactly 2 sentences. Return only the 2-sentence message. Nothing else.';
+  const t9StatusForT10 = statuses.find(s=>s.status==='done'&&s.touch===9);
+  const t9MsgForT10 = t9StatusForT10?.msg||'';
+  // Extract company name from T9 proof link for specific reference
+  const proofNameMap = {
+    'SerOifwyF1Y':'the Micron example',
+    'rLw8tOnfbMM':'the Schneider Electric POD example',
+    'J_65fPoSApM':'the DDC example',
+    'ylhJsnPgj1I':'the HPE example',
+    'RnsRvIh8UPo':'the ZutaCore example',
+    'gzyUxTcJGbM':'the PNY example',
+    'GVS0AHAgFyU':'the Schneider Electric AI Factory example'
+  };
+  const t9LinkMatchForT10 = t9MsgForT10.match(/youtu\.be\/([\w-]+)/);
+  const t9ProofName = t9LinkMatchForT10 ? (proofNameMap[t9LinkMatchForT10[1]]||'the example I shared') : '';
   const t10Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
     'Profile: ' + profileText.substring(0, 500) + '. ' +
     'Persona: ' + l.persona + '. ' +
     (referralMode ? referralHeader : '') +
-    (prevHistory ? 'Previous messages for context — do not repeat anything already said: ' + prevHistory.substring(0, 800) + '. ' : '') +
+    (t9ProofName ? 'The previous message shared a proof link. Open with one short sentence asking if they had a chance to see ' + t9ProofName + ' — use that exact name, not vague language like "something like this" or "what I sent". ' : '') +
+    (prevHistory ? 'Previous messages for context — do not repeat anything already said: ' + prevHistory.substring(0, 600) + '. ' : '') +
     'Use this buyer problem taxonomy to pick ONE relevant problem to anchor the insight around, different from what was already discussed in previous messages: ' +
     '1. Solutions hard to explain — buyers cannot visualize complex products. ' +
     '2. Messaging inconsistent — every rep explains differently. ' +
@@ -1670,7 +1685,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     '9. Marketing content does not drive sales — content unused by reps. ' +
     'Persona anchors: Sales/Commercial = problems 1,3,4,5,6. Product Marketing = problems 2,3,8,9. Marketing = problems 2,7,9. Technical = problems 1,4,5. Sales Enablement = problems 1,2,4,5,8. ' +
     'This is an INDUSTRY INSIGHT message. Open with "Hi ' + l.first + '," on its own line, then a blank line, then the message. HARD LIMIT: 3 sentences total after the greeting. Not 3 paragraphs — 3 sentences. Count them. If you have written more than 3 sentences, delete until you have exactly 3. ' +
-    'If there is a proof link in T9, open with one short sentence asking if they had a chance to see it — reference it by name, not by timing. ' +
+    'If a proof example name was provided above, use it exactly as given in your opening sentence. Do not use vague phrases like "something like this", "what I sent", or "the example" without the specific name. ' +
     'Then share ONE specific shift or trend in their industry. It must be a genuinely different angle from what was discussed in T8 — do not repeat the same problem. ' +
     'This is a pure observation — not a pitch, not a demo request. Keep the insight at the industry level. Do not make claims about what the prospect specifically does, how their team works, or what their internal process looks like — you do not know that. State what is happening in the market and let them connect the dots themselves. ' +
     'FIRST PERSON RULE: Use I when referring to your own actions (I shared, I noticed, I work with). Use we only when referring to Smart Spatial as a company. Never use we to describe something you personally did. ' +
@@ -2208,12 +2223,27 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Do NOT write observations, declarations, or industry statements. Do NOT write 3 sentences. The entire message is: greeting with name + one curious question. Nothing else. ' +
     'No abbreviations or acronyms — always write out what you mean in full plain language. Never reference problem numbers. No mention of Smart Spatial. No proof links. No pitch. ' +
     'HARD LIMIT: exactly 2 sentences. Return only the 2-sentence message. Nothing else.';
+  const t9StatusForT10 = statuses.find(s=>s.status==='done'&&s.touch===9);
+  const t9MsgForT10 = t9StatusForT10?.msg||'';
+  // Extract company name from T9 proof link for specific reference
+  const proofNameMap = {
+    'SerOifwyF1Y':'the Micron example',
+    'rLw8tOnfbMM':'the Schneider Electric POD example',
+    'J_65fPoSApM':'the DDC example',
+    'ylhJsnPgj1I':'the HPE example',
+    'RnsRvIh8UPo':'the ZutaCore example',
+    'gzyUxTcJGbM':'the PNY example',
+    'GVS0AHAgFyU':'the Schneider Electric AI Factory example'
+  };
+  const t9LinkMatchForT10 = t9MsgForT10.match(/youtu\.be\/([\w-]+)/);
+  const t9ProofName = t9LinkMatchForT10 ? (proofNameMap[t9LinkMatchForT10[1]]||'the example I shared') : '';
   const t10Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
     'Profile: ' + profileText.substring(0, 500) + '. ' +
     'Persona: ' + l.persona + '. ' +
     (referralMode ? referralHeader : '') +
-    (prevHistory ? 'Previous messages for context — do not repeat anything already said: ' + prevHistory.substring(0, 800) + '. ' : '') +
+    (t9ProofName ? 'The previous message shared a proof link. Open with one short sentence asking if they had a chance to see ' + t9ProofName + ' — use that exact name, not vague language like "something like this" or "what I sent". ' : '') +
+    (prevHistory ? 'Previous messages for context — do not repeat anything already said: ' + prevHistory.substring(0, 600) + '. ' : '') +
     'Use this buyer problem taxonomy to pick ONE relevant problem to anchor the insight around, different from what was already discussed in previous messages: ' +
     '1. Solutions hard to explain — buyers cannot visualize complex products. ' +
     '2. Messaging inconsistent — every rep explains differently. ' +
@@ -2226,7 +2256,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     '9. Marketing content does not drive sales — content unused by reps. ' +
     'Persona anchors: Sales/Commercial = problems 1,3,4,5,6. Product Marketing = problems 2,3,8,9. Marketing = problems 2,7,9. Technical = problems 1,4,5. Sales Enablement = problems 1,2,4,5,8. ' +
     'This is an INDUSTRY INSIGHT message. Open with "Hi ' + l.first + '," on its own line, then a blank line, then the message. HARD LIMIT: 3 sentences total after the greeting. Not 3 paragraphs — 3 sentences. Count them. If you have written more than 3 sentences, delete until you have exactly 3. ' +
-    'If there is a proof link in T9, open with one short sentence asking if they had a chance to see it — reference it by name, not by timing. ' +
+    'If a proof example name was provided above, use it exactly as given in your opening sentence. Do not use vague phrases like "something like this", "what I sent", or "the example" without the specific name. ' +
     'Then share ONE specific shift or trend in their industry. It must be a genuinely different angle from what was discussed in T8 — do not repeat the same problem. ' +
     'This is a pure observation — not a pitch, not a demo request. Keep the insight at the industry level. Do not make claims about what the prospect specifically does, how their team works, or what their internal process looks like — you do not know that. State what is happening in the market and let them connect the dots themselves. ' +
     'FIRST PERSON RULE: Use I when referring to your own actions (I shared, I noticed, I work with). Use we only when referring to Smart Spatial as a company. Never use we to describe something you personally did. ' +
