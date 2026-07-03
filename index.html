@@ -1653,7 +1653,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'No abbreviations or acronyms — always write out what you mean in full plain language. Never reference problem numbers. No mention of Smart Spatial. No proof links. No pitch. ' +
     'HARD LIMIT: exactly 2 sentences. Return only the 2-sentence message. Nothing else.';
   const t9StatusForT10 = statuses.find(s=>s.status==='done'&&s.touch===9);
-  const t9MsgForT10 = t9StatusForT10?.msg||'';
+  const t9MsgForT10 = (t9StatusForT10?.msg||'') + ' ' + (t9StatusForT10?.notes||'');
   // Extract company name from T9 proof link for specific reference
   const proofNameMap = {
     'SerOifwyF1Y':'the Micron example',
@@ -1665,13 +1665,30 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'GVS0AHAgFyU':'the Schneider Electric AI Factory example'
   };
   const t9LinkMatchForT10 = t9MsgForT10.match(/youtu\.be\/([\w-]+)/);
-  const t9ProofName = t9LinkMatchForT10 ? (proofNameMap[t9LinkMatchForT10[1]]||'the example I shared') : '';
+  // Also try to identify example by company name mention in manually typed messages
+  function detectProofNameFromText(text){
+    const t = text.toLowerCase();
+    if(t.includes('micron')) return 'the Micron example';
+    if(t.includes('zutacore')) return 'the ZutaCore example';
+    if(t.includes('ddc')) return 'the DDC example';
+    if(t.includes('pny')) return 'the PNY example';
+    if(t.includes('hpe') || t.includes('hewlett')) return 'the HPE example';
+    if(t.includes('ai factory') || t.includes('ai factory')) return 'the Schneider Electric AI Factory example';
+    if(t.includes('schneider') || t.includes('ecostruxure') || t.includes('pod')) return 'the Schneider Electric POD example';
+    return 'the example I shared';
+  }
+  // If T9 is done: try URL match first, then text match, then generic fallback
+  const t9ProofName = t9StatusForT10
+    ? (t9LinkMatchForT10
+        ? (proofNameMap[t9LinkMatchForT10[1]] || detectProofNameFromText(t9MsgForT10))
+        : detectProofNameFromText(t9MsgForT10))
+    : '';
   const t10Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
     'Profile: ' + profileText.substring(0, 500) + '. ' +
     'Persona: ' + l.persona + '. ' +
     (referralMode ? referralHeader : '') +
-    (t9ProofName ? 'The previous message shared a proof link. Open with one short sentence asking if they had a chance to see ' + t9ProofName + ' — use that exact name, not vague language like "something like this" or "what I sent". ' : '') +
+    (t9ProofName ? 'The previous message shared a proof link. Open with one short sentence asking if they had a chance to see ' + t9ProofName + ' — use that exact name, not vague language like "something like this", "what I sent", or "the example we shared". ' : 'Do NOT reference any previous example or proof in the opening — there is no confirmed proof link sent yet. Go straight to the industry insight. ') +
     (prevHistory ? 'Previous messages for context — do not repeat anything already said: ' + prevHistory.substring(0, 600) + '. ' : '') +
     'Use this buyer problem taxonomy to pick ONE relevant problem to anchor the insight around, different from what was already discussed in previous messages: ' +
     '1. Solutions hard to explain — buyers cannot visualize complex products. ' +
@@ -2224,7 +2241,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'No abbreviations or acronyms — always write out what you mean in full plain language. Never reference problem numbers. No mention of Smart Spatial. No proof links. No pitch. ' +
     'HARD LIMIT: exactly 2 sentences. Return only the 2-sentence message. Nothing else.';
   const t9StatusForT10 = statuses.find(s=>s.status==='done'&&s.touch===9);
-  const t9MsgForT10 = t9StatusForT10?.msg||'';
+  const t9MsgForT10 = (t9StatusForT10?.msg||'') + ' ' + (t9StatusForT10?.notes||'');
   // Extract company name from T9 proof link for specific reference
   const proofNameMap = {
     'SerOifwyF1Y':'the Micron example',
@@ -2236,13 +2253,30 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'GVS0AHAgFyU':'the Schneider Electric AI Factory example'
   };
   const t9LinkMatchForT10 = t9MsgForT10.match(/youtu\.be\/([\w-]+)/);
-  const t9ProofName = t9LinkMatchForT10 ? (proofNameMap[t9LinkMatchForT10[1]]||'the example I shared') : '';
+  // Also try to identify example by company name mention in manually typed messages
+  function detectProofNameFromText(text){
+    const t = text.toLowerCase();
+    if(t.includes('micron')) return 'the Micron example';
+    if(t.includes('zutacore')) return 'the ZutaCore example';
+    if(t.includes('ddc')) return 'the DDC example';
+    if(t.includes('pny')) return 'the PNY example';
+    if(t.includes('hpe') || t.includes('hewlett')) return 'the HPE example';
+    if(t.includes('ai factory') || t.includes('ai factory')) return 'the Schneider Electric AI Factory example';
+    if(t.includes('schneider') || t.includes('ecostruxure') || t.includes('pod')) return 'the Schneider Electric POD example';
+    return 'the example I shared';
+  }
+  // If T9 is done: try URL match first, then text match, then generic fallback
+  const t9ProofName = t9StatusForT10
+    ? (t9LinkMatchForT10
+        ? (proofNameMap[t9LinkMatchForT10[1]] || detectProofNameFromText(t9MsgForT10))
+        : detectProofNameFromText(t9MsgForT10))
+    : '';
   const t10Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
     'Profile: ' + profileText.substring(0, 500) + '. ' +
     'Persona: ' + l.persona + '. ' +
     (referralMode ? referralHeader : '') +
-    (t9ProofName ? 'The previous message shared a proof link. Open with one short sentence asking if they had a chance to see ' + t9ProofName + ' — use that exact name, not vague language like "something like this" or "what I sent". ' : '') +
+    (t9ProofName ? 'The previous message shared a proof link. Open with one short sentence asking if they had a chance to see ' + t9ProofName + ' — use that exact name, not vague language like "something like this", "what I sent", or "the example we shared". ' : 'Do NOT reference any previous example or proof in the opening — there is no confirmed proof link sent yet. Go straight to the industry insight. ') +
     (prevHistory ? 'Previous messages for context — do not repeat anything already said: ' + prevHistory.substring(0, 600) + '. ' : '') +
     'Use this buyer problem taxonomy to pick ONE relevant problem to anchor the insight around, different from what was already discussed in previous messages: ' +
     '1. Solutions hard to explain — buyers cannot visualize complex products. ' +
