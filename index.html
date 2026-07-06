@@ -311,9 +311,12 @@ a:hover{text-decoration:underline}
         </div>
         <button class="close-btn" onclick="closePanel()"><i class="ti ti-x"></i></button>
       </div>
-      <div id="dismiss-bar" style="display:none;padding:8px 18px;background:var(--amber-bg);border-bottom:1px solid var(--border);align-items:center;justify-content:space-between;font-size:12px;color:var(--amber)">
-        <span><i class="ti ti-check-circle" style="font-size:13px;vertical-align:-2px"></i> Marked as done — no further follow-up</span>
-        <button class="btn btn-sm" onclick="undismissLead(selId)" style="font-size:11px;padding:3px 8px">Undo</button>
+      <div id="dismiss-bar" style="display:none;padding:8px 18px;background:var(--amber-bg);border-bottom:1px solid var(--border);font-size:12px;color:var(--amber)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span><i class="ti ti-check-circle" style="font-size:13px;vertical-align:-2px"></i> Marked as done — no further follow-up</span>
+          <button class="btn btn-sm" onclick="undismissLead(selId)" style="font-size:11px;padding:3px 8px">Undo</button>
+        </div>
+        <div id="dismiss-note-display" style="font-size:11px;color:var(--amber);opacity:0.8;font-style:italic"></div>
       </div>
       <div id="pipeline-bar" style="display:none;padding:8px 18px;background:var(--blue-bg);border-bottom:1px solid var(--border);font-size:12px;color:var(--blue);align-items:center;justify-content:space-between">
         <span><i class="ti ti-users" style="font-size:13px;vertical-align:-2px"></i> Not Connected pipeline</span>
@@ -440,9 +443,14 @@ a:hover{text-decoration:underline}
 
 <!-- Confirm dismiss modal -->
 <div class="modal-bg" id="confirm-dismiss-modal">
-  <div class="modal" style="max-width:360px">
+  <div class="modal" style="max-width:400px">
     <h2><i class="ti ti-circle-check" style="color:var(--coral)"></i> Mark as done?</h2>
-    <p style="font-size:13px;color:var(--text2);margin:8px 0 20px">This will remove the lead from your active pipeline. You can undo this from their profile.</p>
+    <p style="font-size:13px;color:var(--text2);margin:8px 0 16px">This will remove the lead from your active pipeline. You can undo this from their profile.</p>
+    <div class="form-row" style="margin-bottom:16px">
+      <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px">Outcome / reason <span style="color:var(--coral)">*</span></label>
+      <textarea id="dismiss-notes" rows="3" placeholder="e.g. Not a fit, referred to marketing lead, no response after 6 touches…" style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);resize:vertical;outline:none" oninput="document.getElementById('dismiss-notes-error').style.display='none'"></textarea>
+      <p id="dismiss-notes-error" style="display:none;font-size:11px;color:var(--coral);margin-top:4px">Please add a note before marking done.</p>
+    </div>
     <div class="modal-footer">
       <button class="btn" onclick="document.getElementById('confirm-dismiss-modal').classList.remove('open')">Cancel</button>
       <button class="btn btn-primary" onclick="confirmDismissOk()"><i class="ti ti-circle-check"></i> Mark done</button>
@@ -811,7 +819,16 @@ function confirmTouchDoneOk(){
 }
 
 function confirmDismissOk(){
+  const notes = document.getElementById('dismiss-notes').value.trim();
+  if(!notes){
+    document.getElementById('dismiss-notes-error').style.display='block';
+    return;
+  }
   document.getElementById('confirm-dismiss-modal').classList.remove('open');
+  // Save outcome note to lead before dismissing
+  const l = leads.find(x=>x.id===selId);
+  if(l){ l.dismissNote = notes; }
+  document.getElementById('dismiss-notes').value='';
   dismissLead(selId);
 }
 
@@ -1030,8 +1047,10 @@ function updateDismissUI(l){
   const bar = document.getElementById('dismiss-bar');
   const btn = document.getElementById('dismiss-btn');
   const pbar = document.getElementById('pipeline-bar');
-  if(bar) bar.style.display = l.dismissed ? 'flex' : 'none';
+  if(bar) bar.style.display = l.dismissed ? 'block' : 'none';
   if(btn) btn.style.display = l.dismissed ? 'none' : '';
+  const noteEl = document.getElementById('dismiss-note-display');
+  if(noteEl) noteEl.textContent = l.dismissNote ? 'Note: ' + l.dismissNote : '';
   if(pbar){
     const isNC = inferPipeline(l) === 'noconn';
     pbar.style.display = (!l.dismissed && isNC) ? 'flex' : 'none';
