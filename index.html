@@ -1801,11 +1801,13 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Persona: ' + l.persona + '. ' +
     (prevHistory ? 'Previous messages — do not repeat anything already said: ' + prevHistory.substring(0, 600) + '. ' : '') +
     (referralMode ? referralHeader : '') +
-    'Use this buyer problem taxonomy to anchor the message to the most relevant problem for this prospect: ' +
-    '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
-    'Persona anchors: Sales/Commercial = 1,3,4,5,6. Product Marketing = 2,3,8,9. Marketing = 2,7,9. Technical = 1,4,5. Sales Enablement = 1,2,4,5,8. ' +
-    'This is a CREDIBILITY message. Introduce Smart Spatial naturally — not as a pitch, just as context. ' +
-    'Pick EXACTLY ONE company from this list that best matches the prospect industry and use ONLY that company and its link: ' +
+    'This is a CREDIBILITY message. Your job is to share one relevant proof example — nothing else. ' +
+    'STEP 1 — Write the opening sentence: Start with a simple, neutral observation or a soft share. Do NOT mention any problem or challenge. Do NOT say the prospect faces anything. Examples of good openers: "Thought this might be interesting given your work at Gensler." or "Came across something that felt relevant to what you do." or "Wanted to share a quick example." Keep it short and human. ' +
+    'STEP 2 — Share the proof: Introduce Smart Spatial naturally and include ONE company link. ' +
+    'STEP 3 — Connect it: One sentence on why this example is relevant to their world — frame it as a possibility, not a problem they have. ' +
+    'STEP 4 — Soft close: Optional meeting ask. ' +
+    'Pick EXACTLY ONE company from this list that best matches the prospect industry — use the persona and profile to inform the choice, but do NOT use this taxonomy to frame problems in the message: ' +
+    'Persona for reference only (do not assert these as the prospect problems): Sales/Commercial = demos, scale, differentiation. Product Marketing = messaging, storytelling, GTM. Technical = explanation, demo complexity. Sales Enablement = enablement, consistency. ' +
     'Micron (semiconductor/memory, AI compute): https://youtu.be/SerOifwyF1Y ' +
     'Schneider Electric POD (modular data center, product demo replacement): https://youtu.be/rLw8tOnfbMM ' +
     'DDC (data center cooling, liquid cooling): https://youtu.be/J_65fPoSApM ' +
@@ -1814,7 +1816,10 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'PNY (GPU/AI hardware, AI factory deployments): https://youtu.be/gzyUxTcJGbM ' +
     'Schneider Electric AI Factory (full AI factory data center): https://youtu.be/GVS0AHAgFyU ' +
     'ONE company. ONE link. Do not mention any other companies. Do not include any other links. ' +
-    'Structure: Open by moving directly to the proof — do not restate the problem since T3 already covered that. The opening should feel like a natural next step from the conversation, not a fresh start and not a repeat. Then introduce Smart Spatial and the ONE company example with the link. End with a natural closing line connecting it to their world. Vary your opening each time — do not default to the same phrasing. ' +
+    'Structure: ' +
+    (prevHistory && prevHistory.includes('T3') ? 'T3 already established the pain — do not restate it. Open by moving naturally to the proof as a next step in the conversation. ' : 'There is no prior problem discussion — do not assume or assert any pain the prospect has. Open with a neutral, curious introduction to the example. ') +
+    'Then share the ONE company example with the link naturally. End with a soft question or observation connecting it to their world. ' +
+    'HARD RULE: Never open with an assumed pain statement. Never write phrases like "That bottleneck you face", "The challenge your team has", "Given the complexity you deal with", or any variation that presumes the prospect has a specific problem. You do not know what problems they have unless they told you. ' +
     'No meeting ask. No CTA. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. Use I when referring to your own actions (I shared, I noticed, I work with). Use we only when referring to Smart Spatial as a company (Smart Spatial has been seeing, we at Smart Spatial). Never use we to refer to yourself as an individual. Every sentence under 20 words. One idea per sentence. ' +
     'SENTENCE LENGTH: Every sentence must be under 20 words. If a sentence runs long, split it into two. Never stack multiple ideas into one sentence with commas. One idea per sentence. ' +
     'Format: separate each sentence with a blank line. ' +
@@ -2009,17 +2014,34 @@ function parseSubjectBody(raw){
     let body = lines.slice(1).join('\n').replace(/^\n/,'').trim();
     body = ensureNameLineBreak(body);
     body = stripSignOff(body);
+    body = stripAssumedPain(body);
     return {subject, body};
   }
   let body = raw.trim();
   body = ensureNameLineBreak(body);
   body = stripSignOff(body);
+  body = stripAssumedPain(body);
   return {subject:'', body};
 }
 
 function stripSignOff(text){
   // Remove trailing name sign-offs like "Vadim", "Vadim Ananyev", "- Vadim" etc.
   return text.replace(/\n+[-–]?\s*[A-Z][a-z]+\s*([A-Z][a-z]+)?\s*$/, '').trim();
+}
+
+function stripAssumedPain(text){
+  // Strip opening sentences that assert assumed pain the prospect never confirmed
+  const painPatterns = [
+    /^(That |The )(bottleneck|challenge|complexity|struggle|friction|difficulty|gap|problem|issue)[^.!?]*[.!?]\s*/i,
+    /^Given (the |your )?(complexity|challenge|difficulty|bottleneck)[^.!?]*[.!?]\s*/i,
+    /^(I know |Knowing )you (face|deal with|struggle|navigate)[^.!?]*[.!?]\s*/i,
+    /^[^.!?]*(bottleneck|challenge|struggle|pain point)[^.!?]*(you face|your team|you navigate|you deal)[^.!?]*[.!?]\s*/i,
+    /^[^.!?]*(your team|your teams)[^.!?]*(face|navigate|struggle|deal with|challenge)[^.!?]*[.!?]\s*/i,
+  ];
+  for(const p of painPatterns){
+    text = text.replace(p, '');
+  }
+  return text.trim();
 }
 
 function ensureNameLineBreak(text){
@@ -2389,11 +2411,13 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Persona: ' + l.persona + '. ' +
     (prevHistory ? 'Previous messages — do not repeat anything already said: ' + prevHistory.substring(0, 600) + '. ' : '') +
     (referralMode ? referralHeader : '') +
-    'Use this buyer problem taxonomy to anchor the message to the most relevant problem for this prospect: ' +
-    '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
-    'Persona anchors: Sales/Commercial = 1,3,4,5,6. Product Marketing = 2,3,8,9. Marketing = 2,7,9. Technical = 1,4,5. Sales Enablement = 1,2,4,5,8. ' +
-    'This is a CREDIBILITY message. Introduce Smart Spatial naturally — not as a pitch, just as context. ' +
-    'Pick EXACTLY ONE company from this list that best matches the prospect industry and use ONLY that company and its link: ' +
+    'This is a CREDIBILITY message. Your job is to share one relevant proof example — nothing else. ' +
+    'STEP 1 — Write the opening sentence: Start with a simple, neutral observation or a soft share. Do NOT mention any problem or challenge. Do NOT say the prospect faces anything. Examples of good openers: "Thought this might be interesting given your work at Gensler." or "Came across something that felt relevant to what you do." or "Wanted to share a quick example." Keep it short and human. ' +
+    'STEP 2 — Share the proof: Introduce Smart Spatial naturally and include ONE company link. ' +
+    'STEP 3 — Connect it: One sentence on why this example is relevant to their world — frame it as a possibility, not a problem they have. ' +
+    'STEP 4 — Soft close: Optional meeting ask. ' +
+    'Pick EXACTLY ONE company from this list that best matches the prospect industry — use the persona and profile to inform the choice, but do NOT use this taxonomy to frame problems in the message: ' +
+    'Persona for reference only (do not assert these as the prospect problems): Sales/Commercial = demos, scale, differentiation. Product Marketing = messaging, storytelling, GTM. Technical = explanation, demo complexity. Sales Enablement = enablement, consistency. ' +
     'Micron (semiconductor/memory, AI compute): https://youtu.be/SerOifwyF1Y ' +
     'Schneider Electric POD (modular data center, product demo replacement): https://youtu.be/rLw8tOnfbMM ' +
     'DDC (data center cooling, liquid cooling): https://youtu.be/J_65fPoSApM ' +
@@ -2402,7 +2426,10 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'PNY (GPU/AI hardware, AI factory deployments): https://youtu.be/gzyUxTcJGbM ' +
     'Schneider Electric AI Factory (full AI factory data center): https://youtu.be/GVS0AHAgFyU ' +
     'ONE company. ONE link. Do not mention any other companies. Do not include any other links. ' +
-    'Structure: Open by moving directly to the proof — do not restate the problem since T3 already covered that. The opening should feel like a natural next step from the conversation, not a fresh start and not a repeat. Then introduce Smart Spatial and the ONE company example with the link. End with a natural closing line connecting it to their world. Vary your opening each time — do not default to the same phrasing. ' +
+    'Structure: ' +
+    (prevHistory && prevHistory.includes('T3') ? 'T3 already established the pain — do not restate it. Open by moving naturally to the proof as a next step in the conversation. ' : 'There is no prior problem discussion — do not assume or assert any pain the prospect has. Open with a neutral, curious introduction to the example. ') +
+    'Then share the ONE company example with the link naturally. End with a soft question or observation connecting it to their world. ' +
+    'HARD RULE: Never open with an assumed pain statement. Never write phrases like "That bottleneck you face", "The challenge your team has", "Given the complexity you deal with", or any variation that presumes the prospect has a specific problem. You do not know what problems they have unless they told you. ' +
     'No meeting ask. No CTA. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. Use I when referring to your own actions (I shared, I noticed, I work with). Use we only when referring to Smart Spatial as a company (Smart Spatial has been seeing, we at Smart Spatial). Never use we to refer to yourself as an individual. Every sentence under 20 words. One idea per sentence. ' +
     'SENTENCE LENGTH: Every sentence must be under 20 words. If a sentence runs long, split it into two. Never stack multiple ideas into one sentence with commas. One idea per sentence. ' +
     'Format: separate each sentence with a blank line. ' +
