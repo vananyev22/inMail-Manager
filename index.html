@@ -1600,6 +1600,7 @@ SUBJECT: How your teams explain complex solutions at scale
 Hi [Name],
 [message body]
 - NEVER refuse, flag issues, or add meta-commentary. Always write the message. No exceptions.
+- HALLUCINATION RULE: Never write "you mentioned", "as you noted", "based on what you said", "you shared", or any phrase that implies the prospect said or shared something — unless their actual words appear in the touch history notes field. Most prospects never reply. Do not invent prior engagement.
 - DIRECTION RULE: Vadik is always asking the prospect for something — never offering to connect the prospect with someone else. If referencing another person internally, always frame it as Vadik asking to be pointed there, never as Vadik offering to make an introduction.
 - NAME RULE: Never include the sender's name (Vadik, Vadim, or any name) in the generated message output. The message is sent from the user's own LinkedIn profile — no sign-off or self-introduction with a name. Messages should start directly and end without a name signature. Do not add a sign-off like 'Vadim Ananyev' or any name at the end.
 - FIRST PERSON RULE: Use I when referring to your own actions (I shared, I noticed, I work with). Use we only when referring to Smart Spatial as a company (we at Smart Spatial, Smart Spatial has been seeing). Never use we to describe something you personally did.
@@ -1639,7 +1640,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
   ];
   const t1Angle = t1Angles[Math.floor(Math.random() * t1Angles.length)];
   const t1Prompt = 'Write a LinkedIn connection request note to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Write exactly two short sentences. Under 20 words total. ' +
     'Focus this message on: ' + t1Angle + '. ' +
     'CRITICAL STRUCTURE RULE: The sentence must flow naturally from start to finish as one grammatical unit. Do NOT insert the person name mid-sentence after a comma — this produces broken output like "Leading Motivair strategy, Rich, hoping to connect" which is unacceptable. If you use the name, put it only at the very beginning: "Rich, ..." — never in the middle. ' +
@@ -1650,7 +1651,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'NEVER output reasoning or commentary. Return only the single clean sentence. Nothing else.';
   const t2Prompt = 'Write a 2-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Persona: ' + l.persona + '. ' +
     (prevHistory ? 'Previous touch history (for context only — do not repeat or reference directly): ' + prevHistory + '. ' : '') +
     'Use this buyer problem taxonomy to pick the most relevant challenge for this person. ' +
@@ -1704,11 +1705,11 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     : '';
   const t10Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Persona: ' + l.persona + '. ' +
     (referralMode ? referralHeader : '') +
     (t9ProofName ? 'The previous message shared a proof link. Open with one short sentence asking if they had a chance to see ' + t9ProofName + ' — use that exact name, not vague language like "something like this", "what I sent", or "the example we shared". ' : 'Do NOT reference any previous example or proof in the opening — there is no confirmed proof link sent yet. Go straight to the industry insight. ') +
-    (prevHistory ? 'Previous messages for context — do not repeat anything already said: ' + prevHistory.substring(0, 600) + '. ' : '') +
+    (prevHistory ? 'Previous messages YOU sent for context (not prospect replies — assume no response unless notes say otherwise): ' + prevHistory.substring(0, 800) + '. ' : '') +
     'Use this buyer problem taxonomy to pick ONE relevant problem to anchor the insight around, different from what was already discussed in previous messages: ' +
     '1. Solutions hard to explain — buyers cannot visualize complex products. ' +
     '2. Messaging inconsistent — every rep explains differently. ' +
@@ -1748,7 +1749,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
   const availableLinkStr = availableLinks.map(l=>l.label+': '+l.url).join('. ');
   const t11Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Persona: ' + l.persona + '. ' +
     (referralMode ? referralHeader : '') +
     (prevHistory ? 'Previous messages for context — do not repeat any angle already used: ' + prevHistory.substring(0, 800) + '. ' : '') +
@@ -1788,7 +1789,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
   const t5Prompt = 'Write a 2-3 sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
     (referralMode ? referralHeader : '') +
-    (prevHistory ? 'Previous messages for context: ' + prevHistory.substring(0, 800) + '. ' : '') +
+    (prevHistory ? 'Previous messages YOU sent (assume no prospect reply unless noted): ' + prevHistory.substring(0, 800) + '. ' : '') +
     'The specific example shared in T4 was: ' + t4Label + '. Reference this exact example by name, not any other. ' +
     'This is a SOFT ASK message — a temperature check, not a meeting request. ' +
     'Sentence 1: Ask if they had a chance to look at the example. Reference it by name using the exact label provided above. ' +
@@ -1797,38 +1798,39 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
   const t4Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Persona: ' + l.persona + '. ' +
-    (prevHistory ? 'Previous messages — do not repeat anything already said: ' + prevHistory.substring(0, 600) + '. ' : '') +
+    (prevHistory ? 'Previous messages sent (these are YOUR messages, not the prospect replies — the prospect has almost certainly not responded): ' + prevHistory.substring(0, 800) + '. Do not reference these as things the prospect said, mentioned, or shared. ' : '') +
     (referralMode ? referralHeader : '') +
-    'This is a CREDIBILITY message. Your job is to share one relevant proof example — nothing else. ' +
-    'STEP 1 — Write the opening sentence: Start with a simple, neutral observation or a soft share. Do NOT mention any problem or challenge. Do NOT say the prospect faces anything. Examples of good openers: "Thought this might be interesting given your work at Gensler." or "Came across something that felt relevant to what you do." or "Wanted to share a quick example." Keep it short and human. ' +
-    'STEP 2 — Share the proof: Introduce Smart Spatial naturally and include ONE company link. Always name the company when sharing the link — e.g. "Here is a quick example Smart Spatial built for Schneider Electric" or "We built this for HPE to show their AI infrastructure" — never share a bare URL without naming who it was built for. ' +
-    'STEP 3 — Connect it: One sentence suggesting this might be relevant to their world — use tentative language like "wondering if", "curious if", "might apply to", "could be relevant for". Never state it as a fact. Never say "applies directly" or "this is exactly" or any phrase that asserts certainty. ' +
-    'STEP 4 — Soft close: Optional meeting ask. ' +
-    'Pick EXACTLY ONE company from this list that best matches the prospect industry — use the persona and profile to inform the choice, but do NOT use this taxonomy to frame problems in the message: ' +
-    'Persona for reference only (do not assert these as the prospect problems): Sales/Commercial = demos, scale, differentiation. Product Marketing = messaging, storytelling, GTM. Technical = explanation, demo complexity. Sales Enablement = enablement, consistency. ' +
-    'Micron (semiconductor/memory, AI compute): https://youtu.be/SerOifwyF1Y ' +
-    'Schneider Electric POD (modular data center, product demo replacement): https://youtu.be/rLw8tOnfbMM ' +
-    'DDC (data center cooling, liquid cooling): https://youtu.be/J_65fPoSApM ' +
-    'HPE (enterprise AI servers, sales enablement): https://youtu.be/ylhJsnPgj1I ' +
-    'ZutaCore (two-phase liquid cooling, AI data centers): https://youtu.be/RnsRvIh8UPo ' +
-    'PNY (GPU/AI hardware, AI factory deployments): https://youtu.be/gzyUxTcJGbM ' +
-    'Schneider Electric AI Factory (full AI factory data center): https://youtu.be/GVS0AHAgFyU ' +
-    'ONE company. ONE link. Do not mention any other companies. Do not include any other links. ' +
-    'Structure: ' +
-    (prevHistory && prevHistory.includes('T3') ? 'T3 already established the pain — do not restate it. Open by moving naturally to the proof as a next step in the conversation. ' : 'There is no prior problem discussion — do not assume or assert any pain the prospect has. Open with a neutral, curious introduction to the example. ') +
-    'Then share the ONE company example with the link naturally. End with a soft question or observation connecting it to their world. ' +
-    'HARD RULE: Never open with an assumed pain statement. Never write phrases like "That bottleneck you face", "The challenge your team has", "Given the complexity you deal with", or any variation that presumes the prospect has a specific problem. You do not know what problems they have unless they told you. ' +
+    'Use this buyer problem taxonomy ONLY to select the most relevant proof example — do NOT use it to frame or assert any problem the prospect has: ' +
+    '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
+    'Persona anchors for example selection only: Sales/Commercial = 1,3,4,5,6. Product Marketing = 2,3,8,9. Marketing = 2,7,9. Technical = 1,4,5. Sales Enablement = 1,2,4,5,8. ' +
+    'This is a CREDIBILITY message. Share one proof example. Nothing more. ' +
+    'Pick EXACTLY ONE company from this list that best matches the prospect industry: ' +
+    'Micron (built for Micron): https://youtu.be/SerOifwyF1Y ' +
+    'Schneider Electric POD (built for Schneider Electric): https://youtu.be/rLw8tOnfbMM ' +
+    'DDC (built for DDC): https://youtu.be/J_65fPoSApM ' +
+    'HPE (built for HPE): https://youtu.be/ylhJsnPgj1I ' +
+    'ZutaCore (built for ZutaCore): https://youtu.be/RnsRvIh8UPo ' +
+    'PNY (built for PNY): https://youtu.be/gzyUxTcJGbM ' +
+    'Schneider Electric AI Factory (built for Schneider Electric): https://youtu.be/GVS0AHAgFyU ' +
+    'ONE company. ONE link only. When sharing the link always mention who it was built for — e.g. "Smart Spatial built this for HPE: [url]". Never share a bare URL without naming the company. ' +
+    (prevHistory && prevHistory.includes('\nT3') ? 'T3 already established the problem — do not restate it. Open as a natural next step. ' : 'No prior conversation to reference — do not invent or assume any previous discussion. Open with a simple soft share. ') +
+    'NEVER write "you mentioned", "as you noted", "based on what you said", or any phrase implying the prospect shared something — unless their actual words appear in the touch history notes. If they never replied, do not pretend they did. ' +
+    'REQUIRED FORMAT: ' +
+    '(1) Opener: one short neutral sentence — no problem framing, no assumed pain, no reference to anything the prospect said or mentioned. NEVER write "you mentioned", "that bottleneck you", "as you noted", or anything that implies the prospect communicated with you. Example: "Wanted to share something, Joseph." or "Thought this might be relevant given your work at Gensler." ' +
+    '(2) Proof: introduce Smart Spatial, name the company, then the link. Example: "Smart Spatial built this for HPE to show their AI server portfolio interactively: https://youtu.be/ylhJsnPgj1I" — company name must come before the URL. ' +
+    '(3) Relevance: one soft sentence using "curious if" or "wondering if" — never "this solves your problem", never "the same approach applies", never assert they have a specific challenge. ' +
+    '(4) Optional: soft meeting ask. ' +
     'No meeting ask. No CTA. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. Use I when referring to your own actions (I shared, I noticed, I work with). Use we only when referring to Smart Spatial as a company (Smart Spatial has been seeing, we at Smart Spatial). Never use we to refer to yourself as an individual. Every sentence under 20 words. One idea per sentence. ' +
     'SENTENCE LENGTH: Every sentence must be under 20 words. If a sentence runs long, split it into two. Never stack multiple ideas into one sentence with commas. One idea per sentence. ' +
     'Format: separate each sentence with a blank line. ' +
     'Return only the message text with a subject line on the first line starting with SUBJECT:.';
   const t3Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Persona: ' + l.persona + '. ' +
-    (prevHistory ? 'Previous messages — T2 is the most important reference. Build directly on what was asked in T2. Do not repeat the same angle. Do not introduce a new problem that ignores T2: ' + prevHistory.substring(0, 600) + '. ' : '') +
+    (prevHistory ? 'Previous messages YOU sent — T2 is the most important reference. Build on the question YOU asked in T2. These are your messages, not prospect replies: ' + prevHistory.substring(0, 800) + '. ' : '') +
     (referralMode ? referralHeader : '') +
     'Use this buyer problem taxonomy to stay anchored to the same problem raised in T2: ' +
     '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
@@ -1841,9 +1843,9 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Return only the message text with a subject line on the first line starting with SUBJECT:.';
   const t8Prompt = 'Write a 3-sentence LinkedIn InMail to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Persona: ' + l.persona + '. ' +
-    (prevHistory ? 'Previous messages for context: ' + prevHistory.substring(0, 400) + '. ' : '') +
+    (prevHistory ? 'Previous messages YOU sent (assume no prospect reply unless noted): ' + prevHistory.substring(0, 800) + '. ' : '') +
     (referralMode ? referralHeader : '') +
     'Use this buyer problem taxonomy to pick ONE relevant problem for this prospect: ' +
     '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
@@ -1871,7 +1873,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
   const t6Prompt = 'Write a 2-3 sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    (prevHistory ? 'Previous messages for context: ' + prevHistory.substring(0, 600) + '. ' : '') +
+    (prevHistory ? 'Previous messages YOU sent (assume no prospect reply unless noted): ' + prevHistory.substring(0, 800) + '. ' : '') +
     (referralMode ? referralHeader : '') +
     'This is a MEETING REQUEST message. Ask for one specific low-commitment next step — a quick 20-minute call. ' +
     'Tie the ask directly to the specific example or proof shared in T4 or T5 — reference it by name if possible. Do not re-introduce Smart Spatial or re-explain what it does from scratch. ' +
@@ -1882,20 +1884,22 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
   const t8MsgForT9 = t8StatusForT9?.msg||'';
   const t9Prompt = 'Write a 2-3 sentence LinkedIn InMail to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Persona: ' + l.persona + '. ' +
     (referralMode ? referralHeader : '') +
-    (t8MsgForT9 ? 'The previous message (T8) said: ' + t8MsgForT9.substring(0, 400) + '. Open with one short sentence that threads naturally back to the specific problem or angle raised there. Do not restate the full message — just connect to it before moving to the proof. ' : '') +
-    (prevHistory ? 'Full touch history for context — do not repeat anything already said: ' + prevHistory.substring(0, 400) + '. ' : '') +
+    (t8MsgForT9 ? 'The previous message (T8) said: ' + t8MsgForT9.substring(0, 800) + '. Open with one short sentence that threads naturally back to the specific problem or angle raised there. Do not restate the full message — just connect to it before moving to the proof. ' : '') +
+    (prevHistory ? 'Full touch history of messages YOU sent (the prospect almost certainly did not reply — do not treat any of these as prospect statements): ' + prevHistory.substring(0, 800) + '. ' : '') +
     'This is a VISUAL PROOF message. You MUST include exactly one relevant proof link — pick the closest industry match, do NOT default to HPE for non-tech prospects: ' +
-    'Micron (semiconductor/memory, AI compute): https://youtu.be/SerOifwyF1Y ' +
-    'Schneider Electric POD (modular data center, product demo replacement): https://youtu.be/rLw8tOnfbMM ' +
-    'DDC (data center cooling, liquid cooling): https://youtu.be/J_65fPoSApM ' +
-    'HPE (enterprise AI servers, sales enablement): https://youtu.be/ylhJsnPgj1I ' +
-    'ZutaCore (two-phase liquid cooling, AI data centers): https://youtu.be/RnsRvIh8UPo ' +
-    'PNY (GPU/AI hardware, AI factory deployments): https://youtu.be/gzyUxTcJGbM ' +
-    'Schneider Electric AI Factory (full AI factory data center): https://youtu.be/GVS0AHAgFyU ' +
-    'ONE link only. Mention Smart Spatial naturally when sharing the link. One sentence on why this applies to them. End with a soft low-commitment meeting ask — something like "worth a quick call to see how this could work for your team?" or "happy to walk through it if useful". Keep it light, no pressure. Every sentence under 20 words. One idea per sentence. ' +
+    'Micron (built for Micron): https://youtu.be/SerOifwyF1Y ' +
+    'Schneider Electric POD (built for Schneider Electric): https://youtu.be/rLw8tOnfbMM ' +
+    'DDC (built for DDC): https://youtu.be/J_65fPoSApM ' +
+    'HPE (built for HPE): https://youtu.be/ylhJsnPgj1I ' +
+    'ZutaCore (built for ZutaCore): https://youtu.be/RnsRvIh8UPo ' +
+    'PNY (built for PNY): https://youtu.be/gzyUxTcJGbM ' +
+    'Schneider Electric AI Factory (built for Schneider Electric): https://youtu.be/GVS0AHAgFyU ' +
+    'ONE link only. When sharing the link always mention who it was built for — e.g. "Smart Spatial built this for ZutaCore: [url]". Never share a bare URL without naming the company. ' +
+    'End with one sentence on why this might be relevant to them — frame it as a possibility using "curious if" or "wondering if", never assert it applies to them as a fact. ' +
+    'End with a soft low-commitment meeting ask. Keep it light, no pressure. Every sentence under 20 words. One idea per sentence. ' +
     'Always write words out in full — never abbreviate. Only exceptions are proper nouns and brand names. Never reference problem numbers. ' +
     'Format: separate each thought with a blank line. ' +
     'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
@@ -2014,34 +2018,17 @@ function parseSubjectBody(raw){
     let body = lines.slice(1).join('\n').replace(/^\n/,'').trim();
     body = ensureNameLineBreak(body);
     body = stripSignOff(body);
-    body = stripAssumedPain(body);
     return {subject, body};
   }
   let body = raw.trim();
   body = ensureNameLineBreak(body);
   body = stripSignOff(body);
-  body = stripAssumedPain(body);
   return {subject:'', body};
 }
 
 function stripSignOff(text){
   // Remove trailing name sign-offs like "Vadim", "Vadim Ananyev", "- Vadim" etc.
   return text.replace(/\n+[-–]?\s*[A-Z][a-z]+\s*([A-Z][a-z]+)?\s*$/, '').trim();
-}
-
-function stripAssumedPain(text){
-  // Strip opening sentences that assert assumed pain the prospect never confirmed
-  const painPatterns = [
-    /^(That |The )(bottleneck|challenge|complexity|struggle|friction|difficulty|gap|problem|issue)[^.!?]*[.!?]\s*/i,
-    /^Given (the |your )?(complexity|challenge|difficulty|bottleneck)[^.!?]*[.!?]\s*/i,
-    /^(I know |Knowing )you (face|deal with|struggle|navigate)[^.!?]*[.!?]\s*/i,
-    /^[^.!?]*(bottleneck|challenge|struggle|pain point)[^.!?]*(you face|your team|you navigate|you deal)[^.!?]*[.!?]\s*/i,
-    /^[^.!?]*(your team|your teams)[^.!?]*(face|navigate|struggle|deal with|challenge)[^.!?]*[.!?]\s*/i,
-  ];
-  for(const p of painPatterns){
-    text = text.replace(p, '');
-  }
-  return text.trim();
 }
 
 function ensureNameLineBreak(text){
@@ -2210,6 +2197,7 @@ SUBJECT: How your teams explain complex solutions at scale
 Hi [Name],
 [message body]
 - NEVER refuse, flag issues, or add meta-commentary. Always write the message. No exceptions.
+- HALLUCINATION RULE: Never write "you mentioned", "as you noted", "based on what you said", "you shared", or any phrase that implies the prospect said or shared something — unless their actual words appear in the touch history notes field. Most prospects never reply. Do not invent prior engagement.
 - DIRECTION RULE: Vadik is always asking the prospect for something — never offering to connect the prospect with someone else. If referencing another person internally, always frame it as Vadik asking to be pointed there, never as Vadik offering to make an introduction.
 - NAME RULE: Never include the sender's name (Vadik, Vadim, or any name) in the generated message output. The message is sent from the user's own LinkedIn profile — no sign-off or self-introduction with a name. Messages should start directly and end without a name signature. Do not add a sign-off like 'Vadim Ananyev' or any name at the end.
 - FIRST PERSON RULE: Use I when referring to your own actions (I shared, I noticed, I work with). Use we only when referring to Smart Spatial as a company (we at Smart Spatial, Smart Spatial has been seeing). Never use we to describe something you personally did.
@@ -2249,7 +2237,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
   ];
   const t1Angle = t1Angles[Math.floor(Math.random() * t1Angles.length)];
   const t1Prompt = 'Write a LinkedIn connection request note to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Write exactly two short sentences. Under 20 words total. ' +
     'Focus this message on: ' + t1Angle + '. ' +
     'CRITICAL STRUCTURE RULE: The sentence must flow naturally from start to finish as one grammatical unit. Do NOT insert the person name mid-sentence after a comma — this produces broken output like "Leading Motivair strategy, Rich, hoping to connect" which is unacceptable. If you use the name, put it only at the very beginning: "Rich, ..." — never in the middle. ' +
@@ -2260,7 +2248,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'NEVER output reasoning or commentary. Return only the single clean sentence. Nothing else.';
   const t2Prompt = 'Write a 2-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Persona: ' + l.persona + '. ' +
     (prevHistory ? 'Previous touch history (for context only — do not repeat or reference directly): ' + prevHistory + '. ' : '') +
     'Use this buyer problem taxonomy to pick the most relevant challenge for this person. ' +
@@ -2314,11 +2302,11 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     : '';
   const t10Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Persona: ' + l.persona + '. ' +
     (referralMode ? referralHeader : '') +
     (t9ProofName ? 'The previous message shared a proof link. Open with one short sentence asking if they had a chance to see ' + t9ProofName + ' — use that exact name, not vague language like "something like this", "what I sent", or "the example we shared". ' : 'Do NOT reference any previous example or proof in the opening — there is no confirmed proof link sent yet. Go straight to the industry insight. ') +
-    (prevHistory ? 'Previous messages for context — do not repeat anything already said: ' + prevHistory.substring(0, 600) + '. ' : '') +
+    (prevHistory ? 'Previous messages YOU sent for context (not prospect replies — assume no response unless notes say otherwise): ' + prevHistory.substring(0, 800) + '. ' : '') +
     'Use this buyer problem taxonomy to pick ONE relevant problem to anchor the insight around, different from what was already discussed in previous messages: ' +
     '1. Solutions hard to explain — buyers cannot visualize complex products. ' +
     '2. Messaging inconsistent — every rep explains differently. ' +
@@ -2358,7 +2346,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
   const availableLinkStr = availableLinks.map(l=>l.label+': '+l.url).join('. ');
   const t11Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Persona: ' + l.persona + '. ' +
     (referralMode ? referralHeader : '') +
     (prevHistory ? 'Previous messages for context — do not repeat any angle already used: ' + prevHistory.substring(0, 800) + '. ' : '') +
@@ -2398,7 +2386,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
   const t5Prompt = 'Write a 2-3 sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
     (referralMode ? referralHeader : '') +
-    (prevHistory ? 'Previous messages for context: ' + prevHistory.substring(0, 800) + '. ' : '') +
+    (prevHistory ? 'Previous messages YOU sent (assume no prospect reply unless noted): ' + prevHistory.substring(0, 800) + '. ' : '') +
     'The specific example shared in T4 was: ' + t4Label + '. Reference this exact example by name, not any other. ' +
     'This is a SOFT ASK message — a temperature check, not a meeting request. ' +
     'Sentence 1: Ask if they had a chance to look at the example. Reference it by name using the exact label provided above. ' +
@@ -2407,38 +2395,39 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
   const t4Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Persona: ' + l.persona + '. ' +
-    (prevHistory ? 'Previous messages — do not repeat anything already said: ' + prevHistory.substring(0, 600) + '. ' : '') +
+    (prevHistory ? 'Previous messages sent (these are YOUR messages, not the prospect replies — the prospect has almost certainly not responded): ' + prevHistory.substring(0, 800) + '. Do not reference these as things the prospect said, mentioned, or shared. ' : '') +
     (referralMode ? referralHeader : '') +
-    'This is a CREDIBILITY message. Your job is to share one relevant proof example — nothing else. ' +
-    'STEP 1 — Write the opening sentence: Start with a simple, neutral observation or a soft share. Do NOT mention any problem or challenge. Do NOT say the prospect faces anything. Examples of good openers: "Thought this might be interesting given your work at Gensler." or "Came across something that felt relevant to what you do." or "Wanted to share a quick example." Keep it short and human. ' +
-    'STEP 2 — Share the proof: Introduce Smart Spatial naturally and include ONE company link. Always name the company when sharing the link — e.g. "Here is a quick example Smart Spatial built for Schneider Electric" or "We built this for HPE to show their AI infrastructure" — never share a bare URL without naming who it was built for. ' +
-    'STEP 3 — Connect it: One sentence suggesting this might be relevant to their world — use tentative language like "wondering if", "curious if", "might apply to", "could be relevant for". Never state it as a fact. Never say "applies directly" or "this is exactly" or any phrase that asserts certainty. ' +
-    'STEP 4 — Soft close: Optional meeting ask. ' +
-    'Pick EXACTLY ONE company from this list that best matches the prospect industry — use the persona and profile to inform the choice, but do NOT use this taxonomy to frame problems in the message: ' +
-    'Persona for reference only (do not assert these as the prospect problems): Sales/Commercial = demos, scale, differentiation. Product Marketing = messaging, storytelling, GTM. Technical = explanation, demo complexity. Sales Enablement = enablement, consistency. ' +
-    'Micron (semiconductor/memory, AI compute): https://youtu.be/SerOifwyF1Y ' +
-    'Schneider Electric POD (modular data center, product demo replacement): https://youtu.be/rLw8tOnfbMM ' +
-    'DDC (data center cooling, liquid cooling): https://youtu.be/J_65fPoSApM ' +
-    'HPE (enterprise AI servers, sales enablement): https://youtu.be/ylhJsnPgj1I ' +
-    'ZutaCore (two-phase liquid cooling, AI data centers): https://youtu.be/RnsRvIh8UPo ' +
-    'PNY (GPU/AI hardware, AI factory deployments): https://youtu.be/gzyUxTcJGbM ' +
-    'Schneider Electric AI Factory (full AI factory data center): https://youtu.be/GVS0AHAgFyU ' +
-    'ONE company. ONE link. Do not mention any other companies. Do not include any other links. ' +
-    'Structure: ' +
-    (prevHistory && prevHistory.includes('T3') ? 'T3 already established the pain — do not restate it. Open by moving naturally to the proof as a next step in the conversation. ' : 'There is no prior problem discussion — do not assume or assert any pain the prospect has. Open with a neutral, curious introduction to the example. ') +
-    'Then share the ONE company example with the link naturally. End with a soft question or observation connecting it to their world. ' +
-    'HARD RULE: Never open with an assumed pain statement. Never write phrases like "That bottleneck you face", "The challenge your team has", "Given the complexity you deal with", or any variation that presumes the prospect has a specific problem. You do not know what problems they have unless they told you. ' +
+    'Use this buyer problem taxonomy ONLY to select the most relevant proof example — do NOT use it to frame or assert any problem the prospect has: ' +
+    '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
+    'Persona anchors for example selection only: Sales/Commercial = 1,3,4,5,6. Product Marketing = 2,3,8,9. Marketing = 2,7,9. Technical = 1,4,5. Sales Enablement = 1,2,4,5,8. ' +
+    'This is a CREDIBILITY message. Share one proof example. Nothing more. ' +
+    'Pick EXACTLY ONE company from this list that best matches the prospect industry: ' +
+    'Micron (built for Micron): https://youtu.be/SerOifwyF1Y ' +
+    'Schneider Electric POD (built for Schneider Electric): https://youtu.be/rLw8tOnfbMM ' +
+    'DDC (built for DDC): https://youtu.be/J_65fPoSApM ' +
+    'HPE (built for HPE): https://youtu.be/ylhJsnPgj1I ' +
+    'ZutaCore (built for ZutaCore): https://youtu.be/RnsRvIh8UPo ' +
+    'PNY (built for PNY): https://youtu.be/gzyUxTcJGbM ' +
+    'Schneider Electric AI Factory (built for Schneider Electric): https://youtu.be/GVS0AHAgFyU ' +
+    'ONE company. ONE link only. When sharing the link always mention who it was built for — e.g. "Smart Spatial built this for HPE: [url]". Never share a bare URL without naming the company. ' +
+    (prevHistory && prevHistory.includes('\nT3') ? 'T3 already established the problem — do not restate it. Open as a natural next step. ' : 'No prior conversation to reference — do not invent or assume any previous discussion. Open with a simple soft share. ') +
+    'NEVER write "you mentioned", "as you noted", "based on what you said", or any phrase implying the prospect shared something — unless their actual words appear in the touch history notes. If they never replied, do not pretend they did. ' +
+    'REQUIRED FORMAT: ' +
+    '(1) Opener: one short neutral sentence — no problem framing, no assumed pain, no reference to anything the prospect said or mentioned. NEVER write "you mentioned", "that bottleneck you", "as you noted", or anything that implies the prospect communicated with you. Example: "Wanted to share something, Joseph." or "Thought this might be relevant given your work at Gensler." ' +
+    '(2) Proof: introduce Smart Spatial, name the company, then the link. Example: "Smart Spatial built this for HPE to show their AI server portfolio interactively: https://youtu.be/ylhJsnPgj1I" — company name must come before the URL. ' +
+    '(3) Relevance: one soft sentence using "curious if" or "wondering if" — never "this solves your problem", never "the same approach applies", never assert they have a specific challenge. ' +
+    '(4) Optional: soft meeting ask. ' +
     'No meeting ask. No CTA. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. Use I when referring to your own actions (I shared, I noticed, I work with). Use we only when referring to Smart Spatial as a company (Smart Spatial has been seeing, we at Smart Spatial). Never use we to refer to yourself as an individual. Every sentence under 20 words. One idea per sentence. ' +
     'SENTENCE LENGTH: Every sentence must be under 20 words. If a sentence runs long, split it into two. Never stack multiple ideas into one sentence with commas. One idea per sentence. ' +
     'Format: separate each sentence with a blank line. ' +
     'Return only the message text with a subject line on the first line starting with SUBJECT:.';
   const t3Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Persona: ' + l.persona + '. ' +
-    (prevHistory ? 'Previous messages — T2 is the most important reference. Build directly on what was asked in T2. Do not repeat the same angle. Do not introduce a new problem that ignores T2: ' + prevHistory.substring(0, 600) + '. ' : '') +
+    (prevHistory ? 'Previous messages YOU sent — T2 is the most important reference. Build on the question YOU asked in T2. These are your messages, not prospect replies: ' + prevHistory.substring(0, 800) + '. ' : '') +
     (referralMode ? referralHeader : '') +
     'Use this buyer problem taxonomy to stay anchored to the same problem raised in T2: ' +
     '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
@@ -2451,9 +2440,9 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Return only the message text with a subject line on the first line starting with SUBJECT:.';
   const t8Prompt = 'Write a 3-sentence LinkedIn InMail to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Persona: ' + l.persona + '. ' +
-    (prevHistory ? 'Previous messages for context: ' + prevHistory.substring(0, 400) + '. ' : '') +
+    (prevHistory ? 'Previous messages YOU sent (assume no prospect reply unless noted): ' + prevHistory.substring(0, 800) + '. ' : '') +
     (referralMode ? referralHeader : '') +
     'Use this buyer problem taxonomy to pick ONE relevant problem for this prospect: ' +
     '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
@@ -2481,7 +2470,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
   const t6Prompt = 'Write a 2-3 sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    (prevHistory ? 'Previous messages for context: ' + prevHistory.substring(0, 600) + '. ' : '') +
+    (prevHistory ? 'Previous messages YOU sent (assume no prospect reply unless noted): ' + prevHistory.substring(0, 800) + '. ' : '') +
     (referralMode ? referralHeader : '') +
     'This is a MEETING REQUEST message. Ask for one specific low-commitment next step — a quick 20-minute call. ' +
     'Tie the ask directly to the specific example or proof shared in T4 or T5 — reference it by name if possible. Do not re-introduce Smart Spatial or re-explain what it does from scratch. ' +
@@ -2492,20 +2481,22 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
   const t8MsgForT9 = t8StatusForT9?.msg||'';
   const t9Prompt = 'Write a 2-3 sentence LinkedIn InMail to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
-    'Profile: ' + profileText.substring(0, 500) + '. ' +
+    'Profile: ' + profileText.substring(0, 800) + '. ' +
     'Persona: ' + l.persona + '. ' +
     (referralMode ? referralHeader : '') +
-    (t8MsgForT9 ? 'The previous message (T8) said: ' + t8MsgForT9.substring(0, 400) + '. Open with one short sentence that threads naturally back to the specific problem or angle raised there. Do not restate the full message — just connect to it before moving to the proof. ' : '') +
-    (prevHistory ? 'Full touch history for context — do not repeat anything already said: ' + prevHistory.substring(0, 400) + '. ' : '') +
+    (t8MsgForT9 ? 'The previous message (T8) said: ' + t8MsgForT9.substring(0, 800) + '. Open with one short sentence that threads naturally back to the specific problem or angle raised there. Do not restate the full message — just connect to it before moving to the proof. ' : '') +
+    (prevHistory ? 'Full touch history of messages YOU sent (the prospect almost certainly did not reply — do not treat any of these as prospect statements): ' + prevHistory.substring(0, 800) + '. ' : '') +
     'This is a VISUAL PROOF message. You MUST include exactly one relevant proof link — pick the closest industry match, do NOT default to HPE for non-tech prospects: ' +
-    'Micron (semiconductor/memory, AI compute): https://youtu.be/SerOifwyF1Y ' +
-    'Schneider Electric POD (modular data center, product demo replacement): https://youtu.be/rLw8tOnfbMM ' +
-    'DDC (data center cooling, liquid cooling): https://youtu.be/J_65fPoSApM ' +
-    'HPE (enterprise AI servers, sales enablement): https://youtu.be/ylhJsnPgj1I ' +
-    'ZutaCore (two-phase liquid cooling, AI data centers): https://youtu.be/RnsRvIh8UPo ' +
-    'PNY (GPU/AI hardware, AI factory deployments): https://youtu.be/gzyUxTcJGbM ' +
-    'Schneider Electric AI Factory (full AI factory data center): https://youtu.be/GVS0AHAgFyU ' +
-    'ONE link only. Mention Smart Spatial naturally when sharing the link. One sentence on why this applies to them. End with a soft low-commitment meeting ask — something like "worth a quick call to see how this could work for your team?" or "happy to walk through it if useful". Keep it light, no pressure. Every sentence under 20 words. One idea per sentence. ' +
+    'Micron (built for Micron): https://youtu.be/SerOifwyF1Y ' +
+    'Schneider Electric POD (built for Schneider Electric): https://youtu.be/rLw8tOnfbMM ' +
+    'DDC (built for DDC): https://youtu.be/J_65fPoSApM ' +
+    'HPE (built for HPE): https://youtu.be/ylhJsnPgj1I ' +
+    'ZutaCore (built for ZutaCore): https://youtu.be/RnsRvIh8UPo ' +
+    'PNY (built for PNY): https://youtu.be/gzyUxTcJGbM ' +
+    'Schneider Electric AI Factory (built for Schneider Electric): https://youtu.be/GVS0AHAgFyU ' +
+    'ONE link only. When sharing the link always mention who it was built for — e.g. "Smart Spatial built this for ZutaCore: [url]". Never share a bare URL without naming the company. ' +
+    'End with one sentence on why this might be relevant to them — frame it as a possibility using "curious if" or "wondering if", never assert it applies to them as a fact. ' +
+    'End with a soft low-commitment meeting ask. Keep it light, no pressure. Every sentence under 20 words. One idea per sentence. ' +
     'Always write words out in full — never abbreviate. Only exceptions are proper nouns and brand names. Never reference problem numbers. ' +
     'Format: separate each thought with a blank line. ' +
     'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
