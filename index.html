@@ -623,6 +623,7 @@ function toggleTheme(){
 })();
 
 let leads=JSON.parse(localStorage.getItem('im_v6')||'null')||JSON.parse(JSON.stringify(SEED));
+let currentFirstName='';
 let pip='connected',view='pipeline',selId=null;
 
 function save(){try{localStorage.setItem('im_v6',JSON.stringify(leads));}catch(e){}}
@@ -1818,10 +1819,10 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     (prevHistory && prevHistory.includes('\nT3') ? 'T3 already established the problem — do not restate it. Open as a natural next step. ' : 'No prior conversation to reference — do not invent or assume any previous discussion. Open with a simple soft share. ') +
     'NEVER write "you mentioned", "as you noted", "based on what you said", or any phrase implying the prospect shared something — unless their actual words appear in the touch history notes. If they never replied, do not pretend they did. ' +
     'REQUIRED FORMAT: ' +
-    '(1) Opener: one short neutral sentence — no problem framing, no assumed pain, no reference to anything the prospect said or mentioned. NEVER write "you mentioned", "that bottleneck you", "as you noted", or anything that implies the prospect communicated with you. Example: "Wanted to share something, Joseph." or "Thought this might be relevant given your work at Gensler." ' +
-    '(2) Proof: introduce Smart Spatial, name the company, then the link. Example: "Smart Spatial built this for HPE to show their AI server portfolio interactively: https://youtu.be/ylhJsnPgj1I" — company name must come before the URL. ' +
-    '(3) Relevance: one soft sentence using "curious if" or "wondering if" — never "this solves your problem", never "the same approach applies", never assert they have a specific challenge. ' +
-    '(4) Optional: soft meeting ask. ' +
+    (prevHistory && prevHistory.includes('\nT3') ? 'Opener (1-2 sentences): Reference the problem YOU raised in your previous message using first person — "I mentioned", never "you mentioned". Note it comes up often. Example: "Joseph, that challenge I raised earlier around complex design work getting lost in translation with client stakeholders — it comes up more than you would expect." ' : 'Opener (1 sentence): Brief personal observation of the relevant problem, introduced fresh. Example: "Joseph, one thing I keep noticing across design firms — complex work often gets lost in translation between technical teams and client stakeholders." ') +
+    'Then a separate paragraph with this exact two-part sentence: First name the approach in plain language, then name the company and share the link. Example: "One way teams are solving this is through interactive experiences that let the work speak for itself — Smart Spatial built one for DDC: https://youtu.be/J_65fPoSApM" — the approach context and the company+link must be in the same sentence, connected with a dash or "and". ' +
+    'Then a separate paragraph: one soft sentence using "curious if" or "wondering if" about whether this might apply to their world. ' +
+    'Then optional: soft meeting ask. ' +
     'No meeting ask. No CTA. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. Use I when referring to your own actions (I shared, I noticed, I work with). Use we only when referring to Smart Spatial as a company (Smart Spatial has been seeing, we at Smart Spatial). Never use we to refer to yourself as an individual. Every sentence under 20 words. One idea per sentence. ' +
     'SENTENCE LENGTH: Every sentence must be under 20 words. If a sentence runs long, split it into two. Never stack multiple ideas into one sentence with commas. One idea per sentence. ' +
     'Format: separate each sentence with a blank line. ' +
@@ -1916,6 +1917,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
 
   try{
     const raw=await claudeAPI(finalPrompt,800);
+    currentFirstName = l.first||'';
     const {subject,body}=parseSubjectBody(raw);
     el.innerHTML=`
       ${subject?`<div style="margin-bottom:6px">
@@ -2018,17 +2020,34 @@ function parseSubjectBody(raw){
     let body = lines.slice(1).join('\n').replace(/^\n/,'').trim();
     body = ensureNameLineBreak(body);
     body = stripSignOff(body);
+    body = fixAssumedOpener(body, currentFirstName);
     return {subject, body};
   }
   let body = raw.trim();
   body = ensureNameLineBreak(body);
   body = stripSignOff(body);
+  body = fixAssumedOpener(body, currentFirstName);
   return {subject:'', body};
 }
 
 function stripSignOff(text){
   // Remove trailing name sign-offs like "Vadim", "Vadim Ananyev", "- Vadim" etc.
   return text.replace(/\n+[-–]?\s*[A-Z][a-z]+\s*([A-Z][a-z]+)?\s*$/, '').trim();
+}
+
+function fixAssumedOpener(text, firstName){
+  // Only strip the single bad sentence — not the whole paragraph
+  // Targets: "That [topic] you mentioned/you're navigating/is exactly what..."
+  const badSentence = /^That [^.!?]*(you mentioned|you're navigating|you are navigating|is exactly what|I wanted to follow up on)[^.!?]*[.!?]/i;
+  if(badSentence.test(text)){
+    // Only remove the bad sentence itself — stop at the first period
+    text = text.replace(badSentence, '').replace(/^[\s\n]+/, '');
+    // Capitalize first letter of what remains
+    text = text.charAt(0).toUpperCase() + text.slice(1);
+    // Prepend name greeting so message doesn't start cold
+    if(firstName) text = firstName + ',\n\n' + text;
+  }
+  return text.trim();
 }
 
 function ensureNameLineBreak(text){
@@ -2415,10 +2434,10 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     (prevHistory && prevHistory.includes('\nT3') ? 'T3 already established the problem — do not restate it. Open as a natural next step. ' : 'No prior conversation to reference — do not invent or assume any previous discussion. Open with a simple soft share. ') +
     'NEVER write "you mentioned", "as you noted", "based on what you said", or any phrase implying the prospect shared something — unless their actual words appear in the touch history notes. If they never replied, do not pretend they did. ' +
     'REQUIRED FORMAT: ' +
-    '(1) Opener: one short neutral sentence — no problem framing, no assumed pain, no reference to anything the prospect said or mentioned. NEVER write "you mentioned", "that bottleneck you", "as you noted", or anything that implies the prospect communicated with you. Example: "Wanted to share something, Joseph." or "Thought this might be relevant given your work at Gensler." ' +
-    '(2) Proof: introduce Smart Spatial, name the company, then the link. Example: "Smart Spatial built this for HPE to show their AI server portfolio interactively: https://youtu.be/ylhJsnPgj1I" — company name must come before the URL. ' +
-    '(3) Relevance: one soft sentence using "curious if" or "wondering if" — never "this solves your problem", never "the same approach applies", never assert they have a specific challenge. ' +
-    '(4) Optional: soft meeting ask. ' +
+    (prevHistory && prevHistory.includes('\nT3') ? 'Opener (1-2 sentences): Reference the problem YOU raised in your previous message using first person — "I mentioned", never "you mentioned". Note it comes up often. Example: "Joseph, that challenge I raised earlier around complex design work getting lost in translation with client stakeholders — it comes up more than you would expect." ' : 'Opener (1 sentence): Brief personal observation of the relevant problem, introduced fresh. Example: "Joseph, one thing I keep noticing across design firms — complex work often gets lost in translation between technical teams and client stakeholders." ') +
+    'Then a separate paragraph with this exact two-part sentence: First name the approach in plain language, then name the company and share the link. Example: "One way teams are solving this is through interactive experiences that let the work speak for itself — Smart Spatial built one for DDC: https://youtu.be/J_65fPoSApM" — the approach context and the company+link must be in the same sentence, connected with a dash or "and". ' +
+    'Then a separate paragraph: one soft sentence using "curious if" or "wondering if" about whether this might apply to their world. ' +
+    'Then optional: soft meeting ask. ' +
     'No meeting ask. No CTA. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. Use I when referring to your own actions (I shared, I noticed, I work with). Use we only when referring to Smart Spatial as a company (Smart Spatial has been seeing, we at Smart Spatial). Never use we to refer to yourself as an individual. Every sentence under 20 words. One idea per sentence. ' +
     'SENTENCE LENGTH: Every sentence must be under 20 words. If a sentence runs long, split it into two. Never stack multiple ideas into one sentence with commas. One idea per sentence. ' +
     'Format: separate each sentence with a blank line. ' +
@@ -2513,6 +2532,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
 
   try{
     const raw=await claudeAPI(finalPrompt,600);
+    currentFirstName = l.first||'';
     const {subject,body}=parseSubjectBody(raw);
     // Show subject above message if present
     const subjectHtml = subject ? `<div style="margin-bottom:8px"><div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Subject line</div><div style="display:flex;align-items:center;gap:6px"><div id="log-gen-subject" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px;font-size:12px;color:var(--text);flex:1">${subject}</div><button class="btn btn-sm" onclick="regenSubject('log')" title="Regenerate subject"><i class="ti ti-refresh"></i></button><button class="btn btn-sm" onclick="copyLogSubject()" style="flex-shrink:0"><i class="ti ti-copy"></i></button></div></div>` : '';
