@@ -188,6 +188,7 @@ a:hover{text-decoration:underline}
     <button class="pill-btn active" id="pt-connected" onclick="setPipeline('connected')"><i class="ti ti-users"></i> Connected</button>
     <button class="pill-btn" id="pt-noconn" onclick="setPipeline('noconn')"><i class="ti ti-user-plus"></i> Not Connected</button>
     <button class="pill-btn" id="pt-all" onclick="setPipeline('all')">All</button>
+    <button class="pill-btn" id="pt-archived" onclick="setPipeline('archived')"><i class="ti ti-archive" style="font-size:11px"></i> Archived</button>
   </div>
   <div class="topbar-right">
     <button class="btn btn-sm btn-icon" onclick="toggleTheme()" id="theme-toggle-btn" title="Toggle light/dark mode"><i class="ti ti-moon" id="theme-icon"></i></button>
@@ -318,6 +319,13 @@ a:hover{text-decoration:underline}
         </div>
         <div id="dismiss-note-display" style="font-size:11px;color:var(--amber);opacity:0.8;font-style:italic"></div>
       </div>
+      <div id="archive-bar" style="display:none;padding:8px 18px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:12px;color:var(--text2)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span><i class="ti ti-archive" style="font-size:13px;vertical-align:-2px"></i> Archived — not a fit for current outreach</span>
+          <button class="btn btn-sm" onclick="unarchiveLead(selId)" style="font-size:11px;padding:3px 8px">Restore</button>
+        </div>
+        <div id="archive-note-display" style="font-size:11px;color:var(--text3);font-style:italic"></div>
+      </div>
       <div id="pipeline-bar" style="display:none;padding:8px 18px;background:var(--blue-bg);border-bottom:1px solid var(--border);font-size:12px;color:var(--blue);align-items:center;justify-content:space-between">
         <span><i class="ti ti-users" style="font-size:13px;vertical-align:-2px"></i> Not Connected pipeline</span>
         <button class="btn btn-sm btn-primary" onclick="moveToConnected(selId)" style="font-size:11px;padding:3px 10px"><i class="ti ti-arrow-right"></i> Move to Connected</button>
@@ -345,6 +353,7 @@ a:hover{text-decoration:underline}
       <div class="psec">
         <div class="psec-title">Touch history
           <button class="btn btn-sm" id="dismiss-btn" onclick="confirmDismiss(selId)"><i class="ti ti-circle-check"></i> Mark done</button>
+          <button class="btn btn-sm" id="archive-btn" onclick="confirmArchive(selId)" title="Archive — not a fit"><i class="ti ti-archive"></i> Archive</button>
         </div>
         <div id="p-timeline"></div>
       </div>
@@ -454,6 +463,23 @@ a:hover{text-decoration:underline}
     <div class="modal-footer">
       <button class="btn" onclick="document.getElementById('confirm-dismiss-modal').classList.remove('open')">Cancel</button>
       <button class="btn btn-primary" onclick="confirmDismissOk()"><i class="ti ti-circle-check"></i> Mark done</button>
+    </div>
+  </div>
+</div>
+
+<!-- Archive modal -->
+<div class="modal-bg" id="confirm-archive-modal">
+  <div class="modal" style="max-width:400px">
+    <h2><i class="ti ti-archive" style="color:var(--text2)"></i> Archive prospect?</h2>
+    <p style="font-size:13px;color:var(--text2);margin:8px 0 16px">This will remove the prospect from your active pipeline. You can restore them at any time from the Archived tab.</p>
+    <div class="form-row" style="margin-bottom:16px">
+      <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px">Reason <span style="color:var(--coral)">*</span></label>
+      <textarea id="archive-notes" rows="3" placeholder="e.g. Not a fit, wrong persona, wrong company stage, too early…" style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);resize:vertical;outline:none" oninput="document.getElementById('archive-notes-error').style.display='none'"></textarea>
+      <p id="archive-notes-error" style="display:none;font-size:11px;color:var(--coral);margin-top:4px">Please add a reason before archiving.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="document.getElementById('confirm-archive-modal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmArchiveOk()"><i class="ti ti-archive"></i> Archive</button>
     </div>
   </div>
 </div>
@@ -782,13 +808,13 @@ function getTouchStatuses(l){
 }
 
 function getNextTouchStatus(l){
-  if(l.dismissed) return null;
+  if(l.dismissed||l.archived) return null;
   const statuses = getTouchStatuses(l);
   return statuses.find(s=>s.status==='due')||null;
 }
 
 function isComplete(l){
-  if(l.dismissed) return true;
+  if(l.dismissed||l.archived) return true;
   const statuses = getTouchStatuses(l);
   return statuses.every(s=>s.status==='done');
 }
@@ -844,6 +870,35 @@ function confirmDismissOk(){
   if(l){ l.dismissNote = notes; }
   document.getElementById('dismiss-notes').value='';
   dismissLead(selId);
+}
+
+function confirmArchive(id){
+  document.getElementById('confirm-archive-modal').classList.add('open');
+  document.getElementById('archive-notes').value='';
+  document.getElementById('archive-notes-error').style.display='none';
+  selId=id;
+}
+
+function confirmArchiveOk(){
+  const notes = document.getElementById('archive-notes').value.trim();
+  if(!notes){
+    document.getElementById('archive-notes-error').style.display='block';
+    return;
+  }
+  document.getElementById('confirm-archive-modal').classList.remove('open');
+  const l = leads.find(x=>x.id===selId);
+  if(l){ l.archived=true; l.archiveNote=notes; }
+  document.getElementById('archive-notes').value='';
+  save(); renderLeads();
+  if(selId){ updateDismissUI(l); }
+}
+
+function unarchiveLead(id){
+  const l=leads.find(x=>x.id===id);
+  if(!l) return;
+  l.archived=false;
+  save(); renderLeads();
+  if(selId===id){ updateDismissUI(l); }
 }
 
 function dismissLead(id){
@@ -907,7 +962,7 @@ function renderStats(){
 // ── Lead table ──────────────────────────────────────────────────────
 function setPipeline(p){
   pip=p;
-  ['connected','noconn','all'].forEach(x=>document.getElementById('pt-'+x).classList.toggle('active',x===p));
+  ['connected','noconn','all','archived'].forEach(x=>document.getElementById('pt-'+x)?.classList.toggle('active',x===p));
   renderStats();renderLeads();
 }
 
@@ -927,6 +982,8 @@ function filtered(){
   const sortBy=document.getElementById('sort-by')?.value||'';
 
   let result=leads.filter(l=>{
+    if(pip==='archived') return !!l.archived;
+    if(l.archived) return false;
     const lp=inferPipeline(l);
     if(pip!=='all'&&lp!==pip) return false;
     if(q&&!`${l.first} ${l.last} ${l.company} ${l.title}`.toLowerCase().includes(q)) return false;
@@ -959,8 +1016,8 @@ function filtered(){
       const nb=getNextTouchStatus(b);
       const aStarted=Object.keys(a.touches).some(k=>a.touches[k]?.date);
       const bStarted=Object.keys(b.touches).some(k=>b.touches[k]?.date);
-      const aDone=isComplete(a)||a.dismissed;
-      const bDone=isComplete(b)||b.dismissed;
+      const aDone=isComplete(a)||a.dismissed||a.archived;
+      const bDone=isComplete(b)||b.dismissed||b.archived;
       // Bucket: 0=active+due, 1=not started, 2=done/dismissed
       const aBucket=aDone?2:!aStarted?1:0;
       const bBucket=bDone?2:!bStarted?1:0;
@@ -1060,11 +1117,25 @@ function selectLead(id){
 function updateDismissUI(l){
   const bar = document.getElementById('dismiss-bar');
   const btn = document.getElementById('dismiss-btn');
+  const archiveBar = document.getElementById('archive-bar');
+  const archiveBtn = document.getElementById('archive-btn');
   const pbar = document.getElementById('pipeline-bar');
-  if(bar) bar.style.display = l.dismissed ? 'block' : 'none';
-  if(btn) btn.style.display = l.dismissed ? 'none' : '';
-  const noteEl = document.getElementById('dismiss-note-display');
-  if(noteEl) noteEl.textContent = l.dismissNote ? 'Note: ' + l.dismissNote : '';
+  // Archive takes priority over dismissed
+  if(l.archived){
+    if(bar) bar.style.display='none';
+    if(archiveBar) archiveBar.style.display='block';
+    if(btn) btn.style.display='none';
+    if(archiveBtn) archiveBtn.style.display='none';
+    const archiveNoteEl = document.getElementById('archive-note-display');
+    if(archiveNoteEl) archiveNoteEl.textContent = l.archiveNote ? 'Reason: ' + l.archiveNote : '';
+  } else {
+    if(archiveBar) archiveBar.style.display='none';
+    if(bar) bar.style.display = l.dismissed ? 'block' : 'none';
+    if(btn) btn.style.display = (l.dismissed||l.archived) ? 'none' : '';
+    if(archiveBtn) archiveBtn.style.display = (l.dismissed||l.archived) ? 'none' : '';
+    const noteEl = document.getElementById('dismiss-note-display');
+    if(noteEl) noteEl.textContent = l.dismissNote ? 'Note: ' + l.dismissNote : '';
+  }
   if(pbar){
     const isNC = inferPipeline(l) === 'noconn';
     pbar.style.display = (!l.dismissed && isNC) ? 'flex' : 'none';
