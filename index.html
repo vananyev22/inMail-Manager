@@ -733,13 +733,26 @@ function getTouchStatuses(l){
         // For follow-ups (anchorTouch=1): due date = T1 date + bdays
         // For T0/T1: sequential as before
         if(anchorTouch!==null){
-          const anchorLogged = l.touches[anchorTouch];
-          if(!anchorLogged?.date){
-            // Anchor not yet sent — pending
-            result.push({touch:t, label, dayNote:NC_CADENCE[i].dayNote, goal:NC_CADENCE[i].goal, status:'pending'});
+          // Option 1: always calculate from the most recently logged touch
+          // so if a touch is sent late, future touches reset from actual send date
+          let lastLoggedDate = null;
+          for(let prev=i-1; prev>=0; prev--){
+            const prevT = NC_CADENCE[prev].touch;
+            if(l.touches[prevT]?.date){ lastLoggedDate = new Date(l.touches[prevT].date); break; }
+          }
+          if(!lastLoggedDate){
+            // No prior logged touch — check anchor
+            const anchorLogged = l.touches[anchorTouch];
+            if(!anchorLogged?.date){
+              result.push({touch:t, label, dayNote:NC_CADENCE[i].dayNote, goal:NC_CADENCE[i].goal, status:'pending'});
+            } else {
+              lastLoggedDate = new Date(anchorLogged.date);
+              const dueDate = addBusinessDays(lastLoggedDate, bdays);
+              const bdaysUntil = businessDaysBetween(now, dueDate);
+              result.push({touch:t, label, dayNote:NC_CADENCE[i].dayNote, goal:NC_CADENCE[i].goal, status:'due', daysUntil:bdaysUntil, dueDate});
+            }
           } else {
-            const anchorDate = new Date(anchorLogged.date);
-            const dueDate = addBusinessDays(anchorDate, bdays);
+            const dueDate = addBusinessDays(lastLoggedDate, bdays);
             const bdaysUntil = businessDaysBetween(now, dueDate);
             result.push({touch:t, label, dayNote:NC_CADENCE[i].dayNote, goal:NC_CADENCE[i].goal, status:'due', daysUntil:bdaysUntil, dueDate});
           }
