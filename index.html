@@ -1280,8 +1280,37 @@ function moveToConnected(id){
   const l=leads.find(x=>x.id===id);
   if(!l) return;
   l.pipeline='connected';
-  // Preserve existing T0/T1 data — just switch pipeline flag
-  // T2 will be the first "connected" touch to trigger cadence
+
+  // Map completed NC touches to equivalent connected touches
+  // so the cadence picks up at the right point instead of restarting from T2
+  const ncDone = (t) => l.touches[t]?.date;
+  const now = new Date().toISOString();
+  const ncNote = 'Completed via NC outreach before connection accepted';
+
+  if(ncDone(8)){
+    // T8 (NC problem awareness) ≈ T2 + T3 in connected cadence
+    if(!l.touches[2]?.date) l.touches[2] = {date: l.touches[8].date, msg: l.touches[8].msg||'', notes: ncNote};
+    if(!l.touches[3]?.date) l.touches[3] = {date: l.touches[8].date, msg: '', notes: ncNote};
+  }
+
+  if(ncDone(9)){
+    // T9 (NC visual proof) ≈ T4 in connected cadence
+    // Preserve the actual T9 message and link so T5 can reference it
+    if(!l.touches[4]?.date) l.touches[4] = {date: l.touches[9].date, msg: l.touches[9].msg||'', notes: ncNote};
+  }
+
+  if(ncDone(10)||ncDone(11)){
+    // T10/T11 (NC industry insight / alternative angle) ≈ T4 already covered
+    // No additional connected touches to map — T5 is still next
+  }
+
+  if(ncDone(12)){
+    // T12 (NC breakup) — prospect went through full NC sequence, mark up to T6
+    if(!l.touches[4]?.date) l.touches[4] = {date: now, msg:'', notes: ncNote};
+    if(!l.touches[5]?.date) l.touches[5] = {date: now, msg:'', notes: ncNote};
+    if(!l.touches[6]?.date) l.touches[6] = {date: now, msg:'', notes: ncNote};
+  }
+
   save();renderStats();renderLeads();
   if(selId===id){renderTimeline();updateDismissUI(l);}
 }
@@ -1991,7 +2020,11 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Return only the message text with a subject line on the first line starting with SUBJECT:.';
   // Find T4 message specifically for T5 reference
   const t4Status = statuses.find(s=>s.status==='done'&&s.touch===4);
-  const t4Msg = t4Status?.msg||'';
+  // If T4 was auto-populated from NC outreach, use T9 message as the actual proof reference
+  const t9StatusForT5 = statuses.find(s=>s.status==='done'&&s.touch===9);
+  const t4Msg = (t4Status?.notes||'').includes('NC outreach') && t9StatusForT5?.msg
+    ? t9StatusForT5.msg
+    : (t4Status?.msg||'');
   const t4LinkMatch = t4Msg.match(/https:\/\/youtu\.be\/[^\s]+/);
   const t4Link = t4LinkMatch?t4LinkMatch[0]:'';
   const proofLabels = {
@@ -2615,7 +2648,11 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Return only the message text with a subject line on the first line starting with SUBJECT:.';
   // Find T4 message specifically for T5 reference
   const t4Status = statuses.find(s=>s.status==='done'&&s.touch===4);
-  const t4Msg = t4Status?.msg||'';
+  // If T4 was auto-populated from NC outreach, use T9 message as the actual proof reference
+  const t9StatusForT5 = statuses.find(s=>s.status==='done'&&s.touch===9);
+  const t4Msg = (t4Status?.notes||'').includes('NC outreach') && t9StatusForT5?.msg
+    ? t9StatusForT5.msg
+    : (t4Status?.msg||'');
   const t4LinkMatch = t4Msg.match(/https:\/\/youtu\.be\/[^\s]+/);
   const t4Link = t4LinkMatch?t4LinkMatch[0]:'';
   const proofLabels = {
