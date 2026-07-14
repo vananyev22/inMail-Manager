@@ -1892,7 +1892,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Write exactly two short sentences. Under 20 words total. ' +
     'Focus this message on: ' + t1Angle + '. ' +
     'CRITICAL STRUCTURE RULE: The sentence must flow naturally from start to finish as one grammatical unit. Do NOT insert the person name mid-sentence after a comma — this produces broken output like "Leading Motivair strategy, Rich, hoping to connect" which is unacceptable. If you use the name, put it only at the very beginning: "Rich, ..." — never in the middle. ' +
-    'Be specific — generic observations like "strategic direction", "impressive work", or "fascinating space" that could apply to anyone are not acceptable. Reference what this specific person actually does, leads, or has built. ' +
+    'Be specific — generic observations like "strategic direction", "impressive work", "fascinating space", "no small feat", "complex undertaking", or any phrase that sounds like a compliment are not acceptable. Reference what this specific person actually does, leads, or has built in concrete terms. ' +
     'If no profile is provided, use their title and company to write something concrete and specific — do not use vague category language. ' +
     'The message is TWO parts: (1) one short observation about them, (2) the connection ask. Write them as two separate sentences — not joined with "and". Example structure: "Rich, what you are building at Motivair is interesting. I would love to connect." The close must be its own standalone sentence. Pick the close from: "I would love to connect.", "I would like to connect.", "Hoping to connect.", "Thought I would reach out.". Never join the observation and close with "and". ' +
     'No flattery, no problem framing, no pitch, no Smart Spatial, no dashes. ' +
@@ -2044,8 +2044,9 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     (prevHistory ? 'Previous messages YOU sent (assume no prospect reply unless noted): ' + prevHistory.substring(0, 800) + '. ' : '') +
     'The specific example shared in T4 was: ' + t4Label + '. Reference this exact example by name, not any other. ' +
     'This is a SOFT ASK message — a temperature check, not a meeting request. ' +
-    'Sentence 1: Ask if they had a chance to look at the example. Reference it by name using the exact label provided above. ' +
-    'Sentence 2: Ask if it resonated or if there is something here worth exploring further. Do NOT ask for a call or meeting — that comes in the next touch. Keep it genuinely low commitment. ' +
+    'Vary the phrasing on every generation — do not always use "Did you get a chance" or "Did it resonate". Use different openers like "Wanted to follow up on", "Curious if you had a moment to", "Any thoughts on", "Did any of that land for you", "Wondering if" etc. ' +
+    'Sentence 1: Check if they saw the example. Reference it by name. Use varied phrasing — not always the same opener. Do NOT reference timing like "last week" or "recently" — you do not know when they will read this. Just reference the example by name. ' +
+    'Sentence 2: A soft low-commitment follow-up question — stay anchored to the specific problem of explaining or demonstrating complex products to buyers. Do NOT ask generic questions like "what is your team working on" or "does it apply to your work". Instead tie it to the pain: Examples: "Curious if the explanation challenge resonates with how your team takes products to market.", "Did any of it feel relevant to how your team demonstrates what you do to buyers?", "Anything there that maps to how you show complex technology to customers?", "Did it spark any thoughts on the demo or explanation side?" Vary the phrasing each time. Do NOT ask for a call or meeting — that comes in T6. ' +
     'Do not re-explain the problem or re-introduce Smart Spatial — that was T3 and T4. The only job here is to check if the example landed. No meeting ask — that comes in T6. No new proof links. No pitch. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Plain conversational language. Every sentence under 20 words. One idea per sentence. ' +
     'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
   const t4Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
@@ -2089,10 +2090,11 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
     'IMPORTANT: Do not assume the prospect replied to T2 unless their reply appears in the touch history notes. Do not write as if they shared something or responded — they likely did not. ' +
     'This is a PAIN EXPANSION message. Use their first name naturally somewhere in the message. Deepen the specific pain from T2 — share it as something you personally keep noticing, not as a proclamation or industry declaration. Write as if you are a peer sharing an observation, not a consultant presenting a problem. Do not introduce proof, examples, or Smart Spatial. Do not ask a new question that ignores T2. ' +
+    'IMPORTANT: When connecting the pain to their specific company, use soft language like "I imagine that carries into how your team works" or "I would guess that shows up at a company like yours" — never assert specific characteristics of their product, customers, or internal processes as facts. You do not know the details of how they operate. ' +
     'End with one curious question that deepens the T2 thread — frame it as genuine interest, not a challenge. The question should feel like it is genuinely inviting a reply, not rhetorical. Make it specific to their role or company so it is easy to answer. ' +
     'No Smart Spatial. No proof links. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. Use I when referring to your own actions (I shared, I noticed, I work with). Use we only when referring to Smart Spatial as a company (Smart Spatial has been seeing, we at Smart Spatial). Never use we to refer to yourself as an individual. ' +
-    'SENTENCE LENGTH: Every sentence must be under 20 words. If a sentence runs long, split it into two. Never stack multiple ideas into one sentence with commas. One idea per sentence. ' +
-    'Format: separate each thought with a blank line. ' +
+    'HARD LIMIT: 3 sentences maximum in the body — not 3 paragraphs, exactly 3 sentences total. Count them. If you have written more than 3 sentences, delete until you have exactly 3. One idea per sentence, under 20 words each. ' +
+    'Format: separate each sentence with a blank line. ' +
     'Return only the message text with a subject line on the first line starting with SUBJECT:.';
   const t8Prompt = 'Write a 3-sentence LinkedIn InMail to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
@@ -2105,7 +2107,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Persona anchors: Sales/Commercial = 1,3,4,5,6. Product Marketing = 2,3,8,9. Marketing = 2,7,9. Technical = 1,4,5. Sales Enablement = 1,2,4,5,8. ' +
     'This is a PROBLEM AWARENESS message. ' +
     'Open by using their first name naturally — like the start of a message to a peer, not a formal letter. ' +
-    'Then share ONE buyer problem as a casual personal observation — something you keep noticing, not a market trend declaration. Write it the way you would say it to a colleague over coffee, not the way a consultant would open a presentation. ' +
+    'Then share ONE buyer problem as a casual personal observation — something you keep noticing, not a market trend declaration. Write it the way you would say it to a colleague over coffee, not the way a consultant would open a presentation. When connecting to their specific company, use soft language like "I imagine that shows up at a company like yours" — never assert specifics about their products, customers, or internal processes as facts. ' +
     'End with a short curious question asking if they run into it — tie it to their specific role or company. ' +
     'NO Smart Spatial. NO proof links. NO meeting ask. NO pitch. NO industry proclamations. NO thought leadership openers. ' +
     'Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering. Only exceptions are proper nouns and brand names. ' +
@@ -2118,20 +2120,26 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
   const t7Prompt = 'Write a 2-sentence LinkedIn breakup message to ' + l.first + ' ' + l.last + ' at ' + l.company + '. ' +
     (t6Msg ? 'The previous message (T6) said: ' + t6Msg.substring(0,300) + '. You must use completely different wording, sentence structure, and framing. Do not paraphrase it. ' : '') +
     (referralMode ? referralHeader : '') +
-    'Graceful close. Reference the example shared if relevant but in fresh language. Leave the door open. No guilt, no pressure. No abbreviations. Every sentence under 20 words. ' +
-    'Do NOT say this is the final time, last message, one final time, or anything that signals this is the last outreach. Just close naturally as if the conversation might continue. ' +
-    'Do NOT assume the prospect engaged, considered, or took time to review anything — they likely never replied. Do not say I appreciate your time or thank them for considering. Acknowledge the silence naturally without making assumptions about what they did. ' +
-    'Do not refer to previous messages as a note. Say I reached out, I shared an example, or I have been in touch instead. ' +
-    'Always end with a light referral ask — ask if there is someone else on their team who would be a better person to talk to. Keep it natural, not pushy. ' +
-    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+    'This is a SOFT BREAKUP message. Tone is casual, warm, easy-going. Sound like timing is the only variable — not that you are ending anything formally. ' +
+    'Structure: one sentence acknowledging that timing may not be right, one sentence with a light referral ask. That is it. Two sentences maximum. ' +
+    'The timing sentence should feel natural and low-key — addressed to the person, not the company. Start with the name, then a soft personal observation about timing. Example: "Manoj, seems like the timing is not right for now — happy to reconnect when it makes more sense." Do NOT say "timing may not be right at [company]" — you are talking to him, not the company. Do NOT start with "If" — lead with a soft statement, not a conditional. ' +
+    'The referral ask should be light and optional. Example: "If someone at Ampure would be a better fit for this conversation, I would love an introduction." ' +
+    'NEVER write: "wrapping up my outreach", "closing the loop on my outreach", "closing out", "I have been in touch", "no worries", "no action needed", "no pressure", "I appreciate your time", "last message", "final outreach", "one last time", or anything that counts attempts, sounds formal, or implies a business process ending. ' +
+    'Do NOT say this is final or last. Do NOT reference what the prospect did or did not do. Do NOT assume they considered anything. ' +
+    'If referencing the example shared, name the company specifically — never say "the example" without the company name. ' +
+    'Subject line: short and neutral — something like "Quick question", "Timing", or a reference to the example by company name. Never say "last time", "final", or "closing". ' +
+    'Every sentence under 20 words. No abbreviations. Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
   const t6Prompt = 'Write a 2-3 sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
     (prevHistory ? 'Previous messages YOU sent (assume no prospect reply unless noted): ' + prevHistory.substring(0, 800) + '. ' : '') +
     (referralMode ? referralHeader : '') +
     'This is a MEETING REQUEST message. Ask for one specific low-commitment next step — a quick 20-minute call. ' +
-    'Tie the ask directly to the specific example or proof shared in T4 or T5 — reference it by name if possible. Do not re-introduce Smart Spatial or re-explain what it does from scratch. ' +
+    'NEVER invent context that did not happen — do not say "I know I never finished my last thought", "apologies for", "I realize I left off", or any fabricated narrative about prior messages. Acknowledge the conversation simply and move to the ask. ' +
+    'NEVER assert what challenges the prospect faces — you do not know unless they told you. Do not write "your team faces", "the complexity you deal with", "the challenges you are seeing", or any statement that assumes their situation. Reference the proof example and make the ask — that is all. ' +
+    'Tie the ask directly to the specific example or proof shared in T4 or T5 — reference it by the company name (e.g. "the Schneider Electric example", "the HPE example"). Never use generic terms like "the example", "the video", or "infrastructure visualization" without naming the company. ' +
     'Frame the call as an exchange of ideas or exploring fit — never as a product demo or presentation. Example: "Would a quick 20-minute call make sense to explore whether this could work for your team?" not "I would love to show you how our platform works." ' +
     'Short and direct. No pitch. No oversell. No new proof links. Every sentence under 20 words. One idea per sentence. ' +
+    'Vary the phrasing every time — do not default to the same opener or structure. Different ways to open: reference the example by name, reference the problem raised earlier, or simply make the ask directly. Never repeat the same sentence pattern across regenerations. ' +
     'Always write words out in full — never abbreviate. Only exceptions are proper nouns and brand names. Never reference problem numbers. ' +
     'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
   const t8StatusForT9 = statuses.find(s=>s.status==='done'&&s.touch===8);
@@ -2161,7 +2169,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Today is ' + todayStr + '. ' +
     (referralMode ? referralHeader : '') +
     (prevHistory ? 'Touch history: ' + prevHistory.substring(0, 800) + '. ' : '') +
-    'This is a BREAKUP / REFERRAL message. Briefly reference the example or video shared earlier in the touch history if there is one — reference it by name, not by timing. ' +
+    'This is a BREAKUP / REFERRAL message. Briefly reference the example or video shared earlier in the touch history if there is one — reference it by the company name (e.g. "the Schneider Electric example", "the DDC example") not vague terms like "the example I shared" or by timing. ' +
     'Ask if they had a chance to see it. Then ask if there is a better person on their team to speak with, or if it is worth closing the loop. No pressure. ' +
     'Do NOT say this is the last time or final message. Leave the door open. Do not assume they replied or engaged. Every sentence under 20 words. One idea per sentence. ' +
     'Always write words out in full — never abbreviate. Only exceptions are proper nouns and brand names. Never reference problem numbers. ' +
@@ -2298,7 +2306,7 @@ function stripSignOff(text){
 function fixAssumedOpener(text, firstName){
   // Only strip the single bad sentence — not the whole paragraph
   // Targets: "That [topic] you mentioned/you're navigating/is exactly what..."
-  const badSentence = /^That [^.!?]*(you mentioned|you're navigating|you are navigating|is exactly what|I wanted to follow up on)[^.!?]*[.!?]/i;
+  const badSentence = /^That [^.!?]*(you mentioned|you might be facing|you're navigating|you are navigating|you may be facing|is exactly what|I wanted to follow up on)[^.!?]*[.!?]/i;
   if(badSentence.test(text)){
     // Only remove the bad sentence itself — stop at the first period
     text = text.replace(badSentence, '').replace(/^[\s\n]+/, '');
@@ -2520,7 +2528,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Write exactly two short sentences. Under 20 words total. ' +
     'Focus this message on: ' + t1Angle + '. ' +
     'CRITICAL STRUCTURE RULE: The sentence must flow naturally from start to finish as one grammatical unit. Do NOT insert the person name mid-sentence after a comma — this produces broken output like "Leading Motivair strategy, Rich, hoping to connect" which is unacceptable. If you use the name, put it only at the very beginning: "Rich, ..." — never in the middle. ' +
-    'Be specific — generic observations like "strategic direction", "impressive work", or "fascinating space" that could apply to anyone are not acceptable. Reference what this specific person actually does, leads, or has built. ' +
+    'Be specific — generic observations like "strategic direction", "impressive work", "fascinating space", "no small feat", "complex undertaking", or any phrase that sounds like a compliment are not acceptable. Reference what this specific person actually does, leads, or has built in concrete terms. ' +
     'If no profile is provided, use their title and company to write something concrete and specific — do not use vague category language. ' +
     'The message is TWO parts: (1) one short observation about them, (2) the connection ask. Write them as two separate sentences — not joined with "and". Example structure: "Rich, what you are building at Motivair is interesting. I would love to connect." The close must be its own standalone sentence. Pick the close from: "I would love to connect.", "I would like to connect.", "Hoping to connect.", "Thought I would reach out.". Never join the observation and close with "and". ' +
     'No flattery, no problem framing, no pitch, no Smart Spatial, no dashes. ' +
@@ -2672,8 +2680,9 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     (prevHistory ? 'Previous messages YOU sent (assume no prospect reply unless noted): ' + prevHistory.substring(0, 800) + '. ' : '') +
     'The specific example shared in T4 was: ' + t4Label + '. Reference this exact example by name, not any other. ' +
     'This is a SOFT ASK message — a temperature check, not a meeting request. ' +
-    'Sentence 1: Ask if they had a chance to look at the example. Reference it by name using the exact label provided above. ' +
-    'Sentence 2: Ask if it resonated or if there is something here worth exploring further. Do NOT ask for a call or meeting — that comes in the next touch. Keep it genuinely low commitment. ' +
+    'Vary the phrasing on every generation — do not always use "Did you get a chance" or "Did it resonate". Use different openers like "Wanted to follow up on", "Curious if you had a moment to", "Any thoughts on", "Did any of that land for you", "Wondering if" etc. ' +
+    'Sentence 1: Check if they saw the example. Reference it by name. Use varied phrasing — not always the same opener. Do NOT reference timing like "last week" or "recently" — you do not know when they will read this. Just reference the example by name. ' +
+    'Sentence 2: A soft low-commitment follow-up question — stay anchored to the specific problem of explaining or demonstrating complex products to buyers. Do NOT ask generic questions like "what is your team working on" or "does it apply to your work". Instead tie it to the pain: Examples: "Curious if the explanation challenge resonates with how your team takes products to market.", "Did any of it feel relevant to how your team demonstrates what you do to buyers?", "Anything there that maps to how you show complex technology to customers?", "Did it spark any thoughts on the demo or explanation side?" Vary the phrasing each time. Do NOT ask for a call or meeting — that comes in T6. ' +
     'Do not re-explain the problem or re-introduce Smart Spatial — that was T3 and T4. The only job here is to check if the example landed. No meeting ask — that comes in T6. No new proof links. No pitch. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Plain conversational language. Every sentence under 20 words. One idea per sentence. ' +
     'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
   const t4Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
@@ -2717,10 +2726,11 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     '1. Solutions hard to explain. 2. Messaging inconsistent. 3. Weak differentiation. 4. Selling complexity takes too much effort. 5. Demos do not scale. 6. Buyer engagement drops between meetings. 7. Trade shows and site tours are expensive. 8. No shared storytelling system. 9. Marketing content does not drive sales. ' +
     'IMPORTANT: Do not assume the prospect replied to T2 unless their reply appears in the touch history notes. Do not write as if they shared something or responded — they likely did not. ' +
     'This is a PAIN EXPANSION message. Use their first name naturally somewhere in the message. Deepen the specific pain from T2 — share it as something you personally keep noticing, not as a proclamation or industry declaration. Write as if you are a peer sharing an observation, not a consultant presenting a problem. Do not introduce proof, examples, or Smart Spatial. Do not ask a new question that ignores T2. ' +
+    'IMPORTANT: When connecting the pain to their specific company, use soft language like "I imagine that carries into how your team works" or "I would guess that shows up at a company like yours" — never assert specific characteristics of their product, customers, or internal processes as facts. You do not know the details of how they operate. ' +
     'End with one curious question that deepens the T2 thread — frame it as genuine interest, not a challenge. The question should feel like it is genuinely inviting a reply, not rhetorical. Make it specific to their role or company so it is easy to answer. ' +
     'No Smart Spatial. No proof links. Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering, instead of POC write pilot or trial, instead of SA or SE write technical rep. This applies to subject lines too. Only exceptions are proper nouns and brand names. Never reference problem numbers. Plain conversational language. Use I when referring to your own actions (I shared, I noticed, I work with). Use we only when referring to Smart Spatial as a company (Smart Spatial has been seeing, we at Smart Spatial). Never use we to refer to yourself as an individual. ' +
-    'SENTENCE LENGTH: Every sentence must be under 20 words. If a sentence runs long, split it into two. Never stack multiple ideas into one sentence with commas. One idea per sentence. ' +
-    'Format: separate each thought with a blank line. ' +
+    'HARD LIMIT: 3 sentences maximum in the body — not 3 paragraphs, exactly 3 sentences total. Count them. If you have written more than 3 sentences, delete until you have exactly 3. One idea per sentence, under 20 words each. ' +
+    'Format: separate each sentence with a blank line. ' +
     'Return only the message text with a subject line on the first line starting with SUBJECT:.';
   const t8Prompt = 'Write a 3-sentence LinkedIn InMail to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
@@ -2733,7 +2743,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Persona anchors: Sales/Commercial = 1,3,4,5,6. Product Marketing = 2,3,8,9. Marketing = 2,7,9. Technical = 1,4,5. Sales Enablement = 1,2,4,5,8. ' +
     'This is a PROBLEM AWARENESS message. ' +
     'Open by using their first name naturally — like the start of a message to a peer, not a formal letter. ' +
-    'Then share ONE buyer problem as a casual personal observation — something you keep noticing, not a market trend declaration. Write it the way you would say it to a colleague over coffee, not the way a consultant would open a presentation. ' +
+    'Then share ONE buyer problem as a casual personal observation — something you keep noticing, not a market trend declaration. Write it the way you would say it to a colleague over coffee, not the way a consultant would open a presentation. When connecting to their specific company, use soft language like "I imagine that shows up at a company like yours" — never assert specifics about their products, customers, or internal processes as facts. ' +
     'End with a short curious question asking if they run into it — tie it to their specific role or company. ' +
     'NO Smart Spatial. NO proof links. NO meeting ask. NO pitch. NO industry proclamations. NO thought leadership openers. ' +
     'Always write words out in full — never abbreviate. Instead of BD write business development, instead of ROI write return on investment, instead of AEC write architecture and engineering. Only exceptions are proper nouns and brand names. ' +
@@ -2746,20 +2756,26 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
   const t7Prompt = 'Write a 2-sentence LinkedIn breakup message to ' + l.first + ' ' + l.last + ' at ' + l.company + '. ' +
     (t6Msg ? 'The previous message (T6) said: ' + t6Msg.substring(0,300) + '. You must use completely different wording, sentence structure, and framing. Do not paraphrase it. ' : '') +
     (referralMode ? referralHeader : '') +
-    'Graceful close. Reference the example shared if relevant but in fresh language. Leave the door open. No guilt, no pressure. No abbreviations. Every sentence under 20 words. ' +
-    'Do NOT say this is the final time, last message, one final time, or anything that signals this is the last outreach. Just close naturally as if the conversation might continue. ' +
-    'Do NOT assume the prospect engaged, considered, or took time to review anything — they likely never replied. Do not say I appreciate your time or thank them for considering. Acknowledge the silence naturally without making assumptions about what they did. ' +
-    'Do not refer to previous messages as a note. Say I reached out, I shared an example, or I have been in touch instead. ' +
-    'Always end with a light referral ask — ask if there is someone else on their team who would be a better person to talk to. Keep it natural, not pushy. ' +
-    'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
+    'This is a SOFT BREAKUP message. Tone is casual, warm, easy-going. Sound like timing is the only variable — not that you are ending anything formally. ' +
+    'Structure: one sentence acknowledging that timing may not be right, one sentence with a light referral ask. That is it. Two sentences maximum. ' +
+    'The timing sentence should feel natural and low-key — addressed to the person, not the company. Start with the name, then a soft personal observation about timing. Example: "Manoj, seems like the timing is not right for now — happy to reconnect when it makes more sense." Do NOT say "timing may not be right at [company]" — you are talking to him, not the company. Do NOT start with "If" — lead with a soft statement, not a conditional. ' +
+    'The referral ask should be light and optional. Example: "If someone at Ampure would be a better fit for this conversation, I would love an introduction." ' +
+    'NEVER write: "wrapping up my outreach", "closing the loop on my outreach", "closing out", "I have been in touch", "no worries", "no action needed", "no pressure", "I appreciate your time", "last message", "final outreach", "one last time", or anything that counts attempts, sounds formal, or implies a business process ending. ' +
+    'Do NOT say this is final or last. Do NOT reference what the prospect did or did not do. Do NOT assume they considered anything. ' +
+    'If referencing the example shared, name the company specifically — never say "the example" without the company name. ' +
+    'Subject line: short and neutral — something like "Quick question", "Timing", or a reference to the example by company name. Never say "last time", "final", or "closing". ' +
+    'Every sentence under 20 words. No abbreviations. Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
   const t6Prompt = 'Write a 2-3 sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
     (prevHistory ? 'Previous messages YOU sent (assume no prospect reply unless noted): ' + prevHistory.substring(0, 800) + '. ' : '') +
     (referralMode ? referralHeader : '') +
     'This is a MEETING REQUEST message. Ask for one specific low-commitment next step — a quick 20-minute call. ' +
-    'Tie the ask directly to the specific example or proof shared in T4 or T5 — reference it by name if possible. Do not re-introduce Smart Spatial or re-explain what it does from scratch. ' +
+    'NEVER invent context that did not happen — do not say "I know I never finished my last thought", "apologies for", "I realize I left off", or any fabricated narrative about prior messages. Acknowledge the conversation simply and move to the ask. ' +
+    'NEVER assert what challenges the prospect faces — you do not know unless they told you. Do not write "your team faces", "the complexity you deal with", "the challenges you are seeing", or any statement that assumes their situation. Reference the proof example and make the ask — that is all. ' +
+    'Tie the ask directly to the specific example or proof shared in T4 or T5 — reference it by the company name (e.g. "the Schneider Electric example", "the HPE example"). Never use generic terms like "the example", "the video", or "infrastructure visualization" without naming the company. ' +
     'Frame the call as an exchange of ideas or exploring fit — never as a product demo or presentation. Example: "Would a quick 20-minute call make sense to explore whether this could work for your team?" not "I would love to show you how our platform works." ' +
     'Short and direct. No pitch. No oversell. No new proof links. Every sentence under 20 words. One idea per sentence. ' +
+    'Vary the phrasing every time — do not default to the same opener or structure. Different ways to open: reference the example by name, reference the problem raised earlier, or simply make the ask directly. Never repeat the same sentence pattern across regenerations. ' +
     'Always write words out in full — never abbreviate. Only exceptions are proper nouns and brand names. Never reference problem numbers. ' +
     'Return only the message text with a subject line on the first line starting with SUBJECT:. Nothing else.';
   const t8StatusForT9 = statuses.find(s=>s.status==='done'&&s.touch===8);
@@ -2789,7 +2805,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'Today is ' + todayStr + '. ' +
     (referralMode ? referralHeader : '') +
     (prevHistory ? 'Touch history: ' + prevHistory.substring(0, 800) + '. ' : '') +
-    'This is a BREAKUP / REFERRAL message. Briefly reference the example or video shared earlier in the touch history if there is one — reference it by name, not by timing. ' +
+    'This is a BREAKUP / REFERRAL message. Briefly reference the example or video shared earlier in the touch history if there is one — reference it by the company name (e.g. "the Schneider Electric example", "the DDC example") not vague terms like "the example I shared" or by timing. ' +
     'Ask if they had a chance to see it. Then ask if there is a better person on their team to speak with, or if it is worth closing the loop. No pressure. ' +
     'Do NOT say this is the last time or final message. Leave the door open. Do not assume they replied or engaged. Every sentence under 20 words. One idea per sentence. ' +
     'Always write words out in full — never abbreviate. Only exceptions are proper nouns and brand names. Never reference problem numbers. ' +
