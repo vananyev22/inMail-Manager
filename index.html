@@ -3137,7 +3137,18 @@ function parseCSVFull(text){
 // ── Stage filter options ────────────────────────────────────────────
 document.getElementById('add-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeAddModal();});
 document.getElementById('api-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeApiModal();});
-document.getElementById('log-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeLogModal();});
+document.getElementById('log-modal').addEventListener('mousedown',e=>{
+  // Track where mousedown started — only close if both mousedown and mouseup are on the background
+  if(e.target===e.currentTarget) e.currentTarget._bgMousedown=true;
+  else e.currentTarget._bgMousedown=false;
+});
+document.getElementById('log-modal').addEventListener('click',e=>{
+  if(e.target===e.currentTarget && e.currentTarget._bgMousedown){
+    const sel=window.getSelection();
+    if(sel&&sel.toString().length>0) return;
+    closeLogModal();
+  }
+});
 
 renderStats();renderLeads();setView('pipeline');updateApiKeyStatus();
 </script>
