@@ -1922,7 +1922,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'HARD LIMIT: exactly 2 sentences. Return only the 2-sentence message. Nothing else.';
   const t9StatusForT10 = statuses.find(s=>s.status==='done'&&s.touch===9);
   const t9MsgForT10 = (t9StatusForT10?.msg||'') + ' ' + (t9StatusForT10?.notes||'');
-  // Extract company name from T9 proof link for specific reference
+  // Proof name map — YouTube ID to company label
   const proofNameMap = {
     'SerOifwyF1Y':'the Micron example',
     'rLw8tOnfbMM':'the Schneider Electric POD example',
@@ -1932,24 +1932,38 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'gzyUxTcJGbM':'the PNY example',
     'GVS0AHAgFyU':'the Schneider Electric AI Factory example'
   };
-  const t9LinkMatchForT10 = t9MsgForT10.match(/youtu\.be\/([\w-]+)/);
-  // Also try to identify example by company name mention in manually typed messages
+  // Scan ALL touch messages and notes for any YouTube proof link — most recently sent wins
+  // This catches manually logged touches where the URL was pasted but company name not typed
+  function findProofNameFromAllTouches(statuses){
+    const proofTouches = [9,11,4,8]; // priority order: visual proof touches first
+    for(const t of proofTouches){
+      const s = statuses.find(x=>x.status==='done'&&x.touch===t);
+      if(!s) continue;
+      const combined = (s.msg||'') + ' ' + (s.notes||'');
+      const m = combined.match(/youtu\.be\/([\w-]+)/);
+      if(m && proofNameMap[m[1]]) return proofNameMap[m[1]];
+    }
+    return null;
+  }
   function detectProofNameFromText(text){
     const t = text.toLowerCase();
     if(t.includes('micron')) return 'the Micron example';
     if(t.includes('zutacore')) return 'the ZutaCore example';
     if(t.includes('ddc')) return 'the DDC example';
     if(t.includes('pny')) return 'the PNY example';
-    if(t.includes('hpe') || t.includes('hewlett')) return 'the HPE example';
-    if(t.includes('ai factory') || t.includes('ai factory')) return 'the Schneider Electric AI Factory example';
+    if(t.includes('hpe') || t.includes('hewlett') || t.includes('hp enterprise')) return 'the HPE example';
+    if(t.includes('ai factory')) return 'the Schneider Electric AI Factory example';
     if(t.includes('schneider') || t.includes('ecostruxure') || t.includes('pod')) return 'the Schneider Electric POD example';
-    return 'the example I shared';
+    return null;
   }
-  // If T9 is done: try URL match first, then text match, then generic fallback
+  // Resolution order: URL in T9 → text in T9 → scan all touch history → generic fallback
+  const t9LinkMatchForT10 = t9MsgForT10.match(/youtu\.be\/([\w-]+)/);
   const t9ProofName = t9StatusForT10
-    ? (t9LinkMatchForT10
-        ? (proofNameMap[t9LinkMatchForT10[1]] || detectProofNameFromText(t9MsgForT10))
-        : detectProofNameFromText(t9MsgForT10))
+    ? (t9LinkMatchForT10 && proofNameMap[t9LinkMatchForT10[1]]
+        ? proofNameMap[t9LinkMatchForT10[1]]
+        : (detectProofNameFromText(t9MsgForT10)
+            || findProofNameFromAllTouches(statuses)
+            || 'the example I shared'))
     : '';
   const t10Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
@@ -2558,7 +2572,7 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'HARD LIMIT: exactly 2 sentences. Return only the 2-sentence message. Nothing else.';
   const t9StatusForT10 = statuses.find(s=>s.status==='done'&&s.touch===9);
   const t9MsgForT10 = (t9StatusForT10?.msg||'') + ' ' + (t9StatusForT10?.notes||'');
-  // Extract company name from T9 proof link for specific reference
+  // Proof name map — YouTube ID to company label
   const proofNameMap = {
     'SerOifwyF1Y':'the Micron example',
     'rLw8tOnfbMM':'the Schneider Electric POD example',
@@ -2568,24 +2582,38 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     'gzyUxTcJGbM':'the PNY example',
     'GVS0AHAgFyU':'the Schneider Electric AI Factory example'
   };
-  const t9LinkMatchForT10 = t9MsgForT10.match(/youtu\.be\/([\w-]+)/);
-  // Also try to identify example by company name mention in manually typed messages
+  // Scan ALL touch messages and notes for any YouTube proof link — most recently sent wins
+  // This catches manually logged touches where the URL was pasted but company name not typed
+  function findProofNameFromAllTouches(statuses){
+    const proofTouches = [9,11,4,8]; // priority order: visual proof touches first
+    for(const t of proofTouches){
+      const s = statuses.find(x=>x.status==='done'&&x.touch===t);
+      if(!s) continue;
+      const combined = (s.msg||'') + ' ' + (s.notes||'');
+      const m = combined.match(/youtu\.be\/([\w-]+)/);
+      if(m && proofNameMap[m[1]]) return proofNameMap[m[1]];
+    }
+    return null;
+  }
   function detectProofNameFromText(text){
     const t = text.toLowerCase();
     if(t.includes('micron')) return 'the Micron example';
     if(t.includes('zutacore')) return 'the ZutaCore example';
     if(t.includes('ddc')) return 'the DDC example';
     if(t.includes('pny')) return 'the PNY example';
-    if(t.includes('hpe') || t.includes('hewlett')) return 'the HPE example';
-    if(t.includes('ai factory') || t.includes('ai factory')) return 'the Schneider Electric AI Factory example';
+    if(t.includes('hpe') || t.includes('hewlett') || t.includes('hp enterprise')) return 'the HPE example';
+    if(t.includes('ai factory')) return 'the Schneider Electric AI Factory example';
     if(t.includes('schneider') || t.includes('ecostruxure') || t.includes('pod')) return 'the Schneider Electric POD example';
-    return 'the example I shared';
+    return null;
   }
-  // If T9 is done: try URL match first, then text match, then generic fallback
+  // Resolution order: URL in T9 → text in T9 → scan all touch history → generic fallback
+  const t9LinkMatchForT10 = t9MsgForT10.match(/youtu\.be\/([\w-]+)/);
   const t9ProofName = t9StatusForT10
-    ? (t9LinkMatchForT10
-        ? (proofNameMap[t9LinkMatchForT10[1]] || detectProofNameFromText(t9MsgForT10))
-        : detectProofNameFromText(t9MsgForT10))
+    ? (t9LinkMatchForT10 && proofNameMap[t9LinkMatchForT10[1]]
+        ? proofNameMap[t9LinkMatchForT10[1]]
+        : (detectProofNameFromText(t9MsgForT10)
+            || findProofNameFromAllTouches(statuses)
+            || 'the example I shared'))
     : '';
   const t10Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
