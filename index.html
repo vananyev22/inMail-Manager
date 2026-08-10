@@ -598,6 +598,19 @@ a:hover{text-decoration:underline}
     <div class="form-row"><label>Notes</label>
       <textarea id="lt-notes" style="height:60px" placeholder="Outcome, observations…"></textarea>
     </div>
+    <div class="form-row" id="proof-select-row" style="display:none">
+      <label>Which example did you share?</label>
+      <select id="lt-proof-id" style="width:100%">
+        <option value="">— Not specified —</option>
+        <option value="rLw8tOnfbMM">Schneider Electric POD</option>
+        <option value="J_65fPoSApM">DDC</option>
+        <option value="ylhJsnPgj1I">HPE</option>
+        <option value="SerOifwyF1Y">Micron</option>
+        <option value="RnsRvIh8UPo">ZutaCore</option>
+        <option value="gzyUxTcJGbM">PNY</option>
+        <option value="GVS0AHAgFyU">Schneider Electric AI Factory</option>
+      </select>
+    </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeLogModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveTouch()"><i class="ti ti-check"></i> Save touch</button>
@@ -1444,6 +1457,7 @@ function editTouch(lid,tnum){
   if(unlockBtn) unlockBtn.style.display=isExisting?'':'none';
   document.getElementById('lt-msg').value=t?.msg||'';
   document.getElementById('lt-notes').value=t?.notes||'';
+  if(document.getElementById('lt-proof-id')) document.getElementById('lt-proof-id').value=t?.proofId||'';
   updateReferralUI(leads.find(x=>x.id===lid));
 }
 
@@ -1465,6 +1479,9 @@ function setLogTouchNum(val){
   if(msgRow) msgRow.style.display = isT0 ? 'none' : '';
   const btn=document.getElementById('log-gen-btn');
   if(btn) btn.style.display = isT0 ? 'none' : '';
+  // Show proof selector only for touches where a proof example is shared
+  const proofRow = document.getElementById('proof-select-row');
+  if(proofRow) proofRow.style.display = (+val===4||+val===9||+val===11) ? '' : 'none';
   // Reset generated result when switching
   const res=document.getElementById('log-gen-result');
   if(res) res.style.display='none';
@@ -1485,6 +1502,7 @@ function openLogModal(){
   if(unlockBtn) unlockBtn.style.display='none';
   document.getElementById('lt-msg').value='';
   document.getElementById('lt-notes').value='';
+  if(document.getElementById('lt-proof-id')) document.getElementById('lt-proof-id').value='';
   updateReferralUI(l);
 }
 
@@ -1535,6 +1553,7 @@ function quickLog(id,tn){
   if(unlockBtn2) unlockBtn2.style.display='none';
   document.getElementById('lt-msg').value='';
   document.getElementById('lt-notes').value='';
+  if(document.getElementById('lt-proof-id')) document.getElementById('lt-proof-id').value='';
   updateReferralUI(leads.find(x=>x.id===id));
 }
 
@@ -1550,7 +1569,9 @@ function saveTouch(){
   const existingDate = l.touches[num]?.date;
   const dtField = document.getElementById('lt-dt');
   const finalDate = (existingDate && dtField.readOnly) ? existingDate : dt;
+  const proofId = document.getElementById('lt-proof-id')?.value||'';
   l.touches[num]={date:finalDate, msg, notes};
+  if(proofId) l.touches[num].proofId=proofId;
   if(num>=2&&num<=7) l.pipeline='connected';
   save();closeLogModal();renderStats();renderLeads();
   if(selId===l.id) renderTimeline();
@@ -1956,14 +1977,19 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     if(t.includes('schneider') || t.includes('ecostruxure') || t.includes('pod')) return 'the Schneider Electric POD example';
     return null;
   }
-  // Resolution order: URL in T9 → text in T9 → scan all touch history → generic fallback
+  // Resolution order: explicit proofId → URL in msg → text in msg → scan all touches → generic
+  const t9ExplicitProofId = t9StatusForT10?.proofId||''
+    || (statuses.find(s=>s.status==='done'&&s.touch===4))?.proofId||''
+    || (statuses.find(s=>s.status==='done'&&s.touch===11))?.proofId||'';
   const t9LinkMatchForT10 = t9MsgForT10.match(/youtu\.be\/([\w-]+)/);
   const t9ProofName = t9StatusForT10
-    ? (t9LinkMatchForT10 && proofNameMap[t9LinkMatchForT10[1]]
-        ? proofNameMap[t9LinkMatchForT10[1]]
-        : (detectProofNameFromText(t9MsgForT10)
-            || findProofNameFromAllTouches(statuses)
-            || 'the example I shared'))
+    ? (t9ExplicitProofId && proofNameMap[t9ExplicitProofId]
+        ? proofNameMap[t9ExplicitProofId]
+        : t9LinkMatchForT10 && proofNameMap[t9LinkMatchForT10[1]]
+          ? proofNameMap[t9LinkMatchForT10[1]]
+          : (detectProofNameFromText(t9MsgForT10)
+              || findProofNameFromAllTouches(statuses)
+              || 'the example I shared'))
     : '';
   const t10Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
@@ -2606,14 +2632,19 @@ NOT CONNECTED PIPELINE touches (T0, T1, T8–T12) — these are InMails to prosp
     if(t.includes('schneider') || t.includes('ecostruxure') || t.includes('pod')) return 'the Schneider Electric POD example';
     return null;
   }
-  // Resolution order: URL in T9 → text in T9 → scan all touch history → generic fallback
+  // Resolution order: explicit proofId → URL in msg → text in msg → scan all touches → generic
+  const t9ExplicitProofId = t9StatusForT10?.proofId||''
+    || (statuses.find(s=>s.status==='done'&&s.touch===4))?.proofId||''
+    || (statuses.find(s=>s.status==='done'&&s.touch===11))?.proofId||'';
   const t9LinkMatchForT10 = t9MsgForT10.match(/youtu\.be\/([\w-]+)/);
   const t9ProofName = t9StatusForT10
-    ? (t9LinkMatchForT10 && proofNameMap[t9LinkMatchForT10[1]]
-        ? proofNameMap[t9LinkMatchForT10[1]]
-        : (detectProofNameFromText(t9MsgForT10)
-            || findProofNameFromAllTouches(statuses)
-            || 'the example I shared'))
+    ? (t9ExplicitProofId && proofNameMap[t9ExplicitProofId]
+        ? proofNameMap[t9ExplicitProofId]
+        : t9LinkMatchForT10 && proofNameMap[t9LinkMatchForT10[1]]
+          ? proofNameMap[t9LinkMatchForT10[1]]
+          : (detectProofNameFromText(t9MsgForT10)
+              || findProofNameFromAllTouches(statuses)
+              || 'the example I shared'))
     : '';
   const t10Prompt = 'Write a 3-sentence LinkedIn message to ' + l.first + ' ' + l.last + ', ' + l.title + ' at ' + l.company + '. ' +
     'Today is ' + todayStr + '. ' +
