@@ -736,7 +736,14 @@ function toggleTheme(){
   }
 })();
 
-let leads=JSON.parse(localStorage.getItem('im_v6')||'null')||JSON.parse(JSON.stringify(SEED));
+function normalizeLead(l){
+  if(!l.touches || typeof l.touches!=='object') l.touches={};
+  if(!Array.isArray(l.fitProblems)) l.fitProblems=l.fitProblems||[];
+  return l;
+}
+function normalizeLeads(arr){ return (arr||[]).map(normalizeLead); }
+
+let leads=normalizeLeads(JSON.parse(localStorage.getItem('im_v6')||'null')||JSON.parse(JSON.stringify(SEED)));
 let currentFirstName='';
 let pip='connected',view='pipeline',selId=null;
 
@@ -767,8 +774,8 @@ function initFirebaseSync(){
   if(!fbEnabled){ setSyncStatus('offline'); return; }
   setSyncStatus('syncing');
   leadsRef.once('value').then(function(snap){
-    const remote=snap.val();
-    if(Array.isArray(remote) && remote.length){
+    const remote=normalizeLeads(snap.val());
+    if(remote.length){
       // Cloud already has data — it's the source of truth.
       leads=remote;
       fbLastPushed=JSON.stringify(leads);
@@ -776,7 +783,7 @@ function initFirebaseSync(){
     } else if(leads && leads.length){
       // Cloud is empty but this browser has local data — migrate it up.
       fbLastPushed=JSON.stringify(leads);
-      leadsRef.set(leads);
+      leadsRef.set(leads).catch(function(e){ console.error('Firebase migration write failed', e); setSyncStatus('error'); });
     }
     fbReady=true;
     setSyncStatus('synced');
@@ -784,8 +791,8 @@ function initFirebaseSync(){
     if(selId){renderFit();renderTimeline();}
     // Listen for changes made from other devices/tabs after this point.
     leadsRef.on('value', function(snap2){
-      const remote2=snap2.val();
-      if(!Array.isArray(remote2)) return;
+      const remote2=normalizeLeads(snap2.val());
+      if(!remote2.length) return;
       const json2=JSON.stringify(remote2);
       if(json2===fbLastPushed) return; // our own write echoing back
       fbLastPushed=json2;
@@ -803,7 +810,8 @@ function initFirebaseSync(){
 // ── Pipeline detection ──────────────────────────────────────────────
 function inferPipeline(l){
   // If any T2-T7 is logged → connected
-  for(let i=2;i<=7;i++) if(l.touches[i]?.date) return 'connected';
+  const t=l.touches||{};
+  for(let i=2;i<=7;i++) if(t[i]?.date) return 'connected';
   return l.pipeline||'noconn';
 }
 
@@ -3149,7 +3157,7 @@ function importData(e,type){
     } else {
       try{
         const data=JSON.parse(ev.target.result);
-        if(Array.isArray(data)){leads=data;save();renderStats();renderLeads();alert(`Imported ${data.length} leads.`);}
+        if(Array.isArray(data)){leads=normalizeLeads(data);save();renderStats();renderLeads();alert(`Imported ${data.length} leads.`);}
         else alert('Invalid file format.');
       }catch{alert('Could not parse JSON file.');}
     }
