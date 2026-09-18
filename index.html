@@ -176,6 +176,8 @@ a:hover{text-decoration:underline}
 /* Empty state */
 .empty{padding:48px 20px;text-align:center;color:var(--text3);font-size:13px}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -194,6 +196,7 @@ a:hover{text-decoration:underline}
     <button class="pill-btn" id="pt-snoozed" onclick="setPipeline('snoozed')"><i class="ti ti-alarm" style="font-size:11px"></i> Snoozed</button>
   </div>
   <div class="topbar-right">
+    <span id="sync-status" style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3);margin-right:6px;"><i class="ti ti-cloud-off"></i><span>Offline (local only)</span></span>
     <button class="btn btn-sm btn-icon" onclick="toggleTheme()" id="theme-toggle-btn" title="Toggle light/dark mode"><i class="ti ti-moon" id="theme-icon"></i></button>
     <button class="btn btn-sm" onclick="openApiModal()" id="api-key-btn" title="Set API key"><i class="ti ti-key"></i> <span id="api-key-status">API key</span></button>
     <div class="view-tabs">
@@ -683,6 +686,38 @@ const NC_CADENCE = [
 
 const SEED=[];
 
+// ── Firebase cloud sync ─────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyApBqLXkBUJBT_s2bZdg6GciTMwowxBMDg",
+  authDomain: "smart-spatial-inmail-manager.firebaseapp.com",
+  databaseURL: "https://smart-spatial-inmail-manager-default-rtdb.firebaseio.com",
+  projectId: "smart-spatial-inmail-manager",
+  storageBucket: "smart-spatial-inmail-manager.firebasestorage.app",
+  messagingSenderId: "152208890436",
+  appId: "1:152208890436:web:414a990515516894983a11"
+};
+let fbEnabled=false, leadsRef=null, fbReady=false, fbLastPushed='';
+try{
+  firebase.initializeApp(firebaseConfig);
+  leadsRef = firebase.database().ref('leads');
+  fbEnabled = true;
+}catch(e){ console.warn('Firebase init failed, falling back to local storage only.', e); }
+
+function setSyncStatus(state){
+  // state: 'syncing' | 'synced' | 'offline' | 'error'
+  const el = document.getElementById('sync-status');
+  if(!el) return;
+  const map = {
+    syncing: ['ti-refresh','Syncing…'],
+    synced:  ['ti-cloud-check','Synced'],
+    offline: ['ti-cloud-off','Offline (local only)'],
+    error:   ['ti-alert-triangle','Sync error']
+  };
+  const [icon,label] = map[state]||map.offline;
+  el.innerHTML = `<i class="ti ${icon}"></i><span>${label}</span>`;
+  el.setAttribute('data-state', state);
+}
+
 // ── Theme toggle ────────────────────────────────────────────────────
 function toggleTheme(){
   const isLight = document.body.classList.toggle('light-mode');
@@ -705,7 +740,65 @@ let leads=JSON.parse(localStorage.getItem('im_v6')||'null')||JSON.parse(JSON.str
 let currentFirstName='';
 let pip='connected',view='pipeline',selId=null;
 
-function save(){try{localStorage.setItem('im_v6',JSON.stringify(leads));}catch(e){}}
+function save(){
+  try{localStorage.setItem('im_v6',JSON.stringify(leads));}catch(e){}
+  pushToFirebase();
+}
+
+let fbPushTimer=null;
+function pushToFirebase(){
+  if(!fbEnabled) return;
+  clearTimeout(fbPushTimer);
+  fbPushTimer=setTimeout(function(){
+    const json=JSON.stringify(leads);
+    if(json===fbLastPushed) return;
+    setSyncStatus('syncing');
+    leadsRef.set(leads).then(function(){
+      fbLastPushed=json;
+      setSyncStatus('synced');
+    }).catch(function(e){
+      console.error('Firebase write failed', e);
+      setSyncStatus('error');
+    });
+  }, 400);
+}
+
+function initFirebaseSync(){
+  if(!fbEnabled){ setSyncStatus('offline'); return; }
+  setSyncStatus('syncing');
+  leadsRef.once('value').then(function(snap){
+    const remote=snap.val();
+    if(Array.isArray(remote) && remote.length){
+      // Cloud already has data — it's the source of truth.
+      leads=remote;
+      fbLastPushed=JSON.stringify(leads);
+      try{localStorage.setItem('im_v6',JSON.stringify(leads));}catch(e){}
+    } else if(leads && leads.length){
+      // Cloud is empty but this browser has local data — migrate it up.
+      fbLastPushed=JSON.stringify(leads);
+      leadsRef.set(leads);
+    }
+    fbReady=true;
+    setSyncStatus('synced');
+    renderStats();renderLeads();
+    if(selId){renderFit();renderTimeline();}
+    // Listen for changes made from other devices/tabs after this point.
+    leadsRef.on('value', function(snap2){
+      const remote2=snap2.val();
+      if(!Array.isArray(remote2)) return;
+      const json2=JSON.stringify(remote2);
+      if(json2===fbLastPushed) return; // our own write echoing back
+      fbLastPushed=json2;
+      leads=remote2;
+      try{localStorage.setItem('im_v6',JSON.stringify(leads));}catch(e){}
+      renderStats();renderLeads();
+      if(selId){renderFit();renderTimeline();}
+    });
+  }).catch(function(e){
+    console.error('Firebase read failed', e);
+    setSyncStatus('error');
+  });
+}
 
 // ── Pipeline detection ──────────────────────────────────────────────
 function inferPipeline(l){
@@ -3210,6 +3303,7 @@ document.getElementById('log-modal').addEventListener('click',e=>{
 });
 
 renderStats();renderLeads();setView('pipeline');updateApiKeyStatus();
+initFirebaseSync();
 </script>
 
 </body>
